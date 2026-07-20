@@ -1,0 +1,49 @@
+name: CiviCare CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  server:
+    name: Server - Install & Sanity Check
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: server/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Syntax check entrypoint
+        run: node --check server.js
+
+  client:
+    name: Client - Lint & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: client/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Lint
+        run: npm run lint --if-present
+      - name: Build
+        env:
+          VITE_API_URL: https://civicare-api.onrender.com/api
+          VITE_SOCKET_URL: https://civicare-api.onrender.com
+        run: npm run build
