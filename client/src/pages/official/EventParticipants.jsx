@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiCamera, FiCheckCircle } from 'react-icons/fi';
+import { FiArrowLeft, FiCamera, FiCheckCircle, FiUsers } from 'react-icons/fi';
 import api from '../../utils/api';
-import EmptyState from '../../components/common/EmptyState';
 import Modal from '../../components/common/Modal';
 import QRScanner from '../../components/qr/QRScanner';
-import { CardSkeleton } from '../../components/common/Skeleton';
+import DataTable from '../../components/common/DataTable';
+import Badge from '../../components/common/Badge';
 
 const EventParticipants = () => {
   const { id } = useParams();
@@ -34,49 +34,44 @@ const EventParticipants = () => {
 
   return (
     <div>
-      <Link to="/official/events" className="mb-4 inline-flex items-center gap-1 text-sm text-primary-600 hover:underline">
+      <Link to="/official/events" className="mb-4 inline-flex items-center gap-1 text-sm text-primary-600 transition hover:underline dark:text-primary-400">
         <FiArrowLeft /> Back to Events
       </Link>
 
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Event Participants</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="page-title flex items-center gap-2">
+            <FiUsers className="h-5 w-5 text-primary-600 dark:text-primary-400" /> Event Participants
+          </h1>
+          <p className="page-subtitle">Registered residents and their attendance for this event.</p>
+        </div>
         <button onClick={() => setScannerOpen(true)} className="btn-primary"><FiCamera /> Scan QR for Attendance</button>
       </div>
 
-      {participants === null ? (
-        <CardSkeleton />
-      ) : !participants.length ? (
-        <EmptyState title="No registrations yet" />
-      ) : (
-        <div className="card overflow-x-auto p-5">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b border-gray-100 text-xs uppercase text-gray-400 dark:border-gray-800">
-                <th className="px-3 py-3">Name</th>
-                <th className="px-3 py-3">Contact</th>
-                <th className="px-3 py-3">Attendance</th>
-                <th className="px-3 py-3">Certificate</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-              {participants.map((p) => (
-                <tr key={p._id}>
-                  <td className="px-3 py-3">{p.resident?.firstName} {p.resident?.lastName}</td>
-                  <td className="px-3 py-3">{p.resident?.phone || p.resident?.email}</td>
-                  <td className="px-3 py-3">
-                    {p.attendance.isPresent ? (
-                      <span className="flex items-center gap-1 text-emerald-600"><FiCheckCircle /> Present</span>
-                    ) : (
-                      <span className="text-gray-400">Not checked in</span>
-                    )}
-                  </td>
-                  <td className="px-3 py-3">{p.certificateIssued ? 'Issued' : '-'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <div className="card animate-fadeIn p-5">
+        <DataTable
+          isLoading={participants === null}
+          rows={participants || []}
+          emptyMessage="No one has registered for this event yet."
+          columns={[
+            { header: 'Name', accessor: (p) => <span className="font-medium text-gray-800 dark:text-gray-100">{p.resident?.firstName} {p.resident?.lastName}</span> },
+            { header: 'Contact', accessor: (p) => p.resident?.phone || p.resident?.email },
+            {
+              header: 'Attendance',
+              accessor: (p) =>
+                p.attendance.isPresent ? (
+                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400"><FiCheckCircle /> Present</span>
+                ) : (
+                  <span className="text-gray-400 dark:text-gray-600">Not checked in</span>
+                ),
+            },
+            {
+              header: 'Certificate',
+              accessor: (p) => (p.certificateIssued ? <Badge status="approved">Issued</Badge> : <span className="text-gray-400 dark:text-gray-600">-</span>),
+            },
+          ]}
+        />
+      </div>
 
       <Modal isOpen={scannerOpen} onClose={() => setScannerOpen(false)} title="Scan Resident QR Code">
         <QRScanner onScan={handleScan} />

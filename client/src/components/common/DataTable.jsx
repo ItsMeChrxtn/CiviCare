@@ -12,12 +12,12 @@ const DataTable = ({ columns, rows, isLoading, page, totalPages, onPageChange, e
 
   return (
     <div>
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-800">
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-gray-100 dark:border-gray-800 text-xs uppercase tracking-wide text-gray-400">
+            <tr className="border-b border-gray-100 bg-gray-50/80 text-xs uppercase tracking-wide text-gray-400 dark:border-gray-800 dark:bg-gray-900/60">
               {columns.map((col) => (
-                <th key={col.header} className="px-3 py-3 font-semibold">
+                <th key={col.header} className="px-4 py-3 font-semibold">
                   {col.header}
                 </th>
               ))}
@@ -25,9 +25,9 @@ const DataTable = ({ columns, rows, isLoading, page, totalPages, onPageChange, e
           </thead>
           <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
             {rows.map((row) => (
-              <tr key={row._id} className="transition hover:bg-gray-50 dark:hover:bg-gray-800/50">
+              <tr key={row._id} className="transition-colors duration-150 hover:bg-primary-50/40 dark:hover:bg-primary-500/[0.04]">
                 {columns.map((col) => (
-                  <td key={col.header} className={`px-3 py-3 ${col.className || ''}`}>
+                  <td key={col.header} className={`px-4 py-3.5 ${col.className || ''}`}>
                     {col.accessor(row)}
                   </td>
                 ))}

@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { FiSearch } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import DataTable from '../../components/common/DataTable';
 import Badge from '../../components/common/Badge';
@@ -10,12 +11,19 @@ const Logs = () => {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Audit / System Logs</h1>
-        <input placeholder="Search action or module..." onChange={(e) => updateFilters({ search: e.target.value })} className="input-field w-64" />
+      <div className="page-header">
+        <h1 className="page-title">Audit / System Logs</h1>
+        <p className="page-subtitle">Track system and user activity across the platform.</p>
       </div>
 
-      <div className="card p-5">
+      <div className="card mb-4 flex flex-wrap items-center gap-3 p-4">
+        <div className="relative flex-1 min-w-[220px]">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input placeholder="Search action or module..." onChange={(e) => updateFilters({ search: e.target.value })} className="input-field pl-10" />
+        </div>
+      </div>
+
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}

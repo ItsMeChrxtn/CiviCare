@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiStar } from 'react-icons/fi';
+import { FiStar, FiMessageSquare } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import Modal from '../../components/common/Modal';
@@ -33,20 +33,27 @@ const Feedback = () => {
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">Feedback Management</h1>
+      <div className="page-header">
+        <h1 className="page-title">Feedback Management</h1>
+        <p className="page-subtitle">Review and respond to resident feedback and suggestions.</p>
+      </div>
 
       {isLoading ? (
-        <CardSkeleton />
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
       ) : !rows.length ? (
-        <EmptyState title="No feedback submitted yet" />
+        <EmptyState icon={FiMessageSquare} title="No feedback submitted yet" message="Resident feedback will appear here once submitted." />
       ) : (
         <div className="space-y-4">
           {rows.map((f) => (
-            <div key={f._id} className="card p-5">
+            <div key={f._id} className="card card-hover animate-fadeIn p-5">
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <span className="badge bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 capitalize">{f.category}</span>
-                  <h3 className="mt-2 font-bold">{f.subject}</h3>
+                  <h3 className="mt-2 font-display font-bold text-gray-900 dark:text-gray-50">{f.subject}</h3>
                   <p className="text-xs text-gray-400">{f.isAnonymous ? 'Anonymous' : `${f.submittedBy?.firstName} ${f.submittedBy?.lastName}`} • {format(new Date(f.createdAt), 'MMM d, yyyy')}</p>
                 </div>
                 <Badge status={f.status} />

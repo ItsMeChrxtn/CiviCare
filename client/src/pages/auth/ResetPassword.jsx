@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { motion } from 'framer-motion';
 import api from '../../utils/api';
 
 const ResetPassword = () => {
@@ -19,9 +20,17 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="mx-auto flex min-h-[80vh] max-w-md flex-col justify-center px-4 py-16">
-      <div className="card p-8">
-        <h1 className="text-2xl font-extrabold">Reset Password</h1>
+    <div className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-16">
+      <div className="absolute inset-0 -z-10 bg-radial-fade" />
+      <div className="absolute inset-0 -z-10 bg-grid-slate bg-[length:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_30%,black,transparent)]" />
+
+      <Link to="/" className="mb-6 flex items-center gap-2.5 font-display font-extrabold text-primary-700 dark:text-primary-400">
+        <img src="/favicon.svg" alt="CiviCare" className="h-9 w-9" />
+        <span className="text-xl">CiviCare</span>
+      </Link>
+
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card w-full max-w-md p-8 shadow-card-hover">
+        <h1 className="font-display text-2xl font-extrabold tracking-tight">Reset Password</h1>
         <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Enter your new password below.</p>
 
         <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
@@ -49,11 +58,11 @@ const ResetPassword = () => {
         </form>
 
         <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          <Link to="/login" className="font-semibold text-primary-600 hover:underline">
+          <Link to="/login" className="font-semibold text-primary-600 hover:underline dark:text-primary-400">
             Back to Log In
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

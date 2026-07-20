@@ -30,14 +30,17 @@ const Documents = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Document Requests</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header !mb-0">
+          <h1 className="page-title">My Document Requests</h1>
+          <p className="page-subtitle">Track and request barangay documents.</p>
+        </div>
         <button onClick={() => setIsOpen(true)} className="btn-primary">
           <FiPlus /> Request Document
         </button>
       </div>
 
-      <div className="card p-5">
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}
@@ -59,7 +62,7 @@ const Documents = () => {
       <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Request a Document">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium">Document Type</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Document Type</label>
             <select {...register('type', { required: true })} className="input-field">
               <option value="">Select document</option>
               {DOCUMENT_TYPES.map((d) => (
@@ -69,7 +72,7 @@ const Documents = () => {
             {errors.type && <p className="mt-1 text-xs text-red-500">Please select a document type</p>}
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium">Purpose</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Purpose</label>
             <input placeholder="e.g. Employment requirement" {...register('purpose', { required: true })} className="input-field" />
             {errors.purpose && <p className="mt-1 text-xs text-red-500">Purpose is required</p>}
           </div>

@@ -15,24 +15,36 @@ const VerifyEmail = () => {
   }, [token]);
 
   return (
-    <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 py-16 text-center">
-      {status === 'loading' && <FiLoader className="h-12 w-12 animate-spin text-primary-600" />}
-      {status === 'success' && (
-        <>
-          <FiCheckCircle className="h-16 w-16 text-emerald-500" />
-          <h1 className="mt-4 text-2xl font-bold">Email Verified!</h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Your account is now active. You may log in.</p>
-          <Link to="/login" className="btn-primary mt-6">Go to Login</Link>
-        </>
-      )}
-      {status === 'error' && (
-        <>
-          <FiXCircle className="h-16 w-16 text-red-500" />
-          <h1 className="mt-4 text-2xl font-bold">Verification Failed</h1>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This link is invalid or has expired.</p>
-          <Link to="/login" className="btn-secondary mt-6">Back to Login</Link>
-        </>
-      )}
+    <div className="relative flex min-h-[75vh] flex-col items-center justify-center overflow-hidden px-4 py-16 text-center">
+      <div className="absolute inset-0 -z-10 bg-radial-fade" />
+      <div className="card w-full max-w-md animate-scaleIn p-10">
+        {status === 'loading' && (
+          <>
+            <FiLoader className="mx-auto h-12 w-12 animate-spin text-primary-600" />
+            <p className="mt-4 text-sm text-gray-500 dark:text-gray-400">Verifying your email…</p>
+          </>
+        )}
+        {status === 'success' && (
+          <>
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+              <FiCheckCircle className="h-9 w-9" />
+            </div>
+            <h1 className="mt-4 font-display text-2xl font-bold tracking-tight">Email Verified!</h1>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Your account is now active. You may log in.</p>
+            <Link to="/login" className="btn-primary mt-6">Go to Login</Link>
+          </>
+        )}
+        {status === 'error' && (
+          <>
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+              <FiXCircle className="h-9 w-9" />
+            </div>
+            <h1 className="mt-4 font-display text-2xl font-bold tracking-tight">Verification Failed</h1>
+            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">This link is invalid or has expired.</p>
+            <Link to="/login" className="btn-secondary mt-6">Back to Login</Link>
+          </>
+        )}
+      </div>
     </div>
   );
 };

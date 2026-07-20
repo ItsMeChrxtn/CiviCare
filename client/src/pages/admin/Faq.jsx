@@ -45,24 +45,27 @@ const Faq = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">FAQ Manager</h1>
-        <button onClick={() => setIsOpen(true)} className="btn-primary"><FiPlus /> Add FAQ</button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header mb-0">
+          <h1 className="page-title">FAQ Manager</h1>
+          <p className="page-subtitle">Manage frequently asked questions shown to residents.</p>
+        </div>
+        <button onClick={() => setIsOpen(true)} className="btn-primary shrink-0"><FiPlus /> Add FAQ</button>
       </div>
 
       {faqs === null ? (
         <CardSkeleton />
       ) : !faqs.length ? (
-        <EmptyState title="No FAQs yet" />
+        <EmptyState title="No FAQs yet" message="Add a question to help residents find answers faster." />
       ) : (
-        <div className="card divide-y divide-gray-100 dark:divide-gray-800">
+        <div className="card animate-fadeIn divide-y divide-gray-100 dark:divide-gray-800">
           {faqs.map((f, i) => (
-            <div key={i} className="flex items-start justify-between gap-3 p-4">
-              <div>
+            <div key={i} className="flex items-start justify-between gap-3 p-4 transition-colors duration-150 hover:bg-primary-50/40 dark:hover:bg-primary-500/[0.04]">
+              <div className="min-w-0">
                 <p className="font-semibold">{f.question}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{f.answer}</p>
               </div>
-              <button onClick={() => removeFaq(i)} className="shrink-0 text-red-600"><FiTrash2 /></button>
+              <button onClick={() => removeFaq(i)} className="shrink-0 rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-500/10"><FiTrash2 /></button>
             </div>
           ))}
         </div>

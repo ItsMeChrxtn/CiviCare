@@ -13,10 +13,10 @@ const SERVICES = [
 ];
 
 const Services = () => (
-  <div className="mx-auto max-w-6xl px-4 py-16 lg:px-8">
+  <div className="mx-auto max-w-6xl animate-fadeIn px-4 py-16 lg:px-8">
     <div className="mx-auto max-w-2xl text-center">
-      <span className="badge bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400">Our Services</span>
-      <h1 className="mt-4 text-4xl font-extrabold">Digital Services for Every Resident</h1>
+      <span className="section-eyebrow">Our Services</span>
+      <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight">Digital Services for Every Resident</h1>
       <p className="mt-4 text-gray-500 dark:text-gray-400">
         Everything you need from your barangay, now available online, 24/7.
       </p>
@@ -24,12 +24,12 @@ const Services = () => (
 
     <div className="mt-14 grid grid-cols-1 gap-6 md:grid-cols-2">
       {SERVICES.map((s) => (
-        <div key={s.title} className="card flex gap-4 p-6">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
+        <div key={s.title} className="card card-hover group flex gap-4 p-6">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary-50 text-primary-600 transition-transform duration-300 group-hover:scale-110 dark:bg-primary-500/10 dark:text-primary-400">
             <s.icon className="h-6 w-6" />
           </div>
           <div>
-            <h3 className="mb-1 text-lg font-bold">{s.title}</h3>
+            <h3 className="mb-1 font-display text-lg font-bold tracking-tight">{s.title}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">{s.desc}</p>
             {s.list && (
               <ul className="mt-2 flex flex-wrap gap-2">
@@ -45,7 +45,8 @@ const Services = () => (
       ))}
     </div>
 
-    <div className="mt-14 text-center">
+    <div className="glass-card mt-14 flex flex-col items-center gap-4 p-10 text-center">
+      <p className="font-display text-lg font-semibold tracking-tight">Ready to access these services?</p>
       <Link to="/register" className="btn-primary">
         Create Your Free Account <FiArrowRight />
       </Link>

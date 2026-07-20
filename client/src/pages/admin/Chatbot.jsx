@@ -55,29 +55,31 @@ const Chatbot = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Chatbot Manager</h1>
-        <button onClick={openCreate} className="btn-primary"><FiPlus /> New Topic</button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header mb-0">
+          <h1 className="page-title">Chatbot Manager</h1>
+          <p className="page-subtitle">
+            Manage the rule-based, button-navigation chatbot tree. Leave "Parent Topic" empty to create a top-level menu item.
+          </p>
+        </div>
+        <button onClick={openCreate} className="btn-primary shrink-0"><FiPlus /> New Topic</button>
       </div>
-      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-        Manage the rule-based, button-navigation chatbot tree. Leave "Parent Topic" empty to create a top-level menu item.
-      </p>
 
       {nodes === null ? (
         <CardSkeleton />
       ) : !nodes.length ? (
-        <EmptyState title="No chatbot topics yet" />
+        <EmptyState title="No chatbot topics yet" message="Create a topic to start building the chatbot's conversation tree." />
       ) : (
-        <div className="card divide-y divide-gray-100 dark:divide-gray-800">
+        <div className="card animate-fadeIn divide-y divide-gray-100 dark:divide-gray-800">
           {nodes.map((n) => (
-            <div key={n._id} className="flex items-center justify-between p-4">
-              <div>
+            <div key={n._id} className="flex items-center justify-between gap-3 p-4 transition-colors duration-150 hover:bg-primary-50/40 dark:hover:bg-primary-500/[0.04]">
+              <div className="min-w-0">
                 <p className="font-medium">{n.label} {n.parent && <span className="text-xs text-gray-400">— under "{n.parent.label}"</span>}</p>
                 <p className="line-clamp-1 text-sm text-gray-400">{n.response}</p>
               </div>
-              <div className="flex gap-3">
-                <button onClick={() => openEdit(n)} className="text-primary-600"><FiEdit2 /></button>
-                <button onClick={() => deleteNode(n._id)} className="text-red-600"><FiTrash2 /></button>
+              <div className="flex shrink-0 gap-3">
+                <button onClick={() => openEdit(n)} className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 dark:hover:bg-primary-500/10"><FiEdit2 /></button>
+                <button onClick={() => deleteNode(n._id)} className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-500/10"><FiTrash2 /></button>
               </div>
             </div>
           ))}

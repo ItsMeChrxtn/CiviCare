@@ -15,7 +15,7 @@ const Topbar = ({ onMenuClick }) => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-100 bg-white/90 px-4 py-3 backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 lg:px-6">
+    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-gray-100 bg-white/90 px-4 py-3 shadow-sm shadow-gray-900/[0.02] backdrop-blur dark:border-gray-800 dark:bg-gray-900/90 lg:px-6">
       <button onClick={onMenuClick} className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden">
         <FiMenu className="h-5 w-5" />
       </button>
@@ -41,7 +41,7 @@ const Topbar = ({ onMenuClick }) => {
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 mt-2 w-80 rounded-2xl border border-gray-100 bg-white p-2 shadow-soft dark:border-gray-800 dark:bg-gray-900">
+            <div className="absolute right-0 mt-2 w-80 animate-scaleIn origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-card-hover dark:border-gray-800 dark:bg-gray-900">
               <div className="flex items-center justify-between px-2 py-1">
                 <p className="font-semibold">Notifications</p>
                 <button onClick={markAllAsRead} className="text-xs text-primary-600 hover:underline">
@@ -77,9 +77,9 @@ const Topbar = ({ onMenuClick }) => {
         <div className="relative">
           <button onClick={() => setShowUserMenu((v) => !v)} className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800">
             {user?.avatar?.url ? (
-              <img src={user.avatar.url} alt="Avatar" className="h-8 w-8 rounded-full object-cover" />
+              <img src={user.avatar.url} alt="Avatar" className="h-8 w-8 rounded-full object-cover ring-2 ring-primary-500/20" />
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-primary-700 text-white shadow-soft">
                 <FiUser className="h-4 w-4" />
               </div>
             )}
@@ -87,7 +87,7 @@ const Topbar = ({ onMenuClick }) => {
           </button>
 
           {showUserMenu && (
-            <div className="absolute right-0 mt-2 w-48 rounded-2xl border border-gray-100 bg-white p-2 shadow-soft dark:border-gray-800 dark:bg-gray-900">
+            <div className="absolute right-0 mt-2 w-48 animate-scaleIn origin-top-right rounded-2xl border border-gray-100 bg-white p-2 shadow-card-hover dark:border-gray-800 dark:bg-gray-900">
               <Link
                 to={`/${user?.role}/profile`}
                 onClick={() => setShowUserMenu(false)}

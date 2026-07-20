@@ -73,29 +73,50 @@ const Events = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Event Management</h1>
+      <div className="page-header flex-row items-center justify-between gap-3">
+        <div>
+          <h1 className="page-title">Event Management</h1>
+          <p className="page-subtitle">Create, edit, and archive barangay events.</p>
+        </div>
         <button onClick={openCreate} className="btn-primary"><FiPlus /> New Event</button>
       </div>
 
-      <div className="card p-5">
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}
           totalPages={meta.totalPages}
           onPageChange={setPage}
           columns={[
-            { header: 'Title', accessor: (r) => r.title },
+            { header: 'Title', accessor: (r) => <span className="font-medium text-gray-800 dark:text-gray-100">{r.title}</span> },
             { header: 'Location', accessor: (r) => r.location },
             { header: 'Start Date', accessor: (r) => format(new Date(r.startDate), 'MMM d, yyyy h:mm a') },
             { header: 'Status', accessor: (r) => <Badge status={r.status} /> },
             {
               header: 'Actions',
               accessor: (r) => (
-                <div className="flex gap-3">
-                  <Link to={`/official/events/${r._id}/participants`} className="text-primary-600 hover:underline"><FiUsers /></Link>
-                  <button onClick={() => openEdit(r)} className="text-primary-600 hover:underline"><FiEdit2 /></button>
-                  <button onClick={() => setConfirming(r)} className="text-red-600 hover:underline"><FiArchive /></button>
+                <div className="flex items-center gap-1">
+                  <Link
+                    to={`/official/events/${r._id}/participants`}
+                    title="Participants"
+                    className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10"
+                  >
+                    <FiUsers className="h-4 w-4" />
+                  </Link>
+                  <button
+                    onClick={() => openEdit(r)}
+                    title="Edit"
+                    className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10"
+                  >
+                    <FiEdit2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setConfirming(r)}
+                    title="Archive"
+                    className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                  >
+                    <FiArchive className="h-4 w-4" />
+                  </button>
                 </div>
               ),
             },

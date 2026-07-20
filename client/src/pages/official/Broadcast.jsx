@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { FiRadio, FiSend } from 'react-icons/fi';
+import { FiRadio, FiSend, FiCheckCircle } from 'react-icons/fi';
 import api from '../../utils/api';
 
 const CHANNELS = [
@@ -27,15 +27,17 @@ const Broadcast = () => {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-6 flex items-center gap-2">
-        <FiRadio className="h-6 w-6 text-primary-600" />
-        <h1 className="text-2xl font-bold">Broadcast / Emergency Alert</h1>
+      <div className="page-header items-center text-center sm:items-start sm:text-left">
+        <div className="mb-1 flex h-12 w-12 items-center justify-center self-center rounded-2xl bg-red-100 text-red-600 dark:bg-red-500/10 dark:text-red-400 sm:self-start">
+          <FiRadio className="h-6 w-6" />
+        </div>
+        <h1 className="page-title">Broadcast / Emergency Alert</h1>
+        <p className="page-subtitle">
+          Send an urgent, standalone alert to all residents - separate from a full Announcement post.
+        </p>
       </div>
-      <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-        Send an urgent, standalone alert to all residents - separate from a full Announcement post.
-      </p>
 
-      <div className="card p-6">
+      <div className="card animate-fadeIn p-6">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label className="mb-1 block text-sm font-medium">Title</label>
@@ -60,8 +62,13 @@ const Broadcast = () => {
       </div>
 
       {lastResult && (
-        <div className="card mt-4 p-4 text-sm text-gray-500 dark:text-gray-400">
-          Last broadcast reached <span className="font-semibold text-primary-600">{lastResult.notifiedCount}</span> residents via app.
+        <div className="card animate-slideUp mt-4 flex items-center gap-3 p-4 text-sm text-gray-500 dark:text-gray-400">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+            <FiCheckCircle className="h-4 w-4" />
+          </span>
+          <p>
+            Last broadcast reached <span className="font-semibold text-primary-600 dark:text-primary-400">{lastResult.notifiedCount}</span> residents via app.
+          </p>
         </div>
       )}
     </div>

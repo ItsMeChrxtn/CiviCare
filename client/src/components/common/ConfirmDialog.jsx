@@ -7,11 +7,7 @@ const ConfirmDialog = ({ isOpen, onClose, onConfirm, title = 'Are you sure?', me
       <button onClick={onClose} className="btn-secondary" disabled={loading}>
         Cancel
       </button>
-      <button
-        onClick={onConfirm}
-        disabled={loading}
-        className={`btn-primary ${danger ? '!bg-red-600 hover:!bg-red-700' : ''}`}
-      >
+      <button onClick={onConfirm} disabled={loading} className={danger ? 'btn-danger' : 'btn-primary'}>
         {loading ? 'Please wait...' : confirmLabel}
       </button>
     </div>

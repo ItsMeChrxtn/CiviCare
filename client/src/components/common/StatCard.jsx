@@ -15,15 +15,16 @@ const StatCard = ({ icon: Icon, label, value, color = 'primary', trend }) => (
   <motion.div
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    className="card flex items-center gap-4 p-5"
+    whileHover={{ y: -3 }}
+    className="card group flex items-center gap-4 p-5 hover:shadow-card-hover"
   >
-    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${COLOR_CLASSES[color] || COLOR_CLASSES.primary}`}>
+    <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-105 ${COLOR_CLASSES[color] || COLOR_CLASSES.primary}`}>
       <Icon className="h-6 w-6" />
     </div>
     <div className="min-w-0">
       <p className="truncate text-sm text-gray-500 dark:text-gray-400">{label}</p>
-      <p className="text-2xl font-bold">{value}</p>
-      {trend && <p className="text-xs text-emerald-500">{trend}</p>}
+      <p className="font-display text-2xl font-bold tracking-tight">{value}</p>
+      {trend && <p className="text-xs font-medium text-emerald-500">{trend}</p>}
     </div>
   </motion.div>
 );

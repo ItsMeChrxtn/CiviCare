@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiRotateCcw } from 'react-icons/fi';
+import { FiRotateCcw, FiFilter } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import DataTable from '../../components/common/DataTable';
@@ -42,15 +42,20 @@ const Archive = () => {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Archive System</h1>
+      <div className="page-header">
+        <h1 className="page-title">Archive System</h1>
+        <p className="page-subtitle">Browse and restore archived records across all modules.</p>
+      </div>
+
+      <div className="card mb-6 flex flex-wrap items-center gap-3 p-4">
+        <FiFilter className="h-4 w-4 shrink-0 text-gray-400" />
         <select onChange={(e) => updateFilters({ module: e.target.value || undefined })} className="input-field w-48 capitalize">
           <option value="">All Modules</option>
           {MODULES.map((m) => <option key={m} value={m} className="capitalize">{m}</option>)}
         </select>
       </div>
 
-      <div className="card p-5">
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}
@@ -70,9 +75,9 @@ const Archive = () => {
                   <button
                     onClick={() => handleRestore(r)}
                     disabled={busyId === r._id}
-                    className="flex items-center gap-1 text-sm font-medium text-primary-600 hover:underline"
+                    className="flex items-center gap-1 text-sm font-medium text-primary-600 transition hover:underline disabled:opacity-50 dark:text-primary-400"
                   >
-                    <FiRotateCcw /> Restore
+                    <FiRotateCcw className="h-3.5 w-3.5" /> Restore
                   </button>
                 ),
             },

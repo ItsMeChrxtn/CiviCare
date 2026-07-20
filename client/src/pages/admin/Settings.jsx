@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
+import { FiSettings, FiMessageSquare, FiMail, FiTag } from 'react-icons/fi';
 import api from '../../utils/api';
 import { DOCUMENT_TYPES } from '../../utils/constants';
-import { CardSkeleton } from '../../components/common/Skeleton';
+import PageLoader from '../../components/common/PageLoader';
 
 const TABS = ['general', 'sms', 'email', 'categories'];
+const TAB_ICONS = { general: FiSettings, sms: FiMessageSquare, email: FiMail, categories: FiTag };
 
 const Settings = () => {
   const [tab, setTab] = useState('general');
@@ -40,27 +42,33 @@ const Settings = () => {
     }
   };
 
-  if (!settings) return <CardSkeleton />;
+  if (!settings) return <PageLoader />;
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold">System Settings</h1>
-
-      <div className="mb-6 flex gap-2 border-b border-gray-100 dark:border-gray-800">
-        {TABS.map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`border-b-2 px-4 py-2 text-sm font-medium capitalize transition ${
-              tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600'
-            }`}
-          >
-            {t}
-          </button>
-        ))}
+      <div className="page-header">
+        <h1 className="page-title">System Settings</h1>
+        <p className="page-subtitle">Configure barangay information, notifications, and document fees.</p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="card max-w-2xl space-y-4 p-6">
+      <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-100 dark:border-gray-800">
+        {TABS.map((t) => {
+          const Icon = TAB_ICONS[t];
+          return (
+            <button
+              key={t}
+              onClick={() => setTab(t)}
+              className={`flex items-center gap-2 border-b-2 px-4 py-2 text-sm font-medium capitalize transition ${
+                tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
+              }`}
+            >
+              <Icon className="h-4 w-4" /> {t}
+            </button>
+          );
+        })}
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="card animate-fadeIn max-w-2xl space-y-4 p-6">
         {tab === 'general' && (
           <>
             <div>
@@ -90,7 +98,14 @@ const Settings = () => {
 
         {tab === 'sms' && (
           <>
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('enabled')} className="accent-primary-600" /> Enable SMS notifications (Semaphore)</label>
+            <label className="flex cursor-pointer items-center gap-3 text-sm">
+              <span className="relative inline-flex shrink-0">
+                <input type="checkbox" {...register('enabled')} className="peer sr-only" />
+                <span className="h-6 w-11 rounded-full bg-gray-200 transition-colors duration-200 peer-checked:bg-primary-600 dark:bg-gray-700" />
+                <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 peer-checked:translate-x-5" />
+              </span>
+              Enable SMS notifications (Semaphore)
+            </label>
             <div>
               <label className="mb-1 block text-sm font-medium">Sender Name</label>
               <input {...register('senderName')} className="input-field" />
@@ -101,7 +116,14 @@ const Settings = () => {
 
         {tab === 'email' && (
           <>
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('enabled')} className="accent-primary-600" /> Enable email notifications</label>
+            <label className="flex cursor-pointer items-center gap-3 text-sm">
+              <span className="relative inline-flex shrink-0">
+                <input type="checkbox" {...register('enabled')} className="peer sr-only" />
+                <span className="h-6 w-11 rounded-full bg-gray-200 transition-colors duration-200 peer-checked:bg-primary-600 dark:bg-gray-700" />
+                <span className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200 peer-checked:translate-x-5" />
+              </span>
+              Enable email notifications
+            </label>
             <div>
               <label className="mb-1 block text-sm font-medium">From Name</label>
               <input {...register('fromName')} className="input-field" />
@@ -113,12 +135,14 @@ const Settings = () => {
         {tab === 'categories' && (
           <>
             <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Set the processing fee (PHP) for each document type.</p>
-            {DOCUMENT_TYPES.map((d) => (
-              <div key={d.value} className="flex items-center justify-between gap-3">
-                <label className="text-sm">{d.label}</label>
-                <input type="number" min="0" {...register(d.value)} className="input-field w-32" />
-              </div>
-            ))}
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {DOCUMENT_TYPES.map((d) => (
+                <div key={d.value} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
+                  <label className="text-sm">{d.label}</label>
+                  <input type="number" min="0" {...register(d.value)} className="input-field w-32" />
+                </div>
+              ))}
+            </div>
           </>
         )}
 

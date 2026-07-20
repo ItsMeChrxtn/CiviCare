@@ -60,25 +60,28 @@ const EventDetail = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-16 lg:px-8">
-      <Link to="/events" className="mb-6 inline-flex items-center gap-1 text-sm text-primary-600 hover:underline">
+    <div className="mx-auto max-w-4xl animate-fadeIn px-4 py-16 lg:px-8">
+      <Link
+        to="/events"
+        className="mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10"
+      >
         <FiArrowLeft /> Back to Events
       </Link>
 
       {event.coverImage?.url && (
-        <img src={event.coverImage.url} alt={event.title} className="mb-6 w-full rounded-2xl object-cover" style={{ maxHeight: 360 }} />
+        <img src={event.coverImage.url} alt={event.title} className="mb-6 w-full rounded-2xl object-cover shadow-card" style={{ maxHeight: 360 }} />
       )}
 
       <div className="flex flex-wrap items-center gap-2">
         <span className="badge bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 capitalize">{event.category?.replace(/_/g, ' ')}</span>
         <Badge status={event.status} />
       </div>
-      <h1 className="mt-3 text-3xl font-extrabold">{event.title}</h1>
+      <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight">{event.title}</h1>
 
       <div className="mt-4 flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400">
-        <span className="flex items-center gap-2"><FiCalendar /> {format(new Date(event.startDate), 'MMM d, yyyy, h:mm a')} - {format(new Date(event.endDate), 'h:mm a')}</span>
-        <span className="flex items-center gap-2"><FiMapPin /> {event.location}</span>
-        {event.capacity > 0 && <span className="flex items-center gap-2"><FiUsers /> Capacity: {event.capacity}</span>}
+        <span className="flex items-center gap-2"><FiCalendar className="text-primary-500" /> {format(new Date(event.startDate), 'MMM d, yyyy, h:mm a')} - {format(new Date(event.endDate), 'h:mm a')}</span>
+        <span className="flex items-center gap-2"><FiMapPin className="text-primary-500" /> {event.location}</span>
+        {event.capacity > 0 && <span className="flex items-center gap-2"><FiUsers className="text-primary-500" /> Capacity: {event.capacity}</span>}
       </div>
 
       <p className="mt-6 whitespace-pre-line text-gray-600 dark:text-gray-300">{event.description}</p>
@@ -86,7 +89,7 @@ const EventDetail = () => {
       {event.gallery?.length > 0 && (
         <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {event.gallery.map((g) => (
-            <img key={g.publicId} src={g.url} alt="Event gallery" className="h-28 w-full rounded-xl object-cover" />
+            <img key={g.publicId} src={g.url} alt="Event gallery" className="h-28 w-full rounded-xl object-cover shadow-soft transition duration-300 hover:scale-[1.03]" />
           ))}
         </div>
       )}

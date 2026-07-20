@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiArchive } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiArchive, FiUpload } from 'react-icons/fi';
 import { BsPinAngleFill } from 'react-icons/bs';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
@@ -62,28 +62,44 @@ const Announcements = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Announcements</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="page-title">Announcements</h1>
+          <p className="page-subtitle">Publish and manage barangay-wide announcements.</p>
+        </div>
         <button onClick={openCreate} className="btn-primary"><FiPlus /> New Announcement</button>
       </div>
 
-      <div className="card p-5">
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}
           totalPages={meta.totalPages}
           onPageChange={setPage}
+          emptyMessage="No announcements have been published yet."
           columns={[
-            { header: 'Title', accessor: (r) => <span className="flex items-center gap-1">{r.isPinned && <BsPinAngleFill className="text-amber-500" />}{r.title}</span> },
-            { header: 'Category', accessor: (r) => <span className="capitalize">{r.category}</span> },
+            { header: 'Title', accessor: (r) => <span className="flex items-center gap-1.5 font-medium text-gray-800 dark:text-gray-100">{r.isPinned && <BsPinAngleFill className="text-amber-500" />}{r.title}</span> },
+            { header: 'Category', accessor: (r) => <span className="capitalize text-gray-500 dark:text-gray-400">{r.category}</span> },
             { header: 'Views', accessor: (r) => r.views },
             { header: 'Date', accessor: (r) => format(new Date(r.createdAt), 'MMM d, yyyy') },
             {
               header: 'Actions',
               accessor: (r) => (
-                <div className="flex gap-3">
-                  <button onClick={() => openEdit(r)} className="text-primary-600 hover:underline"><FiEdit2 /></button>
-                  <button onClick={() => setConfirming(r)} className="text-red-600 hover:underline"><FiArchive /></button>
+                <div className="flex gap-1.5">
+                  <button
+                    onClick={() => openEdit(r)}
+                    className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10"
+                    title="Edit"
+                  >
+                    <FiEdit2 className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => setConfirming(r)}
+                    className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-500/10"
+                    title="Archive"
+                  >
+                    <FiArchive className="h-4 w-4" />
+                  </button>
                 </div>
               ),
             },
@@ -112,10 +128,13 @@ const Announcements = () => {
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium">Cover Image</label>
-              <input type="file" accept="image/*" onChange={(e) => setCoverImage(e.target.files[0])} className="input-field" />
+              <label className="input-field flex cursor-pointer items-center gap-2 text-gray-500 dark:text-gray-400">
+                <FiUpload className="h-4 w-4 shrink-0" />
+                <input type="file" accept="image/*" onChange={(e) => setCoverImage(e.target.files[0])} className="w-full text-xs file:hidden" />
+              </label>
             </div>
           </div>
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-6 rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-800/50">
             <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('isPinned')} className="accent-primary-600" /> Pin to top</label>
             {!modalItem?._id && (
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('sendSms')} className="accent-primary-600" /> Also send via SMS</label>

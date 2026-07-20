@@ -13,14 +13,17 @@ const Donations = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Donations</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header !mb-0">
+          <h1 className="page-title">My Donations</h1>
+          <p className="page-subtitle">Pledge and track your contributions to the barangay.</p>
+        </div>
         <button onClick={() => setIsOpen(true)} className="btn-primary">
           <FiPlus /> New Pledge
         </button>
       </div>
 
-      <div className="card p-5">
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}

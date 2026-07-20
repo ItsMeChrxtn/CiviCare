@@ -2,10 +2,11 @@ import { Link } from 'react-router-dom';
 import { FiFacebook, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
 
 const Footer = () => (
-  <footer className="border-t border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
+  <footer className="relative border-t border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
+    <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-400/60 to-transparent" />
     <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
       <div>
-        <div className="mb-3 flex items-center gap-2 font-extrabold text-primary-700 dark:text-primary-400">
+        <div className="mb-3 flex items-center gap-2 font-display font-extrabold text-primary-700 dark:text-primary-400">
           <img src="/favicon.svg" alt="CiviCare" className="h-8 w-8" />
           <span className="text-lg">CiviCare</span>
         </div>
