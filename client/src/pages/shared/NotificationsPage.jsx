@@ -9,9 +9,12 @@ const NotificationsPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Notifications</h1>
+    <div className="animate-fadeIn">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header !mb-0">
+          <h1 className="page-title">Notifications</h1>
+          <p className="page-subtitle">Stay up to date with activity on your account.</p>
+        </div>
         <button onClick={markAllAsRead} className="btn-secondary text-sm">
           <FiCheck /> Mark all as read
         </button>
@@ -20,7 +23,7 @@ const NotificationsPage = () => {
       {!notifications.length ? (
         <EmptyState icon={FiBell} title="You're all caught up" message="New notifications will appear here." />
       ) : (
-        <div className="card divide-y divide-gray-100 dark:divide-gray-800">
+        <div className="card mt-6 divide-y divide-gray-100 dark:divide-gray-800">
           {notifications.map((n) => (
             <button
               key={n._id}
@@ -32,11 +35,15 @@ const NotificationsPage = () => {
                 !n.isRead ? 'bg-primary-50/50 dark:bg-primary-500/5' : ''
               }`}
             >
-              <div className="mt-1 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: n.isRead ? 'transparent' : '#0f766e' }} />
+              <span className="mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center">
+                <span
+                  className={`h-2 w-2 shrink-0 rounded-full ${!n.isRead ? 'bg-primary-600 dark:bg-primary-400' : 'bg-transparent'}`}
+                />
+              </span>
               <div className="min-w-0 flex-1">
                 <p className="font-semibold">{n.title}</p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{n.message}</p>
-                <p className="mt-1 text-xs text-gray-400">{formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}</p>
+                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">{formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}</p>
               </div>
             </button>
           ))}

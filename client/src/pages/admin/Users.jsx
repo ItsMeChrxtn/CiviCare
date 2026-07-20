@@ -11,6 +11,11 @@ import Badge from '../../components/common/Badge';
 import { useAuth } from '../../contexts/AuthContext';
 
 const ROLES = ['resident', 'official', 'admin'];
+const ROLE_BADGE_CLASSES = {
+  resident: 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400',
+  official: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400',
+  admin: 'bg-primary-100 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400',
+};
 
 const Users = () => {
   const { user: currentUser } = useAuth();
@@ -54,31 +59,33 @@ const Users = () => {
 
   return (
     <div>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-2xl font-bold">Manage Users</h1>
-        <div className="flex gap-3">
-          <div className="relative">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input placeholder="Search..." onChange={(e) => updateFilters({ search: e.target.value })} className="input-field w-56 pl-10" />
-          </div>
-          <select onChange={(e) => updateFilters({ role: e.target.value || undefined })} className="input-field w-36 capitalize">
-            <option value="">All Roles</option>
-            {ROLES.map((r) => <option key={r} value={r} className="capitalize">{r}</option>)}
-          </select>
-          <button onClick={() => setIsOpen(true)} className="btn-primary"><FiPlus /> New Account</button>
-        </div>
+      <div className="page-header mb-3">
+        <h1 className="page-title">Manage Users</h1>
+        <p className="page-subtitle">Create and manage resident, official, and admin accounts.</p>
       </div>
 
-      <div className="card p-5">
+      <div className="card mb-4 flex flex-wrap items-center gap-3 p-4">
+        <div className="relative flex-1 min-w-[200px]">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input placeholder="Search..." onChange={(e) => updateFilters({ search: e.target.value })} className="input-field pl-10" />
+        </div>
+        <select onChange={(e) => updateFilters({ role: e.target.value || undefined })} className="input-field w-40 capitalize">
+          <option value="">All Roles</option>
+          {ROLES.map((r) => <option key={r} value={r} className="capitalize">{r}</option>)}
+        </select>
+        <button onClick={() => setIsOpen(true)} className="btn-primary shrink-0"><FiPlus /> New Account</button>
+      </div>
+
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}
           totalPages={meta.totalPages}
           onPageChange={setPage}
           columns={[
-            { header: 'Name', accessor: (r) => <>{r.firstName} {r.lastName}{r._id === currentUser?._id && <span className="ml-1 text-xs text-gray-400">(You)</span>}</> },
+            { header: 'Name', accessor: (r) => <span className="font-medium">{r.firstName} {r.lastName}{r._id === currentUser?._id && <span className="ml-1 text-xs font-normal text-gray-400">(You)</span>}</span> },
             { header: 'Email', accessor: (r) => r.email },
-            { header: 'Role', accessor: (r) => <span className="capitalize">{r.role}</span> },
+            { header: 'Role', accessor: (r) => <span className={`badge capitalize ${ROLE_BADGE_CLASSES[r.role] || 'bg-gray-100 text-gray-700 dark:bg-gray-500/10 dark:text-gray-400'}`}>{r.role}</span> },
             { header: 'Verified', accessor: (r) => <Badge status={r.isVerified ? 'approved' : 'pending'}>{r.isVerified ? 'Verified' : 'Unverified'}</Badge> },
             {
               header: 'Active',

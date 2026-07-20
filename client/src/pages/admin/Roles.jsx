@@ -47,9 +47,12 @@ const Roles = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Roles & Permissions</h1>
-        <button onClick={() => setIsOpen(true)} className="btn-primary"><FiPlus /> New Custom Role</button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header mb-0">
+          <h1 className="page-title">Roles & Permissions</h1>
+          <p className="page-subtitle">Define custom roles and control access across the platform.</p>
+        </div>
+        <button onClick={() => setIsOpen(true)} className="btn-primary shrink-0"><FiPlus /> New Custom Role</button>
       </div>
 
       {roles === null ? (
@@ -59,14 +62,19 @@ const Roles = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {roles.map((r) => (
-            <div key={r._id} className="card p-5">
+            <div key={r._id} className="card card-hover animate-fadeIn p-5">
               <div className="flex items-start justify-between">
-                <div className="flex items-center gap-2 font-bold capitalize"><FiKey className="text-primary-600" /> {r.name}</div>
+                <div className="flex items-center gap-2">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-100 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
+                    <FiKey className="h-4 w-4" />
+                  </div>
+                  <span className="font-display font-bold capitalize">{r.name}</span>
+                </div>
                 {!r.isSystemRole && (
-                  <button onClick={() => deleteRole(r._id)} className="text-red-500"><FiTrash2 /></button>
+                  <button onClick={() => deleteRole(r._id)} className="rounded-lg p-1.5 text-red-500 transition hover:bg-red-50 dark:hover:bg-red-500/10"><FiTrash2 /></button>
                 )}
               </div>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{r.description}</p>
+              <p className="mt-3 text-sm text-gray-500 dark:text-gray-400">{r.description}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {r.permissions?.slice(0, 5).map((p) => (
                   <span key={p._id} className="badge bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300">{p.label}</span>
@@ -92,9 +100,9 @@ const Roles = () => {
           </div>
           <div>
             <label className="mb-2 block text-sm font-medium">Permissions</label>
-            <div className="grid max-h-56 grid-cols-2 gap-2 overflow-y-auto rounded-xl border border-gray-100 p-3 dark:border-gray-800">
+            <div className="grid max-h-56 grid-cols-2 gap-2 overflow-y-auto rounded-xl border border-gray-100 bg-gray-50/50 p-3 dark:border-gray-800 dark:bg-gray-900/30">
               {permissions.map((p) => (
-                <label key={p._id} className="flex items-center gap-2 text-sm">
+                <label key={p._id} className="flex items-center gap-2 rounded-lg px-2 py-1 text-sm transition hover:bg-white dark:hover:bg-gray-800">
                   <input type="checkbox" {...register(`perm_${p._id}`)} className="accent-primary-600" />
                   {p.label}
                 </label>

@@ -85,23 +85,23 @@ const EmergencyHub = () => {
   };
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-16 lg:px-8">
+    <div className="mx-auto max-w-6xl animate-fadeIn px-4 py-16 lg:px-8">
       <div className="mx-auto max-w-2xl text-center">
-        <span className="badge bg-red-50 text-red-700 dark:bg-red-500/10 dark:text-red-400">
+        <span className="badge border border-red-200 bg-red-50 text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
           <FiAlertOctagon /> Emergency Hub
         </span>
-        <h1 className="mt-4 text-4xl font-extrabold">Be Prepared, Stay Safe</h1>
+        <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight">Be Prepared, Stay Safe</h1>
         <p className="mt-4 text-gray-500 dark:text-gray-400">Disaster guides, hotline directory, and evacuation map for your barangay.</p>
       </div>
 
       {/* Guides */}
       <div className="mt-14 grid grid-cols-1 gap-6 sm:grid-cols-2">
         {GUIDES.map((g) => (
-          <div key={g.key} className="card p-6">
-            <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl ${g.color}`}>
+          <div key={g.key} className="card card-hover group p-6">
+            <div className={`mb-4 flex h-12 w-12 items-center justify-center rounded-xl transition-transform duration-300 group-hover:scale-110 ${g.color}`}>
               <g.icon className="h-6 w-6" />
             </div>
-            <h3 className="mb-3 text-lg font-bold">{g.title}</h3>
+            <h3 className="mb-3 font-display text-lg font-bold tracking-tight">{g.title}</h3>
             <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
               {g.tips.map((tip) => (
                 <li key={tip} className="flex gap-2">
@@ -116,15 +116,15 @@ const EmergencyHub = () => {
 
       {/* Hotlines */}
       <div className="mt-14">
-        <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold"><FiPhoneCall /> Hotline Directory</h2>
+        <h2 className="mb-6 flex items-center gap-2 font-display text-2xl font-bold tracking-tight"><FiPhoneCall className="text-primary-600 dark:text-primary-400" /> Hotline Directory</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {hotlines.map((h) => (
-            <a key={h._id} href={`tel:${h.number}`} className="card flex items-center justify-between p-4 transition hover:-translate-y-0.5 hover:shadow-lg">
+            <a key={h._id} href={`tel:${h.number}`} className="card card-hover flex items-center justify-between p-4">
               <div>
                 <p className="font-semibold">{h.name}</p>
-                <p className="text-xs text-gray-400">{h.availability}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">{h.availability}</p>
               </div>
-              <span className="font-bold text-primary-600">{h.number}</span>
+              <span className="font-display font-bold text-primary-600 dark:text-primary-400">{h.number}</span>
             </a>
           ))}
         </div>
@@ -132,13 +132,15 @@ const EmergencyHub = () => {
 
       {/* Evacuation Map */}
       <div className="mt-14">
-        <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold"><FiMap /> Interactive Evacuation Map</h2>
-        <HazardMap />
+        <h2 className="mb-6 flex items-center gap-2 font-display text-2xl font-bold tracking-tight"><FiMap className="text-primary-600 dark:text-primary-400" /> Interactive Evacuation Map</h2>
+        <div className="overflow-hidden rounded-2xl border border-gray-100 shadow-card dark:border-gray-800">
+          <HazardMap />
+        </div>
       </div>
 
       {/* Safety Checklist */}
       <div className="mt-14">
-        <h2 className="mb-6 flex items-center gap-2 text-2xl font-bold"><FiCheckSquare /> Household Safety Checklist</h2>
+        <h2 className="mb-6 flex items-center gap-2 font-display text-2xl font-bold tracking-tight"><FiCheckSquare className="text-primary-600 dark:text-primary-400" /> Household Safety Checklist</h2>
         <div className="card grid grid-cols-1 gap-3 p-6 sm:grid-cols-2">
           {CHECKLIST_ITEMS.map((item) => (
             <label key={item} className="flex cursor-pointer items-center gap-3 rounded-xl p-2 transition hover:bg-gray-50 dark:hover:bg-gray-800">
@@ -148,7 +150,7 @@ const EmergencyHub = () => {
                 onChange={() => toggleItem(item)}
                 className="h-4 w-4 rounded accent-primary-600"
               />
-              <span className={`text-sm ${checked[item] ? 'text-gray-400 line-through' : ''}`}>{item}</span>
+              <span className={`text-sm ${checked[item] ? 'text-gray-400 line-through dark:text-gray-600' : ''}`}>{item}</span>
             </label>
           ))}
         </div>

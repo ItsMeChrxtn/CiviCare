@@ -51,28 +51,31 @@ const Hotlines = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Hotline Directory</h1>
-        <button onClick={openCreate} className="btn-primary"><FiPlus /> Add Hotline</button>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header mb-0">
+          <h1 className="page-title">Hotline Directory</h1>
+          <p className="page-subtitle">Emergency and service contact numbers available to residents.</p>
+        </div>
+        <button onClick={openCreate} className="btn-primary shrink-0"><FiPlus /> Add Hotline</button>
       </div>
 
-      <div className="card p-5">
+      <div className="card animate-fadeIn p-5">
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}
           totalPages={meta.totalPages}
           onPageChange={setPage}
           columns={[
-            { header: 'Name', accessor: (r) => r.name },
-            { header: 'Category', accessor: (r) => <span className="capitalize">{r.category}</span> },
+            { header: 'Name', accessor: (r) => <span className="font-medium">{r.name}</span> },
+            { header: 'Category', accessor: (r) => <span className="badge bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 capitalize">{r.category}</span> },
             { header: 'Number', accessor: (r) => r.number },
             { header: 'Availability', accessor: (r) => r.availability },
             {
               header: 'Actions',
               accessor: (r) => (
-                <div className="flex gap-3">
-                  <button onClick={() => openEdit(r)} className="text-primary-600"><FiEdit2 /></button>
-                  <button onClick={() => deleteHotline(r._id)} className="text-red-600"><FiTrash2 /></button>
+                <div className="flex gap-2">
+                  <button onClick={() => openEdit(r)} className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 dark:hover:bg-primary-500/10"><FiEdit2 /></button>
+                  <button onClick={() => deleteHotline(r._id)} className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-500/10"><FiTrash2 /></button>
                 </div>
               ),
             },

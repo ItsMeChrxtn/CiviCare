@@ -31,25 +31,32 @@ const Feedback = () => {
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Feedback</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="page-header !mb-0">
+          <h1 className="page-title">Feedback</h1>
+          <p className="page-subtitle">Share suggestions, complaints, or compliments with the barangay.</p>
+        </div>
         <button onClick={() => setIsOpen(true)} className="btn-primary">
           <FiPlus /> Submit Feedback
         </button>
       </div>
 
       {isLoading ? (
-        <CardSkeleton />
+        <div className="space-y-4">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
+        </div>
       ) : !rows.length ? (
-        <EmptyState title="No feedback submitted yet" />
+        <EmptyState title="No feedback submitted yet" message="Your submitted feedback and official responses will appear here." />
       ) : (
         <div className="space-y-4">
           {rows.map((f) => (
-            <div key={f._id} className="card p-5">
+            <div key={f._id} className="card card-hover animate-fadeIn p-5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <span className="badge bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 capitalize">{f.category}</span>
-                  <h3 className="mt-2 font-bold">{f.subject}</h3>
+                  <h3 className="mt-2 font-display font-bold text-gray-900 dark:text-gray-50">{f.subject}</h3>
                 </div>
                 <Badge status={f.status} />
               </div>
@@ -62,7 +69,7 @@ const Feedback = () => {
                 </div>
               )}
               {f.response && (
-                <div className="mt-3 rounded-xl bg-primary-50 p-3 text-sm dark:bg-primary-500/10">
+                <div className="mt-3 rounded-xl border border-primary-100 bg-primary-50 p-3 text-sm dark:border-primary-500/20 dark:bg-primary-500/10">
                   <p className="font-semibold text-primary-700 dark:text-primary-400">Official Response:</p>
                   <p className="text-gray-600 dark:text-gray-300">{f.response}</p>
                 </div>

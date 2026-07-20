@@ -44,27 +44,36 @@ const Backup = () => {
 
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="mb-6 flex items-center gap-2">
-        <FiDatabase className="h-6 w-6 text-primary-600" />
-        <h1 className="text-2xl font-bold">Database Backup & Restore</h1>
+      <div className="page-header flex-row items-center gap-3">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-600 dark:bg-primary-500/10 dark:text-primary-400">
+          <FiDatabase className="h-5 w-5" />
+        </div>
+        <div>
+          <h1 className="page-title">Database Backup & Restore</h1>
+          <p className="page-subtitle">Export a full snapshot or restore the system from a previous backup file.</p>
+        </div>
       </div>
 
-      <div className="card p-6">
-        <h2 className="mb-2 font-bold">Export Backup</h2>
+      <div className="card animate-fadeIn p-6">
+        <h2 className="mb-2 flex items-center gap-2 font-display font-bold text-gray-800 dark:text-gray-100">
+          <FiDownload className="h-4 w-4 text-primary-500" /> Export Backup
+        </h2>
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
           Download a complete JSON snapshot of all CiviCare collections (users, incidents, documents, etc.).
         </p>
         <button onClick={handleExport} className="btn-primary"><FiDownload /> Download Backup</button>
       </div>
 
-      <div className="card mt-6 p-6">
-        <h2 className="mb-2 font-bold">Restore from Backup</h2>
+      <div className="card animate-fadeIn mt-6 p-6">
+        <h2 className="mb-2 flex items-center gap-2 font-display font-bold text-gray-800 dark:text-gray-100">
+          <FiUpload className="h-4 w-4 text-red-500" /> Restore from Backup
+        </h2>
         <div className="mb-4 flex items-start gap-2 rounded-xl bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-          <FiAlertTriangle className="mt-0.5 shrink-0" />
+          <FiAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           Restoring will overwrite existing data for any collection present in the uploaded file. This action cannot be undone.
         </div>
         <input type="file" accept="application/json" onChange={(e) => setFile(e.target.files[0])} className="input-field mb-4" />
-        <button onClick={() => setConfirming(true)} disabled={!file} className="btn-secondary !border-red-200 !text-red-600">
+        <button onClick={() => setConfirming(true)} disabled={!file} className="btn-danger">
           <FiUpload /> Restore Backup
         </button>
       </div>

@@ -15,17 +15,18 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
           onClick={onClose}
         >
           <motion.div
-            className={`glass-card w-full ${widths[size]} max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 p-6`}
+            className={`glass-card w-full ${widths[size]} max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 p-6 shadow-card-hover`}
             initial={{ scale: 0.95, opacity: 0, y: 10 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 10 }}
+            transition={{ type: 'spring', damping: 24, stiffness: 300 }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-bold">{title}</h3>
+              <h3 className="font-display text-lg font-bold tracking-tight">{title}</h3>
               <button
                 onClick={onClose}
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
+                className="rounded-lg p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-800"
                 aria-label="Close"
               >
                 <FiX className="h-5 w-5" />

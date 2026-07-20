@@ -25,10 +25,10 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
+    <header className="sticky top-0 z-40 border-b border-gray-100 bg-white/80 shadow-sm shadow-gray-900/[0.02] backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/80">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 lg:px-8">
-        <Link to="/" className="flex items-center gap-2 font-extrabold text-primary-700 dark:text-primary-400">
-          <img src="/favicon.svg" alt="CiviCare" className="h-8 w-8" />
+        <Link to="/" className="group flex items-center gap-2.5 font-display font-extrabold text-primary-700 dark:text-primary-400">
+          <img src="/favicon.svg" alt="CiviCare" className="h-8 w-8 transition-transform duration-300 group-hover:scale-110" />
           <span className="text-lg">CiviCare</span>
         </Link>
 
@@ -38,14 +38,21 @@ const Navbar = () => {
               key={link.to}
               to={link.to}
               className={({ isActive }) =>
-                `rounded-lg px-3 py-2 text-sm font-medium transition ${
+                `relative rounded-lg px-3 py-2 text-sm font-medium transition ${
                   isActive
-                    ? 'bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400'
+                    ? 'text-primary-700 dark:text-primary-400'
                     : 'text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-800'
                 }`
               }
             >
-              {link.label}
+              {({ isActive }) => (
+                <>
+                  {link.label}
+                  {isActive && (
+                    <span className="absolute inset-x-3 -bottom-[13px] h-0.5 rounded-full bg-primary-600 dark:bg-primary-400" />
+                  )}
+                </>
+              )}
             </NavLink>
           ))}
         </div>

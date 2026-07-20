@@ -1,5 +1,7 @@
 export const Skeleton = ({ className = '' }) => (
-  <div className={`animate-pulse rounded-lg bg-gray-200 dark:bg-gray-800 ${className}`} />
+  <div
+    className={`animate-shimmer rounded-lg bg-[linear-gradient(110deg,theme(colors.gray.200)45%,theme(colors.gray.100)55%,theme(colors.gray.200)65%)] bg-[length:200%_100%] dark:bg-[linear-gradient(110deg,theme(colors.gray.800)45%,theme(colors.gray.700)55%,theme(colors.gray.800)65%)] ${className}`}
+  />
 );
 
 export const CardSkeleton = () => (
