@@ -41,7 +41,7 @@ const register = catchAsync(async (req, res) => {
 
   const emailToken = generateEmailToken(user);
   const verifyUrl = `${CLIENT_URL()}/verify-email/${emailToken}`;
-  await sendVerificationEmail(user.email, user.firstName, verifyUrl).catch((err) =>
+  sendVerificationEmail(user.email, user.firstName, verifyUrl).catch((err) =>
     console.error('[Email] Verification email failed:', err.message)
   );
 
@@ -86,7 +86,9 @@ const resendVerification = catchAsync(async (req, res) => {
 
   const emailToken = generateEmailToken(user);
   const verifyUrl = `${CLIENT_URL()}/verify-email/${emailToken}`;
-  await sendVerificationEmail(user.email, user.firstName, verifyUrl);
+  sendVerificationEmail(user.email, user.firstName, verifyUrl).catch((err) =>
+    console.error('[Email] Verification email failed:', err.message)
+  );
 
   res.status(200).json(new ApiResponse(200, null, 'Verification email resent.'));
 });
@@ -149,7 +151,9 @@ const forgotPassword = catchAsync(async (req, res) => {
 
   const resetToken = generateResetToken(user);
   const resetUrl = `${CLIENT_URL()}/reset-password/${resetToken}`;
-  await sendPasswordResetEmail(user.email, user.firstName, resetUrl);
+  sendPasswordResetEmail(user.email, user.firstName, resetUrl).catch((err) =>
+    console.error('[Email] Password reset email failed:', err.message)
+  );
 
   res.status(200).json(new ApiResponse(200, null, 'If that email exists, a reset link has been sent.'));
 });
