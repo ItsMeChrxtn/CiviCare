@@ -12,8 +12,8 @@ const Register = () => {
   const onSubmit = async (values) => {
     try {
       await registerUser(values);
-      toast.success('Registration successful! Please check your email to verify your account.');
-      navigate('/login');
+      toast.success('Registration received! Please check your email for the verification code.');
+      navigate('/verify-email', { state: { email: values.email } });
     } catch (err) {
       toast.error(err.response?.data?.message || 'Registration failed');
     }

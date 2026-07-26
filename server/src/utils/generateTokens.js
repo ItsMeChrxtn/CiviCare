@@ -10,9 +10,6 @@ const generateRefreshToken = (user) =>
     expiresIn: process.env.JWT_REFRESH_EXPIRES,
   });
 
-const generateEmailToken = (user) =>
-  jwt.sign({ id: user._id }, process.env.JWT_EMAIL_SECRET, { expiresIn: '1d' });
-
 const generateResetToken = (user) =>
   jwt.sign({ id: user._id }, process.env.JWT_RESET_SECRET, { expiresIn: '1h' });
 
@@ -35,7 +32,6 @@ const issueAuthTokens = (res, user) => {
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
-  generateEmailToken,
   generateResetToken,
   issueAuthTokens,
 };

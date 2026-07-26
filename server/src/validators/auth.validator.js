@@ -16,6 +16,15 @@ const loginValidator = [
   body('password').notEmpty().withMessage('Password is required'),
 ];
 
+const verifyOtpValidator = [
+  body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
+  body('code').isLength({ min: 6, max: 6 }).isNumeric().withMessage('A valid 6-digit code is required'),
+];
+
+const resendVerificationValidator = [
+  body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
+];
+
 const forgotPasswordValidator = [
   body('email').isEmail().withMessage('A valid email is required').normalizeEmail(),
 ];
@@ -33,6 +42,8 @@ const changePasswordValidator = [
 module.exports = {
   registerValidator,
   loginValidator,
+  verifyOtpValidator,
+  resendVerificationValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
   changePasswordValidator,

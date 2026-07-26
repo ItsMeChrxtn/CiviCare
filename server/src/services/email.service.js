@@ -1,14 +1,10 @@
-const nodemailer = require('nodemailer');
+const BREVO_API_URL = 'https://api.brevo.com/v3/smtp/email';
 
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: Number(process.env.EMAIL_PORT) || 587,
-  secure: Number(process.env.EMAIL_PORT) === 465,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const parseFromHeader = (raw) => {
+  const match = /^\s*"?([^"<]*)"?\s*<(.+)>\s*$/.exec(raw || '');
+  if (match) return { name: match[1].trim(), email: match[2].trim() };
+  return { name: 'CiviCare', email: raw };
+};
 
 const baseWrapper = (title, bodyHtml) => `
   <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; padding: 24px; color: #1f2937;">
@@ -21,25 +17,37 @@ const baseWrapper = (title, bodyHtml) => `
 `;
 
 const sendEmail = async ({ to, subject, html }) => {
-  await transporter.sendMail({
-    from: process.env.EMAIL_FROM,
-    to,
-    subject,
-    html,
+  const response = await fetch(BREVO_API_URL, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      'api-key': process.env.BREVO_API_KEY,
+    },
+    body: JSON.stringify({
+      sender: parseFromHeader(process.env.EMAIL_FROM),
+      to: [{ email: to }],
+      subject,
+      htmlContent: html,
+    }),
   });
+
+  if (!response.ok) {
+    const errorBody = await response.json().catch(() => ({}));
+    throw new Error(`Brevo API error (${response.status}): ${errorBody.message || response.statusText}`);
+  }
 };
 
-const sendVerificationEmail = (to, name, verifyUrl) =>
+const sendVerificationEmail = (to, name, otpCode) =>
   sendEmail({
     to,
-    subject: 'Verify your CiviCare account',
+    subject: 'Your CiviCare verification code',
     html: baseWrapper(
       'Verify your email',
       `<p>Hi ${name},</p>
-       <p>Thanks for registering with CiviCare. Please verify your email address to activate your account.</p>
-       <p><a href="${verifyUrl}" style="background:#0f766e;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Verify Email</a></p>
-       <p>Or copy this link: ${verifyUrl}</p>
-       <p>This link expires in 24 hours.</p>`
+       <p>Thanks for registering with CiviCare. Enter this code in the app to activate your account:</p>
+       <p style="font-size:32px;font-weight:bold;letter-spacing:8px;color:#0f766e;text-align:center;margin:24px 0;">${otpCode}</p>
+       <p>This code expires in 10 minutes.</p>`
     ),
   });
 
