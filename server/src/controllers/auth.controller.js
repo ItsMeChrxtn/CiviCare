@@ -3,18 +3,18 @@ const catchAsync = require('../utils/catchAsync');
 const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
 const User = require('../models/User');
+const PendingRegistration = require('../models/PendingRegistration');
 const { ROLES } = require('../config/constants');
-const {
-  issueAuthTokens,
-  generateAccessToken,
-  generateEmailToken,
-  generateResetToken,
-} = require('../utils/generateTokens');
+const { issueAuthTokens, generateAccessToken, generateResetToken } = require('../utils/generateTokens');
 const { generateCode } = require('../services/qrcode.service');
+const { generateOtp } = require('../utils/otp');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/email.service');
 const { writeLog } = require('../services/log.service');
 
 const CLIENT_URL = () => process.env.CLIENT_URL;
+
+const OTP_TTL_MS = 10 * 60 * 1000; // OTP is valid for 10 minutes
+const PENDING_TTL_MS = 15 * 60 * 1000; // unverified signup record self-deletes after 15 minutes
 
 // @route POST /api/auth/register
 const register = catchAsync(async (req, res) => {
@@ -24,7 +24,13 @@ const register = catchAsync(async (req, res) => {
   const existing = await User.findOne({ email });
   if (existing) throw ApiError.conflict('An account with this email already exists.');
 
-  const user = await User.create({
+  // Replace any earlier unverified attempt for this email with a fresh one.
+  await PendingRegistration.findOneAndDelete({ email });
+
+  const otpCode = generateOtp();
+  const now = Date.now();
+
+  const pending = await PendingRegistration.create({
     firstName,
     middleName,
     lastName,
@@ -35,62 +41,82 @@ const register = catchAsync(async (req, res) => {
     birthdate,
     gender,
     address,
-    role: ROLES.RESIDENT,
-    qrCode: generateCode(),
+    otpCode,
+    otpExpiresAt: new Date(now + OTP_TTL_MS),
+    expiresAt: new Date(now + PENDING_TTL_MS),
   });
 
-  const emailToken = generateEmailToken(user);
-  const verifyUrl = `${CLIENT_URL()}/verify-email/${emailToken}`;
-  sendVerificationEmail(user.email, user.firstName, verifyUrl).catch((err) =>
+  sendVerificationEmail(pending.email, pending.firstName, otpCode).catch((err) =>
     console.error('[Email] Verification email failed:', err.message)
   );
 
-  await writeLog({ req, action: 'REGISTER', module: 'auth', description: `New resident registered: ${email}` });
+  await writeLog({ req, action: 'REGISTER', module: 'auth', description: `New resident registration pending: ${email}` });
 
   res
     .status(201)
     .json(
       new ApiResponse(
         201,
-        { id: user._id, email: user.email },
-        'Registration successful. Please check your email to verify your account.'
+        { email: pending.email },
+        'Registration received. Please check your email for the verification code.'
       )
     );
 });
 
-// @route GET /api/auth/verify-email/:token
+// @route POST /api/auth/verify-email
 const verifyEmail = catchAsync(async (req, res) => {
-  const { token } = req.params;
+  const { email, code } = req.body;
 
-  let decoded;
-  try {
-    decoded = jwt.verify(token, process.env.JWT_EMAIL_SECRET);
-  } catch {
-    throw ApiError.badRequest('Invalid or expired verification link.');
+  const pending = await PendingRegistration.findOne({ email });
+  if (!pending) throw ApiError.badRequest('No pending registration found for that email. Please register again.');
+
+  if (pending.otpExpiresAt.getTime() < Date.now()) {
+    throw ApiError.badRequest('Verification code expired. Please request a new one.');
   }
 
-  const user = await User.findById(decoded.id);
-  if (!user) throw ApiError.notFound('User not found.');
+  const isMatch = await pending.compareOtp(code);
+  if (!isMatch) throw ApiError.badRequest('Invalid verification code.');
 
-  user.isVerified = true;
-  await user.save({ validateBeforeSave: false });
+  const user = await User.create({
+    firstName: pending.firstName,
+    middleName: pending.middleName,
+    lastName: pending.lastName,
+    suffix: pending.suffix,
+    email: pending.email,
+    password: pending.password, // already hashed by PendingRegistration
+    phone: pending.phone,
+    birthdate: pending.birthdate,
+    gender: pending.gender,
+    address: pending.address,
+    role: ROLES.RESIDENT,
+    qrCode: generateCode(),
+    isVerified: true,
+  });
 
-  res.status(200).json(new ApiResponse(200, null, 'Email verified successfully. You may now log in.'));
+  await PendingRegistration.deleteOne({ _id: pending._id });
+
+  await writeLog({ req, action: 'REGISTER', module: 'auth', description: `Email verified, account created: ${email}` });
+
+  res.status(200).json(new ApiResponse(200, { id: user._id, email: user.email }, 'Email verified successfully. You may now log in.'));
 });
 
 // @route POST /api/auth/resend-verification
 const resendVerification = catchAsync(async (req, res) => {
-  const user = await User.findOne({ email: req.body.email });
-  if (!user) throw ApiError.notFound('No account found with that email.');
-  if (user.isVerified) throw ApiError.badRequest('This account is already verified.');
+  const pending = await PendingRegistration.findOne({ email: req.body.email });
+  if (!pending) throw ApiError.notFound('No pending registration found for that email.');
 
-  const emailToken = generateEmailToken(user);
-  const verifyUrl = `${CLIENT_URL()}/verify-email/${emailToken}`;
-  sendVerificationEmail(user.email, user.firstName, verifyUrl).catch((err) =>
+  const otpCode = generateOtp();
+  const now = Date.now();
+  pending.otpCode = otpCode;
+  pending.otpExpiresAt = new Date(now + OTP_TTL_MS);
+  pending.expiresAt = new Date(now + PENDING_TTL_MS);
+  await pending.save();
+
+  sendVerificationEmail(pending.email, pending.firstName, otpCode).catch((err) =>
     console.error('[Email] Verification email failed:', err.message)
   );
 
-  res.status(200).json(new ApiResponse(200, null, 'Verification email resent.'));
+  res.status(200).json(new ApiResponse(200, null, 'Verification code resent.'));
 });
 
 // @route POST /api/auth/login

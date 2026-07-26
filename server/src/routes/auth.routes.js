@@ -6,6 +6,8 @@ const validate = require('../middleware/validate');
 const {
   registerValidator,
   loginValidator,
+  verifyOtpValidator,
+  resendVerificationValidator,
   forgotPasswordValidator,
   resetPasswordValidator,
   changePasswordValidator,
@@ -14,8 +16,14 @@ const {
 const router = express.Router();
 
 router.post('/register', authLimiter, registerValidator, validate, authController.register);
-router.get('/verify-email/:token', authController.verifyEmail);
-router.post('/resend-verification', authLimiter, authController.resendVerification);
+router.post('/verify-email', authLimiter, verifyOtpValidator, validate, authController.verifyEmail);
+router.post(
+  '/resend-verification',
+  authLimiter,
+  resendVerificationValidator,
+  validate,
+  authController.resendVerification
+);
 router.post('/login', authLimiter, loginValidator, validate, authController.login);
 router.post('/refresh-token', authController.refreshToken);
 router.post('/logout', authController.logout);

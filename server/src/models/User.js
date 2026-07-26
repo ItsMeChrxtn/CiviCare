@@ -76,9 +76,14 @@ userSchema.index({ role: 1 });
 userSchema.index({ isArchived: 1 });
 userSchema.index({ firstName: 'text', lastName: 'text', email: 'text' });
 
+const BCRYPT_HASH_PATTERN = /^\$2[aby]\$\d{2}\$/;
+
 userSchema.pre('save', async function hashPassword(next) {
   if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
+  // Skip re-hashing when a verified PendingRegistration hands off an already-hashed password.
+  if (!BCRYPT_HASH_PATTERN.test(this.password)) {
+    this.password = await bcrypt.hash(this.password, 12);
+  }
   if (!this.isNew) this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
 });

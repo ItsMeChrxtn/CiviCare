@@ -1,5 +1,6 @@
 module.exports = {
   User: require('./User'),
+  PendingRegistration: require('./PendingRegistration'),
   Role: require('./Role'),
   Permission: require('./Permission'),
   Incident: require('./Incident'),
