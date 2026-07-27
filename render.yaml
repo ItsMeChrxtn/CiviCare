@@ -39,8 +39,9 @@ services:
         sync: false
       - key: SEMAPHORE_API_KEY
         sync: false
-      - key: SEMAPHORE_SENDER_NAME
-        value: CiviCare
+      # SEMAPHORE_SENDER_NAME: add manually in the Render dashboard once "CiviCare" is
+      # approved as a sender name in the Semaphore account - an unapproved value here
+      # makes every SMS send fail.
       - key: SEED_ADMIN_EMAIL
         sync: false
       - key: SEED_ADMIN_PASSWORD

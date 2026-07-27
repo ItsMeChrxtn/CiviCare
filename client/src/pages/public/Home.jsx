@@ -11,6 +11,9 @@ import {
   FiShield,
   FiUsers,
   FiCheckCircle,
+  FiUserPlus,
+  FiGrid,
+  FiBell,
 } from 'react-icons/fi';
 
 const FEATURES = [
@@ -28,6 +31,12 @@ const STATS = [
   { icon: FiShield, label: 'Incidents Resolved', value: '95%' },
 ];
 
+const STEPS = [
+  { icon: FiUserPlus, title: 'Create Your Account', desc: 'Sign up with your basic details and verify your email — takes less than 2 minutes.' },
+  { icon: FiGrid, title: 'Access Services', desc: 'Report incidents, request documents, join events, and track everything from one dashboard.' },
+  { icon: FiBell, title: 'Stay Protected', desc: 'Get real-time alerts, request updates, and support from your barangay whenever you need it.' },
+];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { delay: i * 0.08, duration: 0.5 } }),
@@ -42,7 +51,7 @@ const Home = () => (
       <div className="absolute -left-24 top-1/3 h-72 w-72 animate-float rounded-full bg-accent-400/20 blur-3xl" />
       <div className="absolute right-0 top-0 h-96 w-96 animate-float rounded-full bg-primary-300/20 blur-3xl [animation-delay:-3s]" />
 
-      <div className="relative mx-auto max-w-7xl px-4 py-24 lg:px-8 lg:py-32">
+      <div className="relative mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 py-24 lg:grid-cols-2 lg:px-8 lg:py-32">
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-2xl">
           <span className="badge border border-white/20 bg-white/10 text-white backdrop-blur-sm ring-white/10">
             Barangay Citizen Engagement System
@@ -63,11 +72,67 @@ const Home = () => (
             </Link>
           </div>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.15 }}
+          className="relative hidden h-80 lg:block"
+        >
+          <motion.div
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+            className="absolute left-2 top-2 w-64 rounded-2xl border border-white/20 bg-white/10 p-4 text-white shadow-glass backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent-400/20 text-accent-200">
+                <FiAlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Incident Reported</p>
+                <p className="text-xs text-white/70">Flooding — Purok 3</p>
+              </div>
+            </div>
+            <span className="badge mt-3 bg-accent-400/20 text-accent-200 ring-1 ring-inset ring-accent-300/30">In Progress</span>
+          </motion.div>
+
+          <motion.div
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+            className="absolute right-0 top-36 w-56 rounded-2xl border border-white/20 bg-white/10 p-4 text-white shadow-glass backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20 text-white">
+                <FiCheckCircle className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">Clearance Approved</p>
+                <p className="text-xs text-white/70">Ready for pickup</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
+            className="absolute bottom-2 left-16 w-52 rounded-2xl border border-white/20 bg-white/10 p-4 text-white shadow-glass backdrop-blur-md"
+          >
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white/20 text-white">
+                <FiPhoneCall className="h-5 w-5" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold">24/7 Emergency Line</p>
+                <p className="text-xs text-white/70">Always available</p>
+              </div>
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
 
     {/* Stats */}
-    <section className="mx-auto -mt-10 max-w-5xl px-4 lg:px-8">
+    <section className="relative z-10 mx-auto -mt-10 max-w-5xl px-4 lg:px-8">
       <div className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-6 shadow-card-hover ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10 sm:grid-cols-3">
         {STATS.map((stat, i) => (
           <motion.div
@@ -118,6 +183,41 @@ const Home = () => (
             </div>
             <h3 className="mb-1 font-display text-lg font-bold tracking-tight">{f.title}</h3>
             <p className="text-sm text-gray-500 dark:text-gray-400">{f.desc}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+
+    {/* How It Works */}
+    <section className="mx-auto max-w-7xl px-4 pb-20 lg:px-8">
+      <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="mx-auto max-w-2xl text-center">
+        <span className="section-eyebrow">Getting Started</span>
+        <h2 className="mt-4 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">Three Steps to Get Involved</h2>
+        <p className="mt-3 text-gray-500 dark:text-gray-400">
+          Joining your barangay's digital community takes just a few minutes.
+        </p>
+      </motion.div>
+
+      <div className="relative mt-14 grid grid-cols-1 gap-10 sm:grid-cols-3">
+        <div className="absolute inset-x-0 top-6 hidden h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent dark:via-gray-800 sm:block" />
+        {STEPS.map((step, i) => (
+          <motion.div
+            key={step.title}
+            custom={i}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            className="relative flex flex-col items-center text-center"
+          >
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-b from-primary-500 to-primary-600 text-white shadow-glow ring-4 ring-gray-50 dark:ring-gray-950">
+              <step.icon className="h-5 w-5" />
+            </div>
+            <span className="mt-4 text-xs font-bold uppercase tracking-wider text-primary-600 dark:text-primary-400">
+              Step {i + 1}
+            </span>
+            <h3 className="mt-1 font-display text-lg font-bold tracking-tight">{step.title}</h3>
+            <p className="mt-2 max-w-xs text-sm text-gray-500 dark:text-gray-400">{step.desc}</p>
           </motion.div>
         ))}
       </div>
