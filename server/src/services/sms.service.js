@@ -23,8 +23,12 @@ const sendSms = async (numbers, message) => {
     apikey: process.env.SEMAPHORE_API_KEY,
     number: recipients,
     message,
-    sendername: process.env.SEMAPHORE_SENDER_NAME || 'CiviCare',
   });
+  // Omit sendername entirely when unset so Semaphore falls back to the account's
+  // approved default - passing an unregistered name here makes the API call fail.
+  if (process.env.SEMAPHORE_SENDER_NAME) {
+    body.set('sendername', process.env.SEMAPHORE_SENDER_NAME);
+  }
 
   const response = await fetch(SEMAPHORE_URL, {
     method: 'POST',

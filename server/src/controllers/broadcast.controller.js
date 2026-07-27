@@ -36,7 +36,12 @@ const sendBroadcast = catchAsync(async (req, res) => {
 
   if (channel === 'sms' || channel === 'both') {
     const numbers = residents.map((r) => r.phone).filter(Boolean);
-    smsResult = await broadcastSms(numbers, `[CiviCare Alert] ${title}: ${message}`);
+    try {
+      smsResult = await broadcastSms(numbers, `[CiviCare Alert] ${title}: ${message}`);
+    } catch (err) {
+      console.error('[SMS] Broadcast failed:', err.message);
+      smsResult = { error: err.message };
+    }
   }
 
   res.status(200).json(
