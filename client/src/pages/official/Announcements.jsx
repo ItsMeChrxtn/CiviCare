@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -6,6 +6,7 @@ import { FiPlus, FiEdit2, FiArchive, FiUpload } from 'react-icons/fi';
 import { BsPinAngleFill } from 'react-icons/bs';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
+import { useSocket } from '../../contexts/SocketContext';
 import Modal from '../../components/common/Modal';
 import DataTable from '../../components/common/DataTable';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -13,11 +14,22 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 const CATEGORIES = ['general', 'health', 'safety', 'infrastructure', 'event', 'emergency'];
 
 const Announcements = () => {
-  const { rows, meta, params, setPage, isLoading, refetch } = usePaginatedFetch('/announcements');
+  const { rows, setRows, meta, params, setPage, isLoading, refetch } = usePaginatedFetch('/announcements');
   const [modalItem, setModalItem] = useState(null); // null = closed, {} = new, {...} = edit
   const [confirming, setConfirming] = useState(null);
   const [coverImage, setCoverImage] = useState(null);
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const { socket } = useSocket();
+
+  // Live-updates the Views column as residents open announcements, without a full refetch.
+  useEffect(() => {
+    if (!socket) return;
+    const onViewed = ({ id, views }) => {
+      setRows((prev) => prev.map((r) => (r._id === id ? { ...r, views } : r)));
+    };
+    socket.on('announcement:viewed', onViewed);
+    return () => socket.off('announcement:viewed', onViewed);
+  }, [socket, setRows]);
 
   const openCreate = () => {
     reset({ title: '', content: '', category: 'general', isPinned: false, sendSms: false });
