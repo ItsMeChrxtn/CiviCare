@@ -35,7 +35,7 @@ const usePaginatedFetch = (endpoint, initialParams = {}) => {
   const setPage = (page) => setParams((prev) => ({ ...prev, page }));
   const updateFilters = (filters) => setParams((prev) => ({ ...prev, ...filters, page: 1 }));
 
-  return { rows, meta, params, setPage, updateFilters, isLoading, error, refetch: fetchData };
+  return { rows, setRows, meta, params, setPage, updateFilters, isLoading, error, refetch: fetchData };
 };
 
 export default usePaginatedFetch;

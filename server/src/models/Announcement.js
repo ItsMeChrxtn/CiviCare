@@ -18,6 +18,9 @@ const announcementSchema = new mongoose.Schema(
     sentViaSms: { type: Boolean, default: false },
     postedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     views: { type: Number, default: 0 },
+    // Tracks which authenticated users have already been counted, so a single
+    // user re-opening the announcement doesn't keep inflating views or re-notifying officials.
+    viewedBy: { type: [mongoose.Schema.Types.ObjectId], ref: 'User', default: [], select: false },
     isArchived: { type: Boolean, default: false },
     archivedAt: { type: Date },
   },

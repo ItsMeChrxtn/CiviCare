@@ -8,6 +8,7 @@ const { uploadBuffer } = require('../services/cloudinary.service');
 const { notifyRole } = require('../services/notification.service');
 const { broadcastSms } = require('../services/sms.service');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
+const { emitToRole } = require('../config/socket');
 const { NOTIFICATION_TYPE, ROLES } = require('../config/constants');
 
 // @route POST /api/announcements
@@ -75,12 +76,38 @@ const getAllAnnouncements = catchAsync(async (req, res) => {
 
 // @route GET /api/announcements/:id
 const getAnnouncement = catchAsync(async (req, res) => {
-  const announcement = await Announcement.findByIdAndUpdate(
-    req.params.id,
-    { $inc: { views: 1 } },
-    { new: true }
-  ).populate('postedBy', 'firstName lastName position');
+  let announcement;
+  let isNewView = true;
+
+  if (req.user) {
+    // Authenticated - only count and notify officials the first time this user views it.
+    announcement = await Announcement.findOneAndUpdate(
+      { _id: req.params.id, viewedBy: { $ne: req.user._id } },
+      { $inc: { views: 1 }, $addToSet: { viewedBy: req.user._id } },
+      { new: true }
+    ).populate('postedBy', 'firstName lastName position');
+
+    if (!announcement) {
+      isNewView = false;
+      announcement = await Announcement.findById(req.params.id).populate('postedBy', 'firstName lastName position');
+    }
+  } else {
+    // Anonymous visitor - no reliable identity to dedupe against, count as before.
+    announcement = await Announcement.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { views: 1 } },
+      { new: true }
+    ).populate('postedBy', 'firstName lastName position');
+  }
+
   if (!announcement) throw ApiError.notFound('Announcement not found');
+
+  if (isNewView) {
+    const viewPayload = { id: announcement._id, views: announcement.views };
+    emitToRole(ROLES.OFFICIAL, 'announcement:viewed', viewPayload);
+    emitToRole(ROLES.ADMIN, 'announcement:viewed', viewPayload);
+  }
+
   res.status(200).json(new ApiResponse(200, announcement));
 });
 
