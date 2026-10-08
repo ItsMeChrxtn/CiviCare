@@ -79,7 +79,7 @@ const getMyQrCode = catchAsync(async (req, res) => {
 const getAllUsers = catchAsync(async (req, res) => {
   const baseFilter = { isArchived: req.query.archived === 'true' };
   const features = new ApiFeatures(User.find(baseFilter), req.query)
-    .search(['firstName', 'lastName', 'email', 'phone'])
+    .search(['firstName', 'lastName', 'email', 'phone', 'residentId', 'address.purok'])
     .filter()
     .sort()
     .limitFields()
@@ -126,7 +126,7 @@ const createUser = catchAsync(async (req, res) => {
 
 // @route PATCH /api/users/:id (admin edits role, status, etc.)
 const updateUser = catchAsync(async (req, res) => {
-  const forbidden = ['password', 'email', 'qrCode'];
+  const forbidden = ['password', 'email', 'qrCode', 'residentId'];
   forbidden.forEach((field) => delete req.body[field]);
 
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
@@ -160,6 +160,26 @@ const toggleActive = catchAsync(async (req, res) => {
   });
 
   res.status(200).json(new ApiResponse(200, user, `User ${user.isActive ? 'activated' : 'deactivated'}`));
+});
+
+// @route PATCH /api/users/:id/verify (official/admin - confirm the resident against the RBI records)
+const verifyResident = catchAsync(async (req, res) => {
+  const user = await User.findById(req.params.id);
+  if (!user) throw ApiError.notFound('User not found');
+
+  const verified = req.body.verified !== undefined ? Boolean(req.body.verified) : !user.isRbiVerified;
+  user.isRbiVerified = verified;
+  user.rbiVerifiedAt = verified ? new Date() : undefined;
+  await user.save({ validateBeforeSave: false });
+
+  await writeLog({
+    req,
+    action: 'USER_RBI_VERIFY',
+    module: 'users',
+    description: `${user.residentId || user.email} ${verified ? 'verified against' : 'removed from'} RBI records`,
+  });
+
+  res.status(200).json(new ApiResponse(200, user, verified ? 'Resident verified' : 'Verification removed'));
 });
 
 // @route PATCH /api/users/:id/archive
@@ -224,6 +244,7 @@ const getUserStats = catchAsync(async (_req, res) => {
 });
 
 module.exports = {
+  verifyResident,
   updateMe,
   uploadAvatar,
   uploadValidId,

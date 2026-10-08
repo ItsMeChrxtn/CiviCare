@@ -59,4 +59,48 @@ const broadcastSms = async (numbers, message) => {
   return results;
 };
 
-module.exports = { sendSms, broadcastSms, isConfigured };
+const isEnabledInSettings = async () => {
+  const Setting = require('../models/Setting');
+  const sms = await Setting.findOne({ key: 'sms' }).lean();
+  return sms?.value?.enabled !== false;
+};
+
+/**
+ * Settings-aware, logged SMS send used by every feature module. Never throws:
+ * SMS is a secondary channel and must not fail the request that triggered it.
+ */
+const deliverSms = async ({ numbers, message, purpose = 'other', sentBy }) => {
+  const SmsLog = require('../models/SmsLog');
+  const list = (Array.isArray(numbers) ? numbers : [numbers]).filter(Boolean);
+  const base = { purpose, message, recipientCount: list.length, recipients: list.slice(0, 5), sentBy };
+
+  try {
+    if (!list.length || !isConfigured() || !(await isEnabledInSettings())) {
+      await SmsLog.create({ ...base, status: 'skipped' });
+      return { skipped: true };
+    }
+    const result = await broadcastSms(list, message);
+    await SmsLog.create({ ...base, status: 'sent' });
+    return result;
+  } catch (err) {
+    console.error(`[SMS] ${purpose} failed:`, err.message);
+    await SmsLog.create({ ...base, status: 'failed', error: err.message }).catch(() => {});
+    return { error: err.message };
+  }
+};
+
+/** Semaphore account info (credit balance etc.); null when not configured or unreachable. */
+const getAccountInfo = async () => {
+  if (!isConfigured()) return null;
+  try {
+    const response = await fetch(
+      `https://api.semaphore.co/api/v4/account?apikey=${encodeURIComponent(process.env.SEMAPHORE_API_KEY)}`
+    );
+    if (!response.ok) return null;
+    return response.json();
+  } catch {
+    return null;
+  }
+};
+
+module.exports = { sendSms, broadcastSms, deliverSms, getAccountInfo, isConfigured };

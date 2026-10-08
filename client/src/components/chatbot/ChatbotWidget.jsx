@@ -1,64 +1,21 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { FiMessageCircle, FiX, FiArrowLeft } from 'react-icons/fi';
-import api from '../../utils/api';
+import useChatbotTree from '../../hooks/useChatbotTree';
 
-/**
- * Rule-based, button-navigation chatbot (no AI/free text). Walks the
- * admin-managed Chatbot tree: fetch top-level topics, on select show the
- * node's canned response plus any of its child topics as new buttons.
- */
+const GREETING = "Hi! I'm the CiviCare Assistant. Choose a topic below to get started.";
+
+/** Floating menu-driven assistant on the public site (button navigation only, no free text). */
 const ChatbotWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [history, setHistory] = useState([{ label: 'Main Menu', parent: null }]);
-  const [menu, setMenu] = useState([]);
-  const [activeResponse, setActiveResponse] = useState(
-    "Hi! I'm the CiviCare Assistant. Choose a topic below to get started."
-  );
-  const [isLoading, setIsLoading] = useState(false);
-
-  const current = history[history.length - 1];
-
-  const loadMenu = async (parent) => {
-    setIsLoading(true);
-    try {
-      const { data } = await api.get('/chatbot/menu', { params: { parent: parent || 'null' } });
-      setMenu(data.data);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (isOpen) loadMenu(current.parent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, current.parent]);
-
-  const selectNode = async (node) => {
-    setIsLoading(true);
-    try {
-      const { data } = await api.get(`/chatbot/node/${node._id}`);
-      setActiveResponse(data.data.response);
-      setMenu(data.data.children);
-      setHistory((prev) => [...prev, { label: node.label, parent: node._id }]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const goBack = () => {
-    if (history.length <= 1) return;
-    const newHistory = history.slice(0, -1);
-    setHistory(newHistory);
-    setActiveResponse("Hi! I'm the CiviCare Assistant. Choose a topic below to get started.");
-  };
+  const { path, menu, response, isLoading, select, goBack } = useChatbotTree({ enabled: isOpen, greeting: GREETING });
 
   return (
     <>
       <button
         onClick={() => setIsOpen((v) => !v)}
         className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-primary-600 text-white shadow-lg transition hover:bg-primary-700"
-        aria-label="Open chatbot"
+        aria-label={isOpen ? 'Close assistant' : 'Open assistant'}
       >
         {isOpen ? <FiX className="h-6 w-6" /> : <FiMessageCircle className="h-6 w-6" />}
       </button>
@@ -72,7 +29,7 @@ const ChatbotWidget = () => {
             className="glass-card fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden bg-white dark:bg-gray-900"
           >
             <div className="flex items-center gap-2 bg-primary-600 px-4 py-3 text-white">
-              {history.length > 1 && (
+              {path.length > 0 && (
                 <button onClick={goBack} aria-label="Back">
                   <FiArrowLeft />
                 </button>
@@ -81,7 +38,7 @@ const ChatbotWidget = () => {
             </div>
 
             <div className="flex-1 overflow-y-auto px-4 py-3 text-sm">
-              <div className="mb-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800">{activeResponse}</div>
+              <div className="mb-3 rounded-xl bg-gray-100 p-3 dark:bg-gray-800">{response}</div>
             </div>
 
             <div className="max-h-40 overflow-y-auto border-t border-gray-100 p-3 dark:border-gray-800">
@@ -92,7 +49,7 @@ const ChatbotWidget = () => {
                   {menu.map((node) => (
                     <button
                       key={node._id}
-                      onClick={() => selectNode(node)}
+                      onClick={() => select(node)}
                       className="rounded-full border border-primary-200 px-3 py-1.5 text-xs font-medium text-primary-700 transition hover:bg-primary-50 dark:border-primary-800 dark:text-primary-400 dark:hover:bg-primary-500/10"
                     >
                       {node.label}

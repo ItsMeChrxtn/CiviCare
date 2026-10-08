@@ -7,7 +7,7 @@ const incidentSchema = new mongoose.Schema(
     reportedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 
     title: { type: String, required: true, trim: true },
-    description: { type: String, required: true, trim: true },
+    description: { type: String, trim: true, default: '' },
     category: { type: String, enum: Object.values(INCIDENT_CATEGORY), required: true },
     severity: { type: String, enum: Object.values(INCIDENT_SEVERITY), required: true },
     status: { type: String, enum: Object.values(INCIDENT_STATUS), default: INCIDENT_STATUS.PENDING },
@@ -38,6 +38,15 @@ const incidentSchema = new mongoose.Schema(
         note: String,
         updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
         updatedAt: { type: Date, default: Date.now },
+      },
+    ],
+
+    // Official-only working notes; stripped from resident responses.
+    internalNotes: [
+      {
+        note: { type: String, required: true, trim: true },
+        author: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+        createdAt: { type: Date, default: Date.now },
       },
     ],
 

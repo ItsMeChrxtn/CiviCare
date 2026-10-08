@@ -43,6 +43,7 @@ server/temp/
 # Backups
 server/backups/*.gz
 server/backups/*.zip
+server/backups/*.json
 
 # Misc
 *.pem

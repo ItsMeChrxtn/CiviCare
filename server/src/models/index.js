@@ -17,4 +17,6 @@ module.exports = {
   Setting: require('./Setting'),
   Log: require('./Log'),
   Archive: require('./Archive'),
+  SmsLog: require('./SmsLog'),
+  Counter: require('./Counter'),
 };

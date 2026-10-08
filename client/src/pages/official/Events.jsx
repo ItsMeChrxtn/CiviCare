@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiPlus, FiEdit2, FiArchive, FiUsers } from 'react-icons/fi';
+import { FiPlus, FiEdit2, FiArchive, FiUsers, FiCalendar, FiActivity, FiCheck, FiX } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import Modal from '../../components/common/Modal';
@@ -21,6 +21,11 @@ const Events = () => {
   const [confirming, setConfirming] = useState(null);
   const [coverImage, setCoverImage] = useState(null);
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const [stats, setStats] = useState(null);
+  const loadStats = () => api.get('/reports/events').then(({ data }) => setStats(data.data)).catch(() => {});
+  useEffect(() => {
+    loadStats();
+  }, []);
 
   const openCreate = () => {
     reset({ title: '', description: '', category: 'community', location: '', startDate: '', endDate: '', capacity: 0 });
@@ -71,14 +76,39 @@ const Events = () => {
     }
   };
 
+  const setStatus = async (event, status) => {
+    try {
+      await api.patch(`/events/${event._id}`, { status });
+      toast.success(`Event marked ${status}`);
+      refetch();
+      loadStats();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update event');
+    }
+  };
+
   return (
     <div>
+      <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {[
+          [FiCalendar, stats?.upcomingEvents, 'Upcoming Events', 'text-primary-600'],
+          [FiUsers, stats?.participantsRegistered, 'Participants Registered', 'text-orange-500'],
+          [FiActivity, stats ? `${stats.avgEngagementRate}%` : null, 'Avg Engagement Rate (last month)', 'text-emerald-600'],
+        ].map(([Icon, value, label, color]) => (
+          <div key={label} className="card p-5">
+            <Icon className={`h-7 w-7 ${color}`} />
+            <p className="mt-3 font-display text-3xl font-bold">{value ?? '—'}</p>
+            <p className="text-sm text-gray-500">{label}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="page-header flex-row items-center justify-between gap-3">
         <div>
-          <h1 className="page-title">Event Management</h1>
-          <p className="page-subtitle">Create, edit, and archive barangay events.</p>
+          <h2 className="font-display text-xl font-bold">Upcoming Events</h2>
+          <p className="page-subtitle">Create, edit, complete, or cancel barangay events.</p>
         </div>
-        <button onClick={openCreate} className="btn-primary"><FiPlus /> New Event</button>
+        <button onClick={openCreate} className="btn-primary"><FiPlus /> Add Event</button>
       </div>
 
       <div className="card animate-fadeIn p-5">
@@ -91,11 +121,40 @@ const Events = () => {
             { header: 'Title', accessor: (r) => <span className="font-medium text-gray-800 dark:text-gray-100">{r.title}</span> },
             { header: 'Location', accessor: (r) => r.location },
             { header: 'Start Date', accessor: (r) => format(new Date(r.startDate), 'MMM d, yyyy h:mm a') },
+            {
+              header: 'Participants',
+              accessor: (r) => (
+                <span className="badge bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">
+                  {r.participantCount ?? 0}
+                  {r.capacity ? ` / ${r.capacity}` : ''} Participants
+                </span>
+              ),
+            },
             { header: 'Status', accessor: (r) => <Badge status={r.status} /> },
             {
               header: 'Actions',
               accessor: (r) => (
                 <div className="flex items-center gap-1">
+                  {['upcoming', 'ongoing'].includes(r.status) && (
+                    <>
+                      <button
+                        onClick={() => setStatus(r, 'completed')}
+                        title="Mark completed"
+                        aria-label="Mark completed"
+                        className="rounded-lg p-1.5 text-emerald-600 transition hover:bg-emerald-50 dark:hover:bg-emerald-500/10"
+                      >
+                        <FiCheck className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setStatus(r, 'cancelled')}
+                        title="Cancel event"
+                        aria-label="Cancel event"
+                        className="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-500/10"
+                      >
+                        <FiX className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                   <Link
                     to={`/official/events/${r._id}/participants`}
                     title="Participants"

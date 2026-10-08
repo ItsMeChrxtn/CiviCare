@@ -1,0 +1,60 @@
+import { useCallback, useEffect, useState } from 'react';
+import api from '../utils/api';
+
+/**
+ * Walks the admin-managed, rule-based chatbot decision tree (no free text / NLP):
+ * top-level buttons -> selecting one shows its canned answer and its children as the next buttons.
+ */
+const useChatbotTree = ({ enabled = true, greeting = '' } = {}) => {
+  const [path, setPath] = useState([]); // selected nodes, root -> current
+  const [menu, setMenu] = useState([]);
+  const [response, setResponse] = useState(greeting);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const loadRoot = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const { data } = await api.get('/chatbot/menu', { params: { parent: 'null' } });
+      setMenu(data.data);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (enabled && path.length === 0) loadRoot();
+  }, [enabled, path.length, loadRoot]);
+
+  const open = useCallback(async (node) => {
+    setIsLoading(true);
+    try {
+      const { data } = await api.get(`/chatbot/node/${node._id}`);
+      setResponse(data.data.response);
+      setMenu(data.data.children);
+      return data.data;
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const select = async (node) => {
+    await open(node);
+    setPath((p) => [...p, node]);
+  };
+
+  const goBack = async () => {
+    const next = path.slice(0, -1);
+    setPath(next);
+    if (next.length) await open(next[next.length - 1]);
+    else setResponse(greeting);
+  };
+
+  const reset = () => {
+    setPath([]);
+    setResponse(greeting);
+  };
+
+  return { path, menu, response, isLoading, select, goBack, reset };
+};
+
+export default useChatbotTree;

@@ -5,6 +5,7 @@ import { FiSettings, FiMessageSquare, FiMail, FiTag } from 'react-icons/fi';
 import api from '../../utils/api';
 import { DOCUMENT_TYPES } from '../../utils/constants';
 import PageLoader from '../../components/common/PageLoader';
+import { invalidateSetting } from '../../hooks/useSetting';
 
 const TABS = ['general', 'sms', 'email', 'categories'];
 const TAB_ICONS = { general: FiSettings, sms: FiMessageSquare, email: FiMail, categories: FiTag };
@@ -36,6 +37,7 @@ const Settings = () => {
         await api.put(`/settings/${tab}`, values);
       }
       toast.success('Settings saved successfully');
+      invalidateSetting(tab);
       load();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save settings');
@@ -86,11 +88,25 @@ const Settings = () => {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="mb-1 block text-sm font-medium">Contact Email</label>
-                <input {...register('contactEmail')} className="input-field" />
+                <input {...register('email')} className="input-field" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium">Contact Phone</label>
-                <input {...register('contactPhone')} className="input-field" />
+                <input {...register('phone')} className="input-field" />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">About the Barangay (resident dashboard)</label>
+              <textarea rows={4} {...register('about')} className="input-field" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Map center latitude</label>
+                <input type="number" step="any" {...register('mapCenter.0', { valueAsNumber: true })} className="input-field" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Map center longitude</label>
+                <input type="number" step="any" {...register('mapCenter.1', { valueAsNumber: true })} className="input-field" />
               </div>
             </div>
           </>

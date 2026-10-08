@@ -10,6 +10,7 @@ const { generateCode } = require('../services/qrcode.service');
 const { generateOtp } = require('../utils/otp');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/email.service');
 const { writeLog } = require('../services/log.service');
+const { splitFullName } = require('../utils/splitFullName');
 
 const CLIENT_URL = () => process.env.CLIENT_URL;
 
@@ -18,8 +19,14 @@ const PENDING_TTL_MS = 15 * 60 * 1000; // unverified signup record self-deletes 
 
 // @route POST /api/auth/register
 const register = catchAsync(async (req, res) => {
-  const { firstName, middleName, lastName, suffix, email, password, phone, birthdate, gender, address } =
-    req.body;
+  const { middleName, email, password, phone, birthdate, gender } = req.body;
+  // The registration screen collects a single "Full Name"; older clients still send the split fields.
+  const split = req.body.fullName ? splitFullName(req.body.fullName) : {};
+  const firstName = req.body.firstName || split.firstName;
+  const lastName = req.body.lastName || split.lastName;
+  const suffix = req.body.suffix || split.suffix;
+  const address = { barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite', ...(req.body.address || {}) };
+  if (req.body.purok) address.purok = req.body.purok;
 
   const existing = await User.findOne({ email });
   if (existing) throw ApiError.conflict('An account with this email already exists.');

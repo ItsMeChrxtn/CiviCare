@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { FiCrosshair } from 'react-icons/fi';
+import { DEFAULT_MAP_CENTER } from '../../utils/constants';
 
 const markerIcon = L.divIcon({
   className: '',
-  html: '<span style="display:block;width:20px;height:20px;border-radius:9999px 9999px 9999px 0;background:#0f766e;transform:rotate(45deg);border:2px solid white;"></span>',
-  iconSize: [20, 20],
-  iconAnchor: [10, 20],
+  html: '<span style="display:block;width:26px;height:26px;border-radius:9999px 9999px 9999px 0;background:#dc2626;transform:rotate(-45deg);border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,.4)"></span>',
+  iconSize: [26, 26],
+  iconAnchor: [13, 26],
 });
 
 const ClickHandler = ({ onPick }) => {
@@ -19,43 +19,28 @@ const ClickHandler = ({ onPick }) => {
   return null;
 };
 
-/** Click-to-pin (or GPS) location picker used by the resident incident report form. */
-const LocationPicker = ({ value, onChange, defaultCenter = [14.676, 121.0437] }) => {
-  const [position, setPosition] = useState(value || null);
-
-  const handlePick = (latlng) => {
-    setPosition(latlng);
-    onChange(latlng);
-  };
-
-  const useMyLocation = () => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const latlng = [pos.coords.latitude, pos.coords.longitude];
-      handlePick(latlng);
-    });
-  };
-
-  return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 dark:border-gray-800">
-      <div className="flex items-center justify-between bg-gray-50 px-3 py-2 text-xs dark:bg-gray-800">
-        <span>{position ? `Pinned: ${position[0].toFixed(5)}, ${position[1].toFixed(5)}` : 'Tap the map to pin the incident location'}</span>
-        <button type="button" onClick={useMyLocation} className="flex items-center gap-1 font-medium text-primary-600">
-          <FiCrosshair /> Use my location
-        </button>
-      </div>
-      <div style={{ height: '18rem' }}>
-        <MapContainer center={position || defaultCenter} zoom={16} style={{ height: '100%', width: '100%' }}>
-          <TileLayer
-            attribution='&copy; OpenStreetMap contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <ClickHandler onPick={handlePick} />
-          {position && <Marker position={position} icon={markerIcon} />}
-        </MapContainer>
-      </div>
-    </div>
-  );
+/** Pans to the pin whenever it changes from outside (e.g. the "Use your location" button). */
+const FollowValue = ({ value }) => {
+  const map = useMap();
+  useEffect(() => {
+    if (value) map.flyTo(value, Math.max(map.getZoom(), 17), { duration: 0.6 });
+  }, [value, map]);
+  return null;
 };
+
+/** Controlled click-to-pin map used by the incident report screen. `value` is [lat, lng] or null. */
+const LocationPicker = ({ value, onChange, center = DEFAULT_MAP_CENTER, height = '18rem', zoom = 16 }) => (
+  <div style={{ height }} className="relative z-0 w-full">
+    <MapContainer center={value || center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      <ClickHandler onPick={onChange} />
+      <FollowValue value={value} />
+      {value && <Marker position={value} icon={markerIcon} />}
+    </MapContainer>
+  </div>
+);
 
 export default LocationPicker;

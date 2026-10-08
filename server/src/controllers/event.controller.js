@@ -40,10 +40,17 @@ const getAllEvents = catchAsync(async (req, res) => {
     .sort()
     .paginate();
 
-  const [items, total] = await Promise.all([
+  const [events, total] = await Promise.all([
     features.query,
     Event.countDocuments({ ...baseFilter, ...features.query.getFilter() }),
   ]);
+
+  const counts = await EventRegistration.aggregate([
+    { $match: { event: { $in: events.map((e) => e._id) } } },
+    { $group: { _id: '$event', count: { $sum: 1 } } },
+  ]);
+  const countById = new Map(counts.map((c) => [String(c._id), c.count]));
+  const items = events.map((e) => ({ ...e.toJSON(), participantCount: countById.get(String(e._id)) || 0 }));
 
   res.status(200).json(
     new ApiResponse(200, items, 'Fetched successfully', {

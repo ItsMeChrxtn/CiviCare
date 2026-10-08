@@ -6,7 +6,8 @@ const Announcement = require('../models/Announcement');
 const User = require('../models/User');
 const { uploadBuffer } = require('../services/cloudinary.service');
 const { notifyRole } = require('../services/notification.service');
-const { broadcastSms } = require('../services/sms.service');
+const { deliverSms } = require('../services/sms.service');
+const { writeLog } = require('../services/log.service');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
 const { emitToRole } = require('../config/socket');
 const { NOTIFICATION_TYPE, ROLES } = require('../config/constants');
@@ -24,7 +25,7 @@ const createAnnouncement = catchAsync(async (req, res) => {
     isPinned: isPinned === 'true' || isPinned === true,
     coverImage,
     postedBy: req.user._id,
-    sentViaSms: Boolean(shouldSendSms),
+    sentViaSms: shouldSendSms === 'true' || shouldSendSms === true,
   });
 
   const residents = await User.find({ role: ROLES.RESIDENT, isArchived: false, isActive: true }).select('_id phone');
@@ -40,11 +41,15 @@ const createAnnouncement = catchAsync(async (req, res) => {
   });
 
   if (shouldSendSms === 'true' || shouldSendSms === true) {
-    const numbers = residents.map((r) => r.phone).filter(Boolean);
-    broadcastSms(numbers, `[CiviCare] ${title}: ${content.slice(0, 100)}`).catch((err) =>
-      console.error('[SMS] Announcement broadcast failed:', err.message)
-    );
+    deliverSms({
+      numbers: residents.map((r) => r.phone),
+      purpose: 'announcement',
+      sentBy: req.user._id,
+      message: `[CiviCare] ${title}: ${content.slice(0, 100)}`,
+    });
   }
+
+  await writeLog({ req, action: 'ANNOUNCEMENT_CREATE', module: 'announcements', description: `Published "${title}"` });
 
   res.status(201).json(new ApiResponse(201, announcement, 'Announcement published successfully'));
 });

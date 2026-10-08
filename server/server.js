@@ -8,6 +8,7 @@ const PORT = process.env.PORT || 5000;
 
 const start = async () => {
   await connectDB();
+  require('./src/services/bootstrap.service').runStartupTasks();
 
   const httpServer = http.createServer(app);
   initSocket(httpServer);

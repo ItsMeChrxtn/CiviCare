@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 170" role="img" aria-label="CiviCare logo">
+  <!-- left figure (orange) -->
+  <circle cx="52" cy="48" r="17" fill="#f28c1b"/>
+  <path d="M22 118c2-30 14-48 32-50 14 1 20 10 24 22l-14 36z" fill="#f28c1b"/>
+  <!-- right figure (green) -->
+  <circle cx="148" cy="48" r="17" fill="#4caf3a"/>
+  <path d="M178 118c-2-30-14-48-32-50-14 1-20 10-24 22l14 36z" fill="#4caf3a"/>
+  <!-- center figure (blue), arms raised -->
+  <circle cx="100" cy="26" r="19" fill="#1565c0"/>
+  <path d="M100 50c-12 0-18 8-20 20l-16-26c-4-6-13-3-11 4l20 42c3 8 6 16 6 34h42c0-18 3-26 6-34l20-42c2-7-7-10-11-4l-16 26c-2-12-8-20-20-20z" fill="#1976d2"/>
+  <!-- caring hand -->
+  <path d="M8 120c28 26 70 34 110 26 26-5 50-18 72-38 4-4-1-10-6-7-20 14-40 22-62 25-26 3-48 0-70-8-14-5-26-9-38-6-6 1-10 4-6 8z" fill="#1e5aa8"/>
+  <path d="M30 140c34 18 86 22 128 4" fill="none" stroke="#1e5aa8" stroke-width="9" stroke-linecap="round"/>
+</svg>

@@ -6,30 +6,49 @@ import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
-import HazardMap from '../../components/map/HazardMap';
-import LocationPicker from '../../components/map/LocationPicker';
+import HazardMap, { LAYER_META } from '../../components/map/HazardMap';
+import ShapePicker, { toGeometry } from '../../components/map/ShapePicker';
 import EmptyState from '../../components/common/EmptyState';
 import { CardSkeleton } from '../../components/common/Skeleton';
 
-const LAYERS = ['flood', 'fire', 'danger_zone', 'road_closure', 'evacuation_center', 'safe_area'];
+// Default geometry per layer: facilities are points, routes are lines, zones are areas.
+const DEFAULT_KIND = {
+  evacuation_center: 'Point',
+  health_center: 'Point',
+  fire_station: 'Point',
+  police_station: 'Point',
+  safe_area: 'Point',
+  evacuation_route: 'LineString',
+  road_closure: 'LineString',
+  flood: 'Polygon',
+  danger_zone: 'Polygon',
+  fire: 'Polygon',
+};
+const KINDS = [
+  { value: 'Point', label: 'Point (facility / marker)' },
+  { value: 'LineString', label: 'Line (route / road)' },
+  { value: 'Polygon', label: 'Area (zone)' },
+];
 
 const Hazards = () => {
   const { rows, isLoading, refetch } = usePaginatedFetch('/hazards', { limit: 100 });
   const [isOpen, setIsOpen] = useState(false);
   const [confirming, setConfirming] = useState(null);
-  const [location, setLocation] = useState(null);
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  const [points, setPoints] = useState([]);
+  const [kind, setKind] = useState('Point');
+  const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: { layer: 'evacuation_center', severityLevel: 'moderate' },
+  });
+  const layer = watch('layer');
 
   const onSubmit = async (values) => {
-    if (!location) return toast.error('Please pin the location on the map');
+    const geometry = toGeometry(kind, points);
+    if (!geometry) return toast.error('Please finish drawing the feature on the map');
     try {
-      await api.post('/hazards', {
-        ...values,
-        geometry: { type: 'Point', coordinates: [location[1], location[0]] },
-      });
+      await api.post('/hazards', { ...values, geometry });
       toast.success('Hazard map feature added');
       reset();
-      setLocation(null);
+      setPoints([]);
       setIsOpen(false);
       refetch();
     } catch (err) {
@@ -55,7 +74,7 @@ const Hazards = () => {
           <h1 className="page-title">Hazard Map Management</h1>
           <p className="page-subtitle">Manage flood zones, evacuation centers, and other map layers.</p>
         </div>
-        <button onClick={() => setIsOpen(true)} className="btn-primary"><FiPlus /> Add Point Feature</button>
+        <button onClick={() => setIsOpen(true)} className="btn-primary"><FiPlus /> Add Map Feature</button>
       </div>
 
       <div className="animate-fadeIn mb-6">
@@ -91,13 +110,35 @@ const Hazards = () => {
         </div>
       )}
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Hazard Map Feature (Point)" size="lg">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Hazard / Evacuation Map Feature" size="lg">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <label className="mb-1 block text-sm font-medium">Layer</label>
-              <select {...register('layer', { required: true })} className="input-field capitalize">
-                {LAYERS.map((l) => <option key={l} value={l} className="capitalize">{l.replace(/_/g, ' ')}</option>)}
+              <select
+                {...register('layer', {
+                  required: true,
+                  onChange: (e) => {
+                    setKind(DEFAULT_KIND[e.target.value] || 'Point');
+                    setPoints([]);
+                  },
+                })}
+                className="input-field"
+              >
+                {Object.entries(LAYER_META).map(([key, meta]) => <option key={key} value={key}>{meta.label}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Shape</label>
+              <select
+                value={kind}
+                onChange={(e) => {
+                  setKind(e.target.value);
+                  setPoints([]);
+                }}
+                className="input-field"
+              >
+                {KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
               </select>
             </div>
             <div>
@@ -128,7 +169,7 @@ const Hazards = () => {
           </div>
           <div>
             <label className="mb-1 block text-sm font-medium">Location</label>
-            <LocationPicker value={location} onChange={setLocation} />
+            <ShapePicker kind={kind} points={points} onChange={setPoints} color={LAYER_META[layer]?.color} />
           </div>
           <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
             {isSubmitting ? 'Saving...' : 'Add Feature'}

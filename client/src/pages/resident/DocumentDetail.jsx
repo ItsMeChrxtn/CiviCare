@@ -6,10 +6,12 @@ import api from '../../utils/api';
 import PageLoader from '../../components/common/PageLoader';
 import Badge from '../../components/common/Badge';
 import { DOCUMENT_TYPES } from '../../utils/constants';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 const DocumentDetail = () => {
   const { id } = useParams();
   const [doc, setDoc] = useState(null);
+  const { t } = usePreferences();
 
   useEffect(() => {
     api.get(`/documents/${id}`).then(({ data }) => setDoc(data.data));
@@ -20,7 +22,7 @@ const DocumentDetail = () => {
   return (
     <div>
       <Link to="/resident/documents" className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-600 hover:underline dark:text-primary-400">
-        <FiArrowLeft /> Back to Requests
+        <FiArrowLeft /> {t('common.back')}
       </Link>
 
       <div className="card animate-fadeIn p-6">
@@ -61,6 +63,24 @@ const DocumentDetail = () => {
         {doc.status === 'rejected' && doc.rejectionReason && (
           <div className="mt-6 rounded-xl border border-red-100 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-400">
             <span className="font-semibold">Rejection reason:</span> {doc.rejectionReason}
+          </div>
+        )}
+
+        {doc.status === 'pending' && (
+          <div className="mt-6 rounded-xl bg-primary-50 p-4 text-sm text-primary-900 dark:bg-primary-500/10 dark:text-primary-200">
+            <p>{t('service.step3')}</p>
+            <p className="mt-1">{t('service.step4')}</p>
+          </div>
+        )}
+
+        {doc.qrDataUrl && (
+          <div className="mt-6 flex flex-col items-center gap-2 rounded-xl border border-gray-100 p-4 text-center dark:border-gray-800 sm:flex-row sm:text-left">
+            <img src={doc.qrDataUrl} alt="Document verification QR code" className="h-36 w-36" />
+            <div className="text-sm text-gray-600 dark:text-gray-300">
+              <p className="font-semibold text-gray-900 dark:text-gray-100">QR Code Verification</p>
+              <p>Anyone can scan this code to confirm the document is genuine and unaltered. It is also printed on your PDF.</p>
+              <a href={doc.qrDataUrl} download={`${doc.referenceCode}-qr.png`}className="mt-2 inline-block font-semibold text-primary-700 hover:underline">Download QR</a>
+            </div>
           </div>
         )}
 

@@ -20,6 +20,7 @@ router.get('/:id', incidentController.getIncident);
 
 router.patch('/:id/assign', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.assignIncident);
 router.patch('/:id/status', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.updateIncidentStatus);
+router.post('/:id/notes', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.addInternalNote);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.archiveIncident);
 router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.restoreIncident);
 

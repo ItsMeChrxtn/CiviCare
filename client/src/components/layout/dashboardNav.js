@@ -1,15 +1,15 @@
 import {
   FiHome,
   FiUser,
-  FiAlertTriangle,
+  FiAlertCircle,
   FiBell,
   FiCalendar,
   FiGift,
   FiFileText,
   FiMessageSquare,
-  FiShield,
   FiUsers,
   FiMap,
+  FiPhone,
   FiPhoneCall,
   FiSettings,
   FiClipboard,
@@ -18,51 +18,89 @@ import {
   FiKey,
   FiDatabase,
   FiHelpCircle,
-  FiRadio,
+  FiVolume2,
+  FiCheckSquare,
+  FiSun,
+  FiActivity,
 } from 'react-icons/fi';
 
-export const RESIDENT_NAV = [
-  { to: '/resident', label: 'Dashboard', icon: FiHome, end: true },
-  { to: '/resident/profile', label: 'My Profile', icon: FiUser },
-  { to: '/resident/incidents', label: 'Report Incident', icon: FiAlertTriangle },
-  { to: '/resident/documents', label: 'Document Requests', icon: FiFileText },
-  { to: '/resident/events', label: 'Events', icon: FiCalendar },
-  { to: '/resident/donations', label: 'Donations', icon: FiGift },
-  { to: '/resident/emergency-hub', label: 'Emergency Hub', icon: FiPhoneCall },
-  { to: '/resident/feedback', label: 'Feedback', icon: FiMessageSquare },
-  { to: '/resident/notifications', label: 'Notifications', icon: FiBell },
+/**
+ * Sidebar navigation per portal. `labelKey` is translated at render time.
+ * `main` mirrors the docu screens (Figures 6-19); `more` holds the extra modules.
+ */
+export const RESIDENT_NAV = {
+  main: [
+    { to: '/resident', labelKey: 'nav.dashboard', icon: FiHome, end: true },
+    { to: '/resident/announcements', labelKey: 'nav.announcements', icon: FiVolume2 },
+    { to: '/resident/incidents', labelKey: 'nav.incidentReporting', icon: FiAlertCircle },
+    { to: '/resident/documents', labelKey: 'nav.serviceRequest', icon: FiFileText },
+    { to: '/resident/events', labelKey: 'nav.events', icon: FiCheckSquare },
+    { to: '/resident/emergency-hub', labelKey: 'nav.emergencyHub', icon: FiSun },
+    { to: '/resident/contact', labelKey: 'nav.contact', icon: FiPhone },
+  ],
+  more: [
+    { to: '/resident/donations', labelKey: 'nav.donations', icon: FiGift },
+    { to: '/resident/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
+    { to: '/resident/notifications', labelKey: 'nav.notifications', icon: FiBell },
+    { to: '/resident/profile', labelKey: 'nav.profile', icon: FiUser },
+  ],
+  assistant: '/resident/assistant',
+};
+
+const STAFF_MAIN = [
+  { to: '/official/residents', labelKey: 'nav.residents', icon: FiUser },
+  { to: '/official/incidents', labelKey: 'nav.incidents', icon: FiAlertCircle },
+  { to: '/official/documents', labelKey: 'nav.serviceRequest', icon: FiCheckSquare },
+  { to: '/official/events', labelKey: 'nav.events', icon: FiFileText },
+  { to: '/official/broadcast', labelKey: 'nav.emergencySms', icon: FiMessageSquare },
 ];
 
-export const OFFICIAL_NAV = [
-  { to: '/official', label: 'Dashboard', icon: FiHome, end: true },
-  { to: '/official/residents', label: 'Residents', icon: FiUsers },
-  { to: '/official/incidents', label: 'Incidents', icon: FiAlertTriangle },
-  { to: '/official/announcements', label: 'Announcements', icon: FiRadio },
-  { to: '/official/events', label: 'Events', icon: FiCalendar },
-  { to: '/official/donations', label: 'Donations', icon: FiGift },
-  { to: '/official/documents', label: 'Documents', icon: FiFileText },
-  { to: '/official/hazards', label: 'Hazard Map', icon: FiMap },
-  { to: '/official/feedback', label: 'Feedback', icon: FiMessageSquare },
-  { to: '/official/broadcast', label: 'Broadcast', icon: FiRadio },
-  { to: '/official/reports', label: 'Reports', icon: FiBarChart2 },
-  { to: '/official/archive', label: 'Archive', icon: FiArchive },
-  { to: '/official/notifications', label: 'Notifications', icon: FiBell },
+const STAFF_MORE = [
+  { to: '/official/announcements', labelKey: 'nav.announcements', icon: FiVolume2 },
+  { to: '/official/hazards', labelKey: 'nav.hazardMap', icon: FiMap },
+  { to: '/official/donations', labelKey: 'nav.donations', icon: FiGift },
+  { to: '/official/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
+  { to: '/official/reports', labelKey: 'nav.reports', icon: FiBarChart2 },
+  { to: '/official/archive', labelKey: 'nav.archive', icon: FiArchive },
 ];
 
-export const ADMIN_NAV = [
-  { to: '/admin', label: 'Dashboard', icon: FiHome, end: true },
-  { to: '/admin/users', label: 'Manage Users', icon: FiUsers },
-  { to: '/admin/roles', label: 'Roles & Permissions', icon: FiKey },
-  { to: '/admin/chatbot', label: 'Chatbot Manager', icon: FiMessageSquare },
-  { to: '/admin/hotlines', label: 'Hotlines', icon: FiPhoneCall },
-  { to: '/admin/settings', label: 'System Settings', icon: FiSettings },
-  { to: '/admin/backup', label: 'Backup & Restore', icon: FiDatabase },
-  { to: '/admin/logs', label: 'Audit / System Logs', icon: FiClipboard },
-  { to: '/admin/analytics', label: 'Analytics', icon: FiBarChart2 },
-  { to: '/admin/faq', label: 'FAQ Manager', icon: FiHelpCircle },
-  { to: '/admin/notifications', label: 'Notifications', icon: FiBell },
-];
+export const OFFICIAL_NAV = {
+  main: [{ to: '/official', labelKey: 'nav.overview', icon: FiHome, end: true }, ...STAFF_MAIN],
+  more: [
+    ...STAFF_MORE,
+    { to: '/official/notifications', labelKey: 'nav.notifications', icon: FiBell },
+    { to: '/official/profile', labelKey: 'nav.profile', icon: FiUser },
+  ],
+};
+
+export const ADMIN_NAV = {
+  main: [{ to: '/admin', labelKey: 'nav.overview', icon: FiHome, end: true }, ...STAFF_MAIN],
+  more: STAFF_MORE,
+  system: [
+    { to: '/admin/status', labelKey: 'nav.status', icon: FiBarChart2 },
+    { to: '/admin/users', labelKey: 'nav.users', icon: FiUsers },
+    { to: '/admin/roles', labelKey: 'nav.roles', icon: FiKey },
+    { to: '/admin/chatbot', labelKey: 'nav.chatbot', icon: FiMessageSquare },
+    { to: '/admin/faq', labelKey: 'nav.faq', icon: FiHelpCircle },
+    { to: '/admin/hotlines', labelKey: 'nav.hotlines', icon: FiPhoneCall },
+    { to: '/admin/settings', labelKey: 'nav.settings', icon: FiSettings },
+    { to: '/admin/backup', labelKey: 'nav.backup', icon: FiDatabase },
+    { to: '/admin/logs', labelKey: 'nav.logs', icon: FiClipboard },
+    { to: '/admin/analytics', labelKey: 'nav.analytics', icon: FiActivity },
+    { to: '/admin/notifications', labelKey: 'nav.notifications', icon: FiBell },
+    { to: '/admin/profile', labelKey: 'nav.profile', icon: FiUser },
+  ],
+};
 
 export const NAV_BY_ROLE = { resident: RESIDENT_NAV, official: OFFICIAL_NAV, admin: ADMIN_NAV };
-export const ROLE_LABEL = { resident: 'Resident Portal', official: 'Official Portal', admin: 'Admin Console' };
-export const ROLE_ICON = { resident: FiUser, official: FiShield, admin: FiShield };
+
+/** Finds the nav entry for the current path (longest matching prefix) to title the top bar. */
+export const findNavItem = (role, pathname) => {
+  const nav = NAV_BY_ROLE[role];
+  if (!nav) return null;
+  const all = [...nav.main, ...(nav.more || []), ...(nav.system || [])];
+  if (pathname === nav.assistant) return { labelKey: 'nav.assistant' };
+  return all
+    .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
+    .sort((a, b) => b.to.length - a.to.length)[0];
+};

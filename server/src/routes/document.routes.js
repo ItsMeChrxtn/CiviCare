@@ -14,6 +14,8 @@ router.get('/stats/overview', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentC
 router.post('/', restrictTo(ROLES.RESIDENT), documentController.createDocumentRequest);
 router.get('/', documentController.getAllDocuments);
 router.get('/:id', documentController.getDocument);
+router.patch('/:id/priority', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.setPriority);
+router.patch('/:id/process', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.markProcessing);
 router.patch('/:id/review', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.reviewDocument);
 router.patch('/:id/claim', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.markClaimed);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.archiveDocumentRequest);

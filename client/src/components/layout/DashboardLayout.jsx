@@ -1,14 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
+import { useAuth } from '../../contexts/AuthContext';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const { user } = useAuth();
+  const isStaff = user?.role === 'official' || user?.role === 'admin';
+
+  // Blue palette for the officials/admin portal; green (the :root default) for residents.
+  // Set on <html> so portaled modals pick up the same theme.
+  useEffect(() => {
+    document.documentElement.classList.toggle('theme-staff', isStaff);
+    return () => document.documentElement.classList.remove('theme-staff');
+  }, [isStaff]);
 
   return (
-    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-950">
+    <div className="flex min-h-screen bg-[rgb(var(--portal-bg))] dark:bg-gray-950">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />

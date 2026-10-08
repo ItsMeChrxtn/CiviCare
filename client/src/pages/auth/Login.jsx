@@ -3,21 +3,43 @@ import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
-import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePreferences } from '../../contexts/PreferencesContext';
+import AuthShell from '../../components/layout/AuthShell';
 
+const REMEMBER_KEY = 'civicare-remembered-email';
 const roleHome = (role) => (role === 'resident' ? '/resident' : role === 'official' ? '/official' : '/admin');
 
+const readRemembered = () => {
+  try {
+    return localStorage.getItem(REMEMBER_KEY) || '';
+  } catch {
+    return '';
+  }
+};
+
 const Login = () => {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
+  const remembered = readRemembered();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({ defaultValues: { email: remembered, remember: Boolean(remembered) } });
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
+  const { t } = usePreferences();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const onSubmit = async ({ email, password }) => {
+  const onSubmit = async ({ email, password, remember }) => {
     try {
       const user = await login(email, password);
+      try {
+        if (remember) localStorage.setItem(REMEMBER_KEY, email);
+        else localStorage.removeItem(REMEMBER_KEY);
+      } catch {
+        // storage unavailable - nothing to remember
+      }
       toast.success(`Welcome back, ${user.firstName}!`);
       navigate(location.state?.from?.pathname || roleHome(user.role), { replace: true });
     } catch (err) {
@@ -26,77 +48,74 @@ const Login = () => {
   };
 
   return (
-    <div className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-16">
-      <div className="absolute inset-0 -z-10 bg-radial-fade" />
-      <div className="absolute inset-0 -z-10 bg-grid-slate bg-[length:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_40%,black,transparent)]" />
-
-      <Link to="/" className="mb-6 flex items-center gap-2.5 font-display font-extrabold text-primary-700 dark:text-primary-400">
-        <img src="/favicon.svg" alt="CiviCare" className="h-9 w-9" />
-        <span className="text-xl">CiviCare</span>
-      </Link>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="card w-full max-w-md p-8 shadow-card-hover"
-      >
-        <h1 className="font-display text-2xl font-extrabold tracking-tight">Welcome Back</h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Log in to your CiviCare account.</p>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-6 space-y-4">
-          <div>
-            <label className="mb-1 block text-sm font-medium">Email Address</label>
-            <div className="group relative">
-              <FiMail className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-primary-500" />
-              <input
-                type="email"
-                placeholder="you@example.com"
-                {...register('email', { required: 'Email is required' })}
-                className="input-field pl-10"
-              />
-            </div>
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+    <AuthShell>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <div>
+          <label htmlFor="email" className="mb-1 block text-sm font-medium">
+            {t('auth.email')}
+          </label>
+          <div className="relative">
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              placeholder={t('auth.emailPh')}
+              {...register('email', { required: t('common.required') })}
+              className="input-field pr-10"
+            />
+            <FiMail className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           </div>
+          {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
+        </div>
 
-          <div>
-            <div className="mb-1 flex items-center justify-between">
-              <label className="block text-sm font-medium">Password</label>
-              <Link to="/forgot-password" className="text-xs font-medium text-primary-600 hover:underline dark:text-primary-400">
-                Forgot password?
-              </Link>
-            </div>
-            <div className="group relative">
-              <FiLock className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors group-focus-within:text-primary-500" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="••••••••"
-                {...register('password', { required: 'Password is required' })}
-                className="input-field pl-10 pr-10"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
-              >
-                {showPassword ? <FiEyeOff /> : <FiEye />}
-              </button>
-            </div>
-            {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+        <div>
+          <label htmlFor="password" className="mb-1 block text-sm font-medium">
+            {t('auth.password')}
+          </label>
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              autoComplete="current-password"
+              placeholder={t('auth.passwordPh')}
+              {...register('password', { required: t('common.required') })}
+              className="input-field pr-16"
+            />
+            <FiLock className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <button
+              type="button"
+              onClick={() => setShowPassword((v) => !v)}
+              className="absolute right-9 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? <FiEyeOff /> : <FiEye />}
+            </button>
           </div>
+          {errors.password && <p className="mt-1 text-xs text-red-500">{errors.password.message}</p>}
+        </div>
 
-          <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
-            {isSubmitting ? 'Logging in...' : 'Log In'}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-500 dark:text-gray-400">
-          Don't have an account?{' '}
-          <Link to="/register" className="font-semibold text-primary-600 hover:underline dark:text-primary-400">
-            Register here
+        <div className="flex items-center justify-between text-sm">
+          <label className="flex items-center gap-2">
+            <input type="checkbox" {...register('remember')} className="h-4 w-4 accent-primary-600" />
+            {t('auth.remember')}
+          </label>
+          <Link to="/forgot-password" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+            {t('auth.forgot')}
           </Link>
-        </p>
-      </motion.div>
-    </div>
+        </div>
+
+        <button type="submit" disabled={isSubmitting} className="btn-primary w-full !rounded-lg !py-3 text-lg tracking-wide">
+          {isSubmitting ? t('common.loading') : t('auth.loginBtn')}
+        </button>
+      </form>
+
+      <div className="mt-6 border-t-2 border-blue-200 pt-4 text-center text-sm dark:border-blue-900">
+        <p className="text-gray-600 dark:text-gray-400">{t('auth.noAccount')}</p>
+        <Link to="/register" className="mt-1 inline-block font-semibold text-blue-600 hover:underline dark:text-blue-400">
+          {t('auth.registerHere')}
+        </Link>
+      </div>
+    </AuthShell>
   );
 };
 

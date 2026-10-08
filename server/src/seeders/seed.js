@@ -36,50 +36,105 @@ const PERMISSION_SEED = Object.entries(PERMISSIONS).map(([, key]) => ({
   group: key.split('_')[0],
 }));
 
+// Barangay Magdiwang, Noveleta, Cavite - approximate center used for the map seed data.
+const CENTER = { lat: 14.4296, lng: 120.8794 };
+const at = (dLat, dLng) => [CENTER.lng + dLng, CENTER.lat + dLat]; // GeoJSON [lng, lat]
+
+// 911 and Red Cross 143 are national numbers. The local numbers are placeholders:
+// the barangay must replace them with the verified numbers in Admin > Hotlines before go-live.
 const HOTLINE_SEED = [
-  { name: 'MDRRMO', category: 'mdrrmo', number: '(02) 8123-4567', availability: '24/7', order: 1 },
-  { name: 'Barangay Emergency Hotline', category: 'barangay', number: '0917-000-0001', availability: '24/7', order: 2 },
-  { name: 'PNP - Local Police Station', category: 'police', number: '117', alternateNumber: '(02) 8722-0650', order: 3 },
-  { name: 'Bureau of Fire Protection', category: 'fire', number: '(02) 8426-0219', availability: '24/7', order: 4 },
-  { name: 'Barangay Health Center', category: 'medical', number: '0917-000-0002', availability: '8AM - 5PM', order: 5 },
-  { name: 'City General Hospital', category: 'hospital', number: '(02) 8711-9491', availability: '24/7', order: 6 },
-  { name: 'Red Cross', category: 'medical', number: '143', availability: '24/7', order: 7 },
-  { name: 'National Water District', category: 'utility', number: '(02) 8922-3120', order: 8 },
+  { name: 'National Emergency Hotline', category: 'other', number: '911', availability: '24/7', order: 1 },
+  { name: 'Barangay Magdiwang Emergency', category: 'barangay', number: '09XX-XXX-XXXX', availability: '24/7', order: 2 },
+  { name: 'BFP Noveleta Fire Station', category: 'fire', number: '(046) XXX-XXXX', availability: '24/7', order: 3 },
+  { name: 'PNP Noveleta', category: 'police', number: '(046) XXX-XXXX', availability: '24/7', order: 4 },
+  { name: 'Noveleta Health Center', category: 'medical', number: '(046) XXX-XXXX', availability: '8AM - 5PM', order: 5 },
+  { name: 'Noveleta MDRRMO Hotline', category: 'mdrrmo', number: '09XX-XXX-XXXX', availability: '24/7', order: 6 },
+  { name: 'Red Cross Cavite', category: 'medical', number: '143', availability: '24/7', order: 7 },
 ];
 
+// Decision tree for the menu-driven virtual assistant: top-level buttons with child buttons.
 const CHATBOT_SEED = [
   {
     label: 'Barangay Clearance',
-    response:
-      'A Barangay Clearance can be requested through the Document Request section of your dashboard. Requirements: valid ID and proof of residency. Processing time is 1-2 business days.',
+    response: 'What would you like to know about the Barangay Clearance?',
+    children: [
+      {
+        label: 'Requirements',
+        response:
+          'Requirements: (1) one valid government-issued ID, (2) proof of residency in Barangay Magdiwang, (3) the purpose of the request. First-time requesters not yet in the Records of Barangay Inhabitants (RBI) must visit the Barangay Hall for the Data Capture Form and picture taking.',
+      },
+      {
+        label: 'How to request',
+        response:
+          'Go to Service Request, tick "Barangay Clearance", fill in your personal details and purpose, then press Submit. You will receive an SMS once it is ready for pick-up.',
+      },
+      { label: 'Fee & processing time', response: 'Fee: PHP 50.00, payable upon release. Processing: 1-2 working days, during office hours only.' },
+    ],
   },
   {
-    label: 'Business Permit',
-    response:
-      'To apply for a Business Clearance, submit your request under Document Requests with your business name, address, and a valid ID. A physical inspection may be scheduled before approval.',
+    label: 'Other Certificates',
+    response: 'CiviCare can process these documents:',
+    children: [
+      { label: 'Barangay Certificate', response: 'A general certification that you are a registered resident. Fee: PHP 30.00. Requirements: valid ID and purpose.' },
+      { label: 'Certificate of Residency', response: 'Certifies your residency in Barangay Magdiwang. Fee: PHP 30.00. Requirements: valid ID and proof of address.' },
+      { label: 'Certificate of Indigency', response: 'For residents applying for financial, medical, or legal assistance. Free of charge. Requirements: valid ID and purpose.' },
+    ],
   },
   {
-    label: 'Emergency Procedures',
-    response:
-      'In case of emergency, use the Emergency Hub to view hazard-specific guides (flood, fire, earthquake, typhoon), the nearest evacuation center, and one-tap hotline numbers.',
+    label: 'Report an Incident',
+    response: 'How to report an incident in CiviCare:',
+    children: [
+      {
+        label: 'Reporting steps',
+        response:
+          '1) Open Incident Reporting. 2) Tap "Use your location" or tap the map where it happened. 3) Pick the type (Fire, Electrical, Road Accident, Rescue, Others). 4) Choose the priority. 5) Press REPORT NOW. You will get an SMS with your ticket number.',
+      },
+      {
+        label: 'Ticket status meaning',
+        response: 'PENDING - received, waiting for a responder. ONGOING - a responder is handling it. RESOLVED - the concern has been addressed.',
+      },
+      {
+        label: 'What can be reported',
+        response:
+          'Community emergencies such as floods, fires, medical emergencies, road accidents, interpersonal disputes, and criminal incidents. Political complaints are not handled through CiviCare.',
+      },
+    ],
   },
-  { label: 'Hotlines', response: 'You can find all emergency hotline numbers in the Emergency Hub > Hotline Directory.' },
+  {
+    label: 'Emergency Hotlines',
+    response: 'For life-threatening emergencies call 911. All verified local numbers (barangay, BFP, PNP, MDRRMO, health center) are in the Emergency & Disaster Hub.',
+  },
+  {
+    label: 'Evacuation Procedures',
+    response: 'Choose a hazard:',
+    children: [
+      {
+        label: 'Flood',
+        response:
+          'Move to higher ground when water starts rising. Turn off electricity at the main switch. Bring your go-bag and proceed to the nearest evacuation center shown on the Digital Evacuation Map. Avoid walking through floodwater.',
+      },
+      {
+        label: 'Fire',
+        response: 'Alert neighbors, call BFP, stay low under smoke, never use elevators, and go to your family meeting point. Do not go back inside.',
+      },
+      {
+        label: 'Earthquake',
+        response: 'DROP, COVER and HOLD ON. When shaking stops, exit carefully and move to an open area away from buildings, posts, and wires. Expect aftershocks.',
+      },
+      {
+        label: 'Typhoon',
+        response: 'Monitor PAGASA signals and barangay SMS alerts. Secure loose objects, store food and water, charge phones, and evacuate early when advised.',
+      },
+    ],
+  },
+  {
+    label: 'Health Programs',
+    response:
+      'The Barangay Health Center runs free check-ups, blood pressure monitoring, immunization, and medical missions. Schedules are posted in Announcements and Events & Activities.',
+  },
   {
     label: 'Office Hours',
     response: 'The Barangay Hall is open Monday to Friday, 8:00 AM - 5:00 PM, except on public holidays.',
-  },
-  {
-    label: 'Requirements',
-    response:
-      'Most document requests require: 1 valid government ID, proof of residency, and a stated purpose. Some documents (e.g. Business Clearance) require additional supporting documents.',
-  },
-  {
-    label: 'Events',
-    response: 'Browse and register for upcoming community events under the Events page. You can also view your join history and download certificates after attending.',
-  },
-  {
-    label: 'Donation',
-    response: 'You may pledge cash or in-kind donations (goods, medicine, food, clothes) through the Donation page. Track the status of your pledge anytime from your dashboard.',
   },
 ];
 
@@ -135,7 +190,7 @@ const seedUsers = async () => {
       role: ROLES.ADMIN,
       isVerified: true,
       qrCode: generateCode(),
-      address: { barangay: 'Barangay San Isidro', city: 'Quezon City', province: 'Metro Manila' },
+      address: { barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite' },
     },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
@@ -151,7 +206,7 @@ const seedUsers = async () => {
       position: 'Barangay Captain',
       isVerified: true,
       qrCode: generateCode(),
-      address: { barangay: 'Barangay San Isidro', city: 'Quezon City', province: 'Metro Manila' },
+      address: { barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite' },
     },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
@@ -167,7 +222,7 @@ const seedUsers = async () => {
       role: ROLES.RESIDENT,
       isVerified: true,
       qrCode: generateCode(),
-      address: { purok: 'Purok 3', barangay: 'Barangay San Isidro', city: 'Quezon City', province: 'Metro Manila' },
+      address: { purok: 'Purok 3', barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite' },
     },
     { upsert: true, new: true, setDefaultsOnInsert: true }
   );
@@ -188,8 +243,18 @@ const seedHotlines = async () => {
 
 const seedChatbot = async () => {
   await Chatbot.deleteMany({});
-  await Chatbot.insertMany(CHATBOT_SEED.map((item, i) => ({ ...item, order: i })));
-  console.log(`[Seed] ${CHATBOT_SEED.length} chatbot topics ready`);
+  let count = 0;
+  const insertNodes = async (nodes, parent = null) => {
+    for (const [i, { children, ...node }] of nodes.entries()) {
+      // eslint-disable-next-line no-await-in-loop
+      const created = await Chatbot.create({ ...node, parent, order: i });
+      count += 1;
+      // eslint-disable-next-line no-await-in-loop
+      if (children?.length) await insertNodes(children, created._id);
+    }
+  };
+  await insertNodes(CHATBOT_SEED);
+  console.log(`[Seed] ${count} chatbot nodes ready`);
 };
 
 const seedSettings = async (adminId) => {
@@ -198,12 +263,13 @@ const seedSettings = async (adminId) => {
     {
       key: 'general',
       value: {
-        barangayName: 'Barangay San Isidro',
-        address: '123 Rizal St., Quezon City, Metro Manila',
-        officeHours: '8:00 AM - 5:00 PM, Monday to Friday',
+        barangayName: 'Barangay Magdiwang',
+        address: 'Barangay Magdiwang, Noveleta, Cavite',
+        phone: '09XX-XXX-XXXX',
+        email: 'barangaymagdiwang@gmail.com',
+        officeHours: 'Monday - Friday, 8:00 AM - 5:00 PM',
         logoUrl: '',
-        contactEmail: 'info@civicare.gov.ph',
-        contactPhone: '(02) 8123-4567',
+        mapCenter: [CENTER.lat, CENTER.lng],
       },
       updatedBy: adminId,
     },
@@ -217,6 +283,7 @@ const seedSettings = async (adminId) => {
       value: {
         documentFees: {
           barangay_clearance: 50,
+          barangay_certificate: 30,
           certificate_of_residency: 30,
           certificate_of_indigency: 0,
           business_clearance: 100,
@@ -237,7 +304,7 @@ const seedAnnouncementsAndEvents = async (officialId) => {
     {
       title: 'Welcome to CiviCare!',
       content:
-        'CiviCare is now live. Residents can report incidents, request documents, join community events, and stay updated on barangay news - all in one place.',
+        'CiviCare is now live for Barangay Magdiwang. Residents can report incidents, request barangay documents, join community events, and receive emergency alerts by SMS - all in one place. #CiviCare #BarangayMagdiwang',
       category: 'general',
       isPinned: true,
       postedBy: officialId,
@@ -254,9 +321,9 @@ const seedAnnouncementsAndEvents = async (officialId) => {
     { title: 'Community Disaster Preparedness Drill' },
     {
       title: 'Community Disaster Preparedness Drill',
-      description: 'A barangay-wide earthquake and fire drill in partnership with the MDRRMO. Free attendance certificates for all participants.',
+      description: 'A barangay-wide earthquake and fire drill in partnership with the Noveleta MDRRMO. Free attendance certificates for all participants.',
       category: 'disaster_drill',
-      location: 'Barangay Covered Court',
+      location: 'Barangay Magdiwang Covered Court',
       startDate,
       endDate,
       capacity: 200,
@@ -270,34 +337,58 @@ const seedAnnouncementsAndEvents = async (officialId) => {
 
 const seedHazardsAndIncident = async (officialId, residentId) => {
   await Hazard.deleteMany({});
+  const square = (dLat, dLng, size) => [
+    [at(dLat, dLng), at(dLat, dLng + size), at(dLat + size, dLng + size), at(dLat + size, dLng), at(dLat, dLng)],
+  ];
   await Hazard.insertMany([
     {
       layer: 'evacuation_center',
-      name: 'Barangay Covered Court (Evacuation Center)',
+      name: 'Barangay Magdiwang Covered Court (Evacuation Center)',
       description: 'Primary evacuation center with capacity for 500 individuals.',
-      geometry: { type: 'Point', coordinates: [121.0437, 14.676] },
+      geometry: { type: 'Point', coordinates: at(0, 0) },
       capacity: 500,
-      contactPerson: 'Juan Dela Cruz',
-      contactNumber: '0917-000-0001',
+      contactPerson: 'Barangay Captain',
+      createdBy: officialId,
+    },
+    {
+      layer: 'health_center',
+      name: 'Barangay Health Center',
+      description: 'First aid, check-ups and medical missions.',
+      geometry: { type: 'Point', coordinates: at(0.0012, 0.0015) },
+      createdBy: officialId,
+    },
+    {
+      layer: 'fire_station',
+      name: 'BFP Noveleta Fire Station',
+      geometry: { type: 'Point', coordinates: at(-0.002, 0.003) },
+      createdBy: officialId,
+    },
+    {
+      layer: 'police_station',
+      name: 'PNP Noveleta',
+      geometry: { type: 'Point', coordinates: at(-0.0025, 0.0005) },
+      createdBy: officialId,
+    },
+    {
+      layer: 'evacuation_route',
+      name: 'Evacuation route to Covered Court',
+      geometry: { type: 'LineString', coordinates: [at(-0.003, -0.003), at(-0.0015, -0.0015), at(0, 0)] },
       createdBy: officialId,
     },
     {
       layer: 'flood',
-      name: 'Purok 3 Flood-Prone Area',
-      description: 'Low-lying area prone to flooding during heavy rains.',
-      geometry: {
-        type: 'Polygon',
-        coordinates: [
-          [
-            [121.041, 14.674],
-            [121.043, 14.674],
-            [121.043, 14.676],
-            [121.041, 14.676],
-            [121.041, 14.674],
-          ],
-        ],
-      },
+      name: 'Riverside Flood-Prone Area',
+      description: 'Low-lying area near the river, prone to flooding during heavy rains and high tide.',
+      geometry: { type: 'Polygon', coordinates: square(-0.004, -0.004, 0.0018) },
       severityLevel: 'high',
+      createdBy: officialId,
+    },
+    {
+      layer: 'danger_zone',
+      name: 'Moderate flood risk area',
+      description: 'Areas with occasional flooding.',
+      geometry: { type: 'Polygon', coordinates: square(0.001, -0.0035, 0.0015) },
+      severityLevel: 'moderate',
       createdBy: officialId,
     },
   ]);
@@ -307,12 +398,12 @@ const seedHazardsAndIncident = async (officialId, residentId) => {
     {
       referenceCode: buildReferenceCode('INC', 1),
       reportedBy: residentId,
-      title: 'Clogged drainage causing flooding',
+      title: 'Flooding',
       description: 'The drainage canal along Purok 3 is clogged with debris, causing minor flooding after rain.',
       category: 'flood',
-      severity: 'moderate',
+      severity: 'high',
       status: 'pending',
-      location: { type: 'Point', coordinates: [121.042, 14.675], address: 'Purok 3, Barangay San Isidro' },
+      location: { type: 'Point', coordinates: at(-0.003, -0.003), address: 'Purok 3, Barangay Magdiwang' },
       statusHistory: [{ status: 'pending', updatedBy: residentId }],
     },
     { upsert: true }
@@ -331,6 +422,9 @@ const seed = async () => {
   await seedSettings(admin._id);
   await seedAnnouncementsAndEvents(official._id);
   await seedHazardsAndIncident(official._id, resident._id);
+
+  // Upserted accounts skip the pre-save hook, so give them Resident IDs the same way the server does on boot.
+  await require('../services/bootstrap.service').backfillResidentIds();
 
   console.log('[Seed] Database seeded successfully.');
   await mongoose.disconnect();

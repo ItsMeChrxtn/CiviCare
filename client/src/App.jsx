@@ -22,6 +22,8 @@ const Contact = lazy(() => import('./pages/public/Contact'));
 const FAQ = lazy(() => import('./pages/public/FAQ'));
 const VerifyDocumentPage = lazy(() => import('./pages/public/VerifyDocumentPage'));
 const NotFound = lazy(() => import('./pages/public/NotFound'));
+const Legal = lazy(() => import('./pages/public/Legal'));
+const ScanVerify = lazy(() => import('./pages/public/ScanVerify'));
 const Unauthorized = lazy(() => import('./pages/public/Unauthorized'));
 
 // Auth
@@ -41,6 +43,9 @@ const ResidentDocumentDetail = lazy(() => import('./pages/resident/DocumentDetai
 const ResidentEvents = lazy(() => import('./pages/resident/Events'));
 const ResidentDonations = lazy(() => import('./pages/resident/Donations'));
 const ResidentFeedback = lazy(() => import('./pages/resident/Feedback'));
+const ResidentAnnouncements = lazy(() => import('./pages/resident/Announcements'));
+const ResidentAssistant = lazy(() => import('./pages/resident/Assistant'));
+const ResidentContact = lazy(() => import('./pages/resident/Contact'));
 
 // Official
 const OfficialDashboard = lazy(() => import('./pages/official/Dashboard'));
@@ -94,14 +99,19 @@ function App() {
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/verify-document/:referenceCode" element={<VerifyDocumentPage />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/verify" element={<ScanVerify />} />
+            <Route path="/terms" element={<Legal type="terms" />} />
+            <Route path="/privacy" element={<Legal type="privacy" />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/unauthorized" element={<Unauthorized />} />
             <Route path="*" element={<NotFound />} />
           </Route>
+
+          {/* Login / Register use their own full-page split layout (docu Figures 4-5) */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           {/* Resident dashboard */}
           <Route element={<ProtectedRoute />}>
@@ -113,7 +123,11 @@ function App() {
                 <Route path="incidents/:id" element={<ResidentIncidentDetail />} />
                 <Route path="documents" element={<ResidentDocuments />} />
                 <Route path="documents/:id" element={<ResidentDocumentDetail />} />
+                <Route path="announcements" element={<ResidentAnnouncements />} />
+                <Route path="assistant" element={<ResidentAssistant />} />
+                <Route path="contact" element={<ResidentContact />} />
                 <Route path="events" element={<ResidentEvents />} />
+                <Route path="events/:id" element={<EventDetail />} />
                 <Route path="donations" element={<ResidentDonations />} />
                 <Route path="emergency-hub" element={<EmergencyHub />} />
                 <Route path="feedback" element={<ResidentFeedback />} />
@@ -146,7 +160,8 @@ function App() {
             {/* Admin console */}
             <Route element={<RoleRoute roles={['admin']} />}>
               <Route path="/admin" element={<DashboardLayout />}>
-                <Route index element={<AdminDashboard />} />
+                <Route index element={<OfficialDashboard />} />
+                <Route path="status" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="roles" element={<AdminRoles />} />
                 <Route path="chatbot" element={<AdminChatbot />} />

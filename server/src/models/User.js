@@ -59,7 +59,13 @@ const userSchema = new mongoose.Schema(
 
     qrCode: { type: String, unique: true, sparse: true }, // unique id used for event attendance / verification
 
-    isVerified: { type: Boolean, default: false },
+    // Human-readable barangay ID shown in the topbar and resident table, e.g. "MG-2026-0142".
+    residentId: { type: String, unique: true, sparse: true },
+
+    isVerified: { type: Boolean, default: false }, // email verified
+    // Confirmed against the barangay's Records of Barangay Inhabitants (RBI) by an official.
+    isRbiVerified: { type: Boolean, default: false },
+    rbiVerifiedAt: { type: Date },
     isActive: { type: Boolean, default: true },
     isArchived: { type: Boolean, default: false },
     archivedAt: { type: Date },
@@ -77,6 +83,15 @@ userSchema.index({ isArchived: 1 });
 userSchema.index({ firstName: 'text', lastName: 'text', email: 'text' });
 
 const BCRYPT_HASH_PATTERN = /^\$2[aby]\$\d{2}\$/;
+
+userSchema.pre('save', async function assignResidentId(next) {
+  if (!this.isNew || this.residentId) return next();
+  const Counter = require('./Counter');
+  const year = new Date().getFullYear();
+  const seq = await Counter.next(`residentId-${year}`);
+  this.residentId = `MG-${year}-${String(seq).padStart(4, '0')}`;
+  next();
+});
 
 userSchema.pre('save', async function hashPassword(next) {
   if (!this.isModified('password')) return next();

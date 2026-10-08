@@ -22,11 +22,15 @@ const INCIDENT_SEVERITY = Object.freeze({
 
 const INCIDENT_CATEGORY = Object.freeze({
   FIRE: 'fire',
+  ELECTRICAL: 'electrical',
+  ROAD_ACCIDENT: 'road_accident',
+  RESCUE: 'rescue',
   FLOOD: 'flood',
   EARTHQUAKE: 'earthquake',
   TYPHOON: 'typhoon',
   MEDICAL: 'medical',
   CRIME: 'crime',
+  DISPUTE: 'dispute',
   ACCIDENT: 'accident',
   INFRASTRUCTURE: 'infrastructure',
   OTHER: 'other',
@@ -34,6 +38,7 @@ const INCIDENT_CATEGORY = Object.freeze({
 
 const DOCUMENT_TYPE = Object.freeze({
   BARANGAY_CLEARANCE: 'barangay_clearance',
+  BARANGAY_CERTIFICATE: 'barangay_certificate',
   RESIDENCY: 'certificate_of_residency',
   INDIGENCY: 'certificate_of_indigency',
   BUSINESS_CLEARANCE: 'business_clearance',
@@ -42,6 +47,7 @@ const DOCUMENT_TYPE = Object.freeze({
 
 const DOCUMENT_STATUS = Object.freeze({
   PENDING: 'pending',
+  PROCESSING: 'processing',
   APPROVED: 'approved',
   REJECTED: 'rejected',
   READY: 'ready_for_pickup',
@@ -75,7 +81,11 @@ const HAZARD_LAYER = Object.freeze({
   DANGER_ZONE: 'danger_zone',
   ROAD_CLOSURE: 'road_closure',
   EVACUATION_CENTER: 'evacuation_center',
+  EVACUATION_ROUTE: 'evacuation_route',
   SAFE_AREA: 'safe_area',
+  HEALTH_CENTER: 'health_center',
+  FIRE_STATION: 'fire_station',
+  POLICE_STATION: 'police_station',
 });
 
 const NOTIFICATION_TYPE = Object.freeze({

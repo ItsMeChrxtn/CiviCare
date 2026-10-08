@@ -13,6 +13,7 @@ const documentSchema = new mongoose.Schema(
     details: { type: mongoose.Schema.Types.Mixed, default: {} },
 
     status: { type: String, enum: Object.values(DOCUMENT_STATUS), default: DOCUMENT_STATUS.PENDING },
+    priority: { type: String, enum: ['normal', 'urgent'], default: 'normal' },
 
     reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     reviewedAt: { type: Date },
@@ -21,6 +22,16 @@ const documentSchema = new mongoose.Schema(
     fee: { type: Number, default: 0 },
 
     qrCode: { type: String }, // encodes verification URL / reference code
+    // HMAC over the issued document's fields; embedded in the QR so edited/forged copies fail verification.
+    verificationHash: { type: String, select: false },
+    scanLogs: [
+      {
+        scannedAt: { type: Date, default: Date.now },
+        result: { type: String, enum: ['valid', 'tampered', 'invalid'] },
+        ipAddress: String,
+        userAgent: String,
+      },
+    ],
     pdfFile: {
       url: { type: String, default: '' },
       publicId: { type: String, default: '' },

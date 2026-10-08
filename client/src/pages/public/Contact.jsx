@@ -37,8 +37,8 @@ const Contact = () => {
             <FiPhone className="h-6 w-6" />
           </div>
           <h3 className="font-display font-bold tracking-tight">Phone</h3>
-          <a href={`tel:${general?.contactPhone}`} className="mt-1 block text-sm text-primary-600 hover:underline dark:text-primary-400">
-            {general?.contactPhone || '(02) 8123-4567'}
+          <a href={`tel:${general?.phone || general?.contactPhone}`} className="mt-1 block text-sm text-primary-600 hover:underline dark:text-primary-400">
+            {general?.phone || general?.contactPhone || '—'}
           </a>
         </div>
         <div className="card card-hover group p-6">
@@ -46,8 +46,8 @@ const Contact = () => {
             <FiMail className="h-6 w-6" />
           </div>
           <h3 className="font-display font-bold tracking-tight">Email</h3>
-          <a href={`mailto:${general?.contactEmail}`} className="mt-1 block text-sm text-primary-600 hover:underline dark:text-primary-400">
-            {general?.contactEmail || 'info@civicare.gov.ph'}
+          <a href={`mailto:${general?.email || general?.contactEmail}`} className="mt-1 block text-sm text-primary-600 hover:underline dark:text-primary-400">
+            {general?.email || general?.contactEmail || '—'}
           </a>
         </div>
       </div>

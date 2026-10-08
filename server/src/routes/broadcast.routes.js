@@ -8,5 +8,6 @@ const router = express.Router();
 
 router.use(protect, restrictTo(ROLES.ADMIN, ROLES.OFFICIAL));
 router.post('/', broadcastController.sendBroadcast);
+router.get('/sms-usage', broadcastController.getSmsUsage);
 
 module.exports = router;

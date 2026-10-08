@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { FiArrowLeft, FiMapPin, FiCalendar, FiUsers, FiDownload } from 'react-icons/fi';
@@ -13,6 +13,7 @@ const EventDetail = () => {
   const { user } = useAuth();
   const [event, setEvent] = useState(null);
   const [busy, setBusy] = useState(false);
+  const inPortal = useLocation().pathname.startsWith('/resident');
 
   const load = useCallback(() => {
     api.get(`/events/${id}`).then(({ data }) => setEvent(data.data));
@@ -60,9 +61,9 @@ const EventDetail = () => {
   };
 
   return (
-    <div className="mx-auto max-w-4xl animate-fadeIn px-4 py-16 lg:px-8">
+    <div className={`mx-auto max-w-4xl animate-fadeIn ${inPortal ? '' : 'px-4 py-16 lg:px-8'}`}>
       <Link
-        to="/events"
+        to={inPortal ? '/resident/events' : '/events'}
         className="mb-6 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-primary-600 transition hover:bg-primary-50 dark:text-primary-400 dark:hover:bg-primary-500/10"
       >
         <FiArrowLeft /> Back to Events

@@ -3,6 +3,7 @@ const { generateQrDataUrl } = require('./qrcode.service');
 
 const DOCUMENT_TITLES = {
   barangay_clearance: 'BARANGAY CLEARANCE',
+  barangay_certificate: 'BARANGAY CERTIFICATION',
   certificate_of_residency: 'CERTIFICATE OF RESIDENCY',
   certificate_of_indigency: 'CERTIFICATE OF INDIGENCY',
   business_clearance: 'BUSINESS CLEARANCE',
@@ -13,6 +14,9 @@ const DOCUMENT_BODY = {
   barangay_clearance: (name, purpose) =>
     `This is to certify that ${name}, is a bonafide resident of this Barangay and is known to be of good moral character, ` +
     `and has no derogatory/pending case record filed in this office as of this date. ` +
+    `This certification is being issued upon the request of the above-named person for ${purpose}.`,
+  barangay_certificate: (name, purpose) =>
+    `This is to certify that ${name} is a registered resident of this Barangay and is known to this office. ` +
     `This certification is being issued upon the request of the above-named person for ${purpose}.`,
   certificate_of_residency: (name, purpose) =>
     `This is to certify that ${name}, is a bonafide resident of this Barangay. ` +
@@ -44,6 +48,7 @@ const generateDocumentPdf = async ({ type, referenceCode, residentName, purpose,
     doc.on('error', reject);
 
     doc.fontSize(10).text('Republic of the Philippines', { align: 'center' });
+    doc.text('Province of Cavite - Municipality of Noveleta', { align: 'center' });
     doc.text(`Office of the ${barangayName || 'Barangay'}`, { align: 'center' });
     doc.moveDown(1.5);
     doc.fontSize(18).font('Helvetica-Bold').text(DOCUMENT_TITLES[type] || 'CERTIFICATE', { align: 'center' });
@@ -65,7 +70,9 @@ const generateDocumentPdf = async ({ type, referenceCode, residentName, purpose,
     doc.text('Barangay Captain', { align: 'right' });
 
     doc.moveDown(2);
+    const securityCode = (verifyUrl.match(/[?&]h=([a-f0-9]+)/) || [])[1];
     doc.fontSize(9).text(`Reference Code: ${referenceCode}`, 60, doc.y);
+    if (securityCode) doc.fontSize(7).text(`Security Code: ${securityCode}`, 60, doc.y + 2);
     doc.image(qrImage, doc.page.width - 160, doc.y - 10, { width: 90 });
     doc.fontSize(8).text('Scan to verify authenticity', doc.page.width - 160, doc.y + 5, { width: 90, align: 'center' });
 
