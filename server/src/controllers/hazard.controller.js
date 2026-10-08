@@ -3,11 +3,13 @@ const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
 const Hazard = require('../models/Hazard');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
+const { HAZARD_LAYER } = require('../config/constants');
 
 // @route GET /api/hazards (public - powers the Hazard Map + Emergency Hub evacuation map)
 const getAllHazards = catchAsync(async (req, res) => {
-  const filter = { isArchived: false, isActive: true };
-  if (req.query.layer) filter.layer = req.query.layer;
+  const layers = Object.values(HAZARD_LAYER);
+  const filter = { isArchived: false, isActive: true, layer: { $in: layers } };
+  if (req.query.layer && layers.includes(req.query.layer)) filter.layer = req.query.layer;
   const hazards = await Hazard.find(filter).populate('createdBy', 'firstName lastName');
   res.status(200).json(new ApiResponse(200, hazards));
 });

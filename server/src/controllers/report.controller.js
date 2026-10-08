@@ -3,7 +3,6 @@ const ApiResponse = require('../utils/ApiResponse');
 const User = require('../models/User');
 const Incident = require('../models/Incident');
 const Document = require('../models/Document');
-const Donation = require('../models/Donation');
 const Event = require('../models/Event');
 const Announcement = require('../models/Announcement');
 const Feedback = require('../models/Feedback');
@@ -41,7 +40,6 @@ const getOverview = catchAsync(async (_req, res) => {
     ongoingIncidents,
     pendingDocuments,
     upcomingEvents,
-    totalDonations,
     newFeedback,
     serviceRequestsThisMonth,
     incidentsThisMonth,
@@ -52,7 +50,6 @@ const getOverview = catchAsync(async (_req, res) => {
     Incident.countDocuments({ status: { $in: ['assigned', 'ongoing'] }, isArchived: false }),
     Document.countDocuments({ status: { $in: ['pending', 'processing'] }, isArchived: false }),
     Event.countDocuments({ status: 'upcoming', isArchived: false }),
-    Donation.countDocuments({ isArchived: false }),
     Feedback.countDocuments({ status: 'new', isArchived: false }),
     Document.countDocuments({ createdAt: { $gte: monthStart } }),
     Incident.countDocuments({ createdAt: { $gte: monthStart } }),
@@ -67,7 +64,6 @@ const getOverview = catchAsync(async (_req, res) => {
       activeIncidents: pendingIncidents + ongoingIncidents,
       pendingDocuments,
       upcomingEvents,
-      totalDonations,
       newFeedback,
       serviceRequestsThisMonth,
       incidentsThisMonth,
@@ -115,21 +111,19 @@ const monthlySeries = async (Model, extraMatch = {}) => {
   ]);
 };
 
-// @route GET /api/reports/trends (12-month charts for incidents/documents/donations)
+// @route GET /api/reports/trends (12-month charts for incidents/documents/events)
 const getTrends = catchAsync(async (_req, res) => {
-  const [incidents, documents, donations, events] = await Promise.all([
+  const [incidents, documents, events] = await Promise.all([
     monthlySeries(Incident),
     monthlySeries(Document),
-    monthlySeries(Donation),
     monthlySeries(Event),
   ]);
-  res.status(200).json(new ApiResponse(200, { incidents, documents, donations, events }));
+  res.status(200).json(new ApiResponse(200, { incidents, documents, events }));
 });
 
 const REPORT_MODELS = {
   incidents: { Model: Incident, title: 'Incident Reports', columns: ['referenceCode', 'title', 'category', 'severity', 'status', 'createdAt'] },
   documents: { Model: Document, title: 'Service Requests', columns: ['referenceCode', 'type', 'purpose', 'status', 'fee', 'createdAt'] },
-  donations: { Model: Donation, title: 'Donations', columns: ['referenceCode', 'type', 'amount', 'status', 'createdAt'] },
   announcements: { Model: Announcement, title: 'Announcements', columns: ['title', 'category', 'views', 'createdAt'] },
   feedback: { Model: Feedback, title: 'Feedback', columns: ['subject', 'category', 'status', 'rating', 'createdAt'] },
   residents: {

@@ -66,13 +66,6 @@ const uploadValidId = catchAsync(async (req, res) => {
   res.status(200).json(new ApiResponse(200, user, 'Valid ID uploaded successfully'));
 });
 
-// @route GET /api/users/me/qrcode
-const getMyQrCode = catchAsync(async (req, res) => {
-  const { generateQrDataUrl } = require('../services/qrcode.service');
-  const qrDataUrl = await generateQrDataUrl(req.user.qrCode);
-  res.status(200).json(new ApiResponse(200, { qrDataUrl, qrCode: req.user.qrCode }));
-});
-
 // ---------- Admin / Official user management ----------
 
 // @route GET /api/users
@@ -248,7 +241,6 @@ module.exports = {
   updateMe,
   uploadAvatar,
   uploadValidId,
-  getMyQrCode,
   getAllUsers,
   getUser,
   createUser,

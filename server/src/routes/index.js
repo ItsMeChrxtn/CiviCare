@@ -7,7 +7,6 @@ router.use('/users', require('./user.routes'));
 router.use('/incidents', require('./incident.routes'));
 router.use('/announcements', require('./announcement.routes'));
 router.use('/events', require('./event.routes'));
-router.use('/donations', require('./donation.routes'));
 router.use('/documents', require('./document.routes'));
 router.use('/notifications', require('./notification.routes'));
 router.use('/feedback', require('./feedback.routes'));

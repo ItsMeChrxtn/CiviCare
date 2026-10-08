@@ -4,7 +4,6 @@ import {
   FiAlertTriangle,
   FiFileText,
   FiCalendar,
-  FiGift,
   FiMap,
   FiPhoneCall,
   FiArrowRight,
@@ -20,8 +19,7 @@ const FEATURES = [
   { icon: FiAlertTriangle, title: 'Incident Reporting', desc: 'Report incidents with geo-tagged location, photos, and real-time status tracking.' },
   { icon: FiFileText, title: 'Document Requests', desc: 'Request Barangay Clearance, Residency, Indigency, Business Clearance, and Cedula online.' },
   { icon: FiCalendar, title: 'Community Events', desc: 'Join events, check in via QR code, and download certificates of participation.' },
-  { icon: FiGift, title: 'Donation Drives', desc: 'Pledge and track cash or in-kind donations for community relief efforts.' },
-  { icon: FiMap, title: 'Hazard Mapping', desc: 'Interactive map of flood zones, danger areas, and evacuation centers.' },
+  { icon: FiMap, title: 'Evacuation Map', desc: 'Interactive map of evacuation centers, routes, and emergency facilities.' },
   { icon: FiPhoneCall, title: 'Emergency Hub', desc: 'One-tap access to hotlines, safety guides, and evacuation routes.' },
 ];
 

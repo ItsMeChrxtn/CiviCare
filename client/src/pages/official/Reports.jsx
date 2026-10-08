@@ -7,21 +7,19 @@ import TrendLineChart from '../../components/charts/TrendLineChart';
 import BreakdownDoughnut from '../../components/charts/BreakdownDoughnut';
 import { CardSkeleton } from '../../components/common/Skeleton';
 
-const EXPORT_MODULES = ['incidents', 'documents', 'residents', 'donations', 'announcements', 'feedback'];
+const EXPORT_MODULES = ['incidents', 'documents', 'residents', 'announcements', 'feedback'];
 const FORMAT_EXT = { excel: 'xlsx', csv: 'csv', pdf: 'pdf' };
 
 const Reports = () => {
   const [trends, setTrends] = useState(null);
   const [incidentStats, setIncidentStats] = useState(null);
   const [documentStats, setDocumentStats] = useState(null);
-  const [donationStats, setDonationStats] = useState(null);
   const [range, setRange] = useState({ from: '', to: '' });
 
   useEffect(() => {
     api.get('/reports/trends').then(({ data }) => setTrends(data.data));
     api.get('/incidents/stats/overview').then(({ data }) => setIncidentStats(data.data));
     api.get('/documents/stats/overview').then(({ data }) => setDocumentStats(data.data));
-    api.get('/donations/stats/overview').then(({ data }) => setDonationStats(data.data));
   }, []);
 
   const exportReport = (moduleName, fmt) =>
@@ -51,15 +49,15 @@ const Reports = () => {
         </div>
         <div className="card card-hover animate-fadeIn p-5">
           <h2 className="mb-4 flex items-center gap-1.5 font-display font-bold text-gray-900 dark:text-gray-50">
-            <FiBarChart2 className="h-4 w-4 text-primary-500" /> Donations by Type
+            <FiBarChart2 className="h-4 w-4 text-primary-500" /> Service Requests by Status
           </h2>
-          {donationStats ? <BreakdownDoughnut groups={donationStats.byType} /> : <CardSkeleton />}
+          {documentStats ? <BreakdownDoughnut groups={documentStats.byStatus} /> : <CardSkeleton />}
         </div>
         <div className="card card-hover animate-fadeIn p-5">
           <h2 className="mb-4 flex items-center gap-1.5 font-display font-bold text-gray-900 dark:text-gray-50">
-            <FiBarChart2 className="h-4 w-4 text-primary-500" /> Monthly Donation Trend
+            <FiBarChart2 className="h-4 w-4 text-primary-500" /> Monthly Service Requests
           </h2>
-          {trends ? <TrendLineChart series={trends.donations} label="Donations" color="#f59e0b" /> : <CardSkeleton />}
+          {trends ? <TrendLineChart series={trends.documents} label="Service requests" color="#f59e0b" /> : <CardSkeleton />}
         </div>
       </div>
 

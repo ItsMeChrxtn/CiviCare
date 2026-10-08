@@ -7,14 +7,13 @@ import api from '../../utils/api';
 import DataTable from '../../components/common/DataTable';
 import Badge from '../../components/common/Badge';
 
-const MODULES = ['user', 'incident', 'announcement', 'event', 'donation', 'document', 'hazard', 'feedback'];
+const MODULES = ['user', 'incident', 'announcement', 'event', 'document', 'hazard', 'feedback'];
 
 const RESTORE_ENDPOINT = {
   user: (id) => `/users/${id}/restore`,
   incident: (id) => `/incidents/${id}/restore`,
   announcement: (id) => `/announcements/${id}/restore`,
   event: (id) => `/events/${id}/restore`,
-  donation: (id) => `/donations/${id}/restore`,
   document: (id) => `/documents/${id}/restore`,
   hazard: (id) => `/hazards/${id}/restore`,
   feedback: (id) => `/feedback/${id}/restore`,

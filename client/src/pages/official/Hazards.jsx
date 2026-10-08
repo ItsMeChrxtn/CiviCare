@@ -19,10 +19,6 @@ const DEFAULT_KIND = {
   police_station: 'Point',
   safe_area: 'Point',
   evacuation_route: 'LineString',
-  road_closure: 'LineString',
-  flood: 'Polygon',
-  danger_zone: 'Polygon',
-  fire: 'Polygon',
 };
 const KINDS = [
   { value: 'Point', label: 'Point (facility / marker)' },
@@ -37,7 +33,7 @@ const Hazards = () => {
   const [points, setPoints] = useState([]);
   const [kind, setKind] = useState('Point');
   const { register, handleSubmit, reset, watch, formState: { errors, isSubmitting } } = useForm({
-    defaultValues: { layer: 'evacuation_center', severityLevel: 'moderate' },
+    defaultValues: { layer: 'evacuation_center' },
   });
   const layer = watch('layer');
 
@@ -46,7 +42,7 @@ const Hazards = () => {
     if (!geometry) return toast.error('Please finish drawing the feature on the map');
     try {
       await api.post('/hazards', { ...values, geometry });
-      toast.success('Hazard map feature added');
+      toast.success('Map feature added');
       reset();
       setPoints([]);
       setIsOpen(false);
@@ -59,7 +55,7 @@ const Hazards = () => {
   const handleArchive = async () => {
     try {
       await api.patch(`/hazards/${confirming._id}/archive`);
-      toast.success('Hazard feature archived');
+      toast.success('Map feature archived');
       setConfirming(null);
       refetch();
     } catch (err) {
@@ -71,8 +67,8 @@ const Hazards = () => {
     <div>
       <div className="page-header flex-row items-center justify-between gap-3">
         <div>
-          <h1 className="page-title">Hazard Map Management</h1>
-          <p className="page-subtitle">Manage flood zones, evacuation centers, and other map layers.</p>
+          <h1 className="page-title">Evacuation Map Management</h1>
+          <p className="page-subtitle">Manage evacuation centers, evacuation routes, safe areas, and emergency facilities.</p>
         </div>
         <button onClick={() => setIsOpen(true)} className="btn-primary"><FiPlus /> Add Map Feature</button>
       </div>
@@ -80,7 +76,7 @@ const Hazards = () => {
       <div className="animate-fadeIn mb-6">
         <div className="mb-3 flex items-center gap-2">
           <FiMap className="h-4 w-4 text-primary-500" />
-          <h2 className="font-display text-sm font-semibold text-gray-700 dark:text-gray-200">Live Hazard Map</h2>
+          <h2 className="font-display text-sm font-semibold text-gray-700 dark:text-gray-200">Live Evacuation Map</h2>
         </div>
         <HazardMap />
       </div>
@@ -88,7 +84,7 @@ const Hazards = () => {
       {isLoading ? (
         <CardSkeleton />
       ) : !rows.length ? (
-        <EmptyState icon={FiAlertTriangle} title="No hazard features yet" message="Point features you add will appear on the map and in this list." />
+        <EmptyState icon={FiAlertTriangle} title="No map features yet" message="Evacuation centers, routes and facilities you add will appear on the map and in this list." />
       ) : (
         <div className="card animate-fadeIn divide-y divide-gray-100 dark:divide-gray-800">
           {rows.map((h) => (
@@ -110,9 +106,9 @@ const Hazards = () => {
         </div>
       )}
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Hazard / Evacuation Map Feature" size="lg">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Add Evacuation Map Feature" size="lg">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1 block text-sm font-medium">Layer</label>
               <select
@@ -139,12 +135,6 @@ const Hazards = () => {
                 className="input-field"
               >
                 {KINDS.map((k) => <option key={k.value} value={k.value}>{k.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">Severity Level</label>
-              <select {...register('severityLevel')} className="input-field capitalize">
-                {['low', 'moderate', 'high', 'critical'].map((s) => <option key={s} value={s} className="capitalize">{s}</option>)}
               </select>
             </div>
           </div>
@@ -181,8 +171,8 @@ const Hazards = () => {
         isOpen={!!confirming}
         onClose={() => setConfirming(null)}
         onConfirm={handleArchive}
-        title="Archive Hazard Feature"
-        message="This feature will be removed from the public hazard map."
+        title="Archive Map Feature"
+        message="This feature will be removed from the public evacuation map."
         confirmLabel="Archive"
         danger
       />

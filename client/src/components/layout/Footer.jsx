@@ -30,8 +30,7 @@ const Footer = () => (
         <h4 className="mb-3 font-semibold">Resources</h4>
         <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
           <li><Link to="/emergency-hub" className="hover:text-primary-600">Emergency Hub</Link></li>
-          <li><Link to="/hazard-map" className="hover:text-primary-600">Hazard Map</Link></li>
-          <li><Link to="/donation" className="hover:text-primary-600">Donation</Link></li>
+          <li><Link to="/hazard-map" className="hover:text-primary-600">Evacuation Map</Link></li>
           <li><Link to="/events" className="hover:text-primary-600">Events</Link></li>
         </ul>
       </div>

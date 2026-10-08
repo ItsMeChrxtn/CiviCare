@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiInfo, FiArrowRight, FiAlertCircle, FiFileText } from 'react-icons/fi';
+import { FiInfo, FiArrowRight, FiAlertCircle, FiFileText, FiAlertTriangle } from 'react-icons/fi';
 import api from '../../utils/api';
 import useSetting from '../../hooks/useSetting';
 import { usePreferences } from '../../contexts/PreferencesContext';
@@ -33,6 +33,10 @@ const ResidentDashboard = () => {
     api.get('/incidents', { params: { limit: 5 } }).then(({ data }) => setIncidents(data.data)).catch(() => {});
     api.get('/documents', { params: { limit: 5 } }).then(({ data }) => setDocuments(data.data)).catch(() => {});
   }, []);
+
+  // Most important announcement: the newest one officials marked Important, else the newest emergency post.
+  const featured = announcements?.find((a) => a.isPinned) || announcements?.find((a) => a.category === 'emergency') || null;
+  const feed = (announcements || []).filter((a) => a._id !== featured?._id);
 
   const activeTickets = incidents.filter((i) => i.status !== 'resolved');
   const openRequests = documents.filter((d) => !['claimed', 'rejected'].includes(d.status));
@@ -82,6 +86,17 @@ const ResidentDashboard = () => {
       </div>
 
       <div className="space-y-4">
+        {featured && (
+          <section aria-labelledby="important-heading" className="overflow-hidden rounded-xl border-2 border-amber-400 bg-amber-50 shadow-card dark:bg-amber-500/10">
+            <h2 id="important-heading" className="flex items-center gap-2 bg-amber-400 px-4 py-2 font-display text-sm font-extrabold uppercase tracking-wide text-gray-900">
+              <FiAlertTriangle /> {t('dash.important')}
+            </h2>
+            <Link to={`/resident/announcements?focus=${featured._id}`} className="block transition hover:opacity-95">
+              <AnnouncementCard item={featured} large />
+            </Link>
+          </section>
+        )}
+
         {(activeTickets.length > 0 || openRequests.length > 0) && (
           <section className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div className="card p-4">
@@ -132,7 +147,7 @@ const ResidentDashboard = () => {
           <p className="card p-8 text-center text-sm text-gray-400">{t('dash.noAnnouncements')}</p>
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {announcements.map((a) => (
+            {feed.map((a) => (
               <Link key={a._id} to={`/resident/announcements?focus=${a._id}`} className="block transition hover:-translate-y-0.5">
                 <AnnouncementCard item={a} />
               </Link>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { FiActivity, FiFileText, FiPieChart, FiAlertTriangle, FiHeart, FiCalendar } from 'react-icons/fi';
+import { FiActivity, FiFileText, FiPieChart, FiAlertTriangle, FiCalendar } from 'react-icons/fi';
 import api from '../../utils/api';
 import TrendLineChart from '../../components/charts/TrendLineChart';
 import BreakdownDoughnut from '../../components/charts/BreakdownDoughnut';
@@ -8,12 +8,12 @@ import { CardSkeleton } from '../../components/common/Skeleton';
 const Analytics = () => {
   const [trends, setTrends] = useState(null);
   const [incidentStats, setIncidentStats] = useState(null);
-  const [donationStats, setDonationStats] = useState(null);
+  const [documentStats, setDocumentStats] = useState(null);
 
   useEffect(() => {
     api.get('/reports/trends').then(({ data }) => setTrends(data.data));
     api.get('/incidents/stats/overview').then(({ data }) => setIncidentStats(data.data));
-    api.get('/donations/stats/overview').then(({ data }) => setDonationStats(data.data));
+    api.get('/documents/stats/overview').then(({ data }) => setDocumentStats(data.data));
   }, []);
 
   return (
@@ -50,9 +50,9 @@ const Analytics = () => {
         </div>
         <div className="card animate-fadeIn p-5">
           <h2 className="mb-4 flex items-center gap-2 font-display font-bold text-gray-800 dark:text-gray-100">
-            <FiHeart className="h-4 w-4 text-rose-500" /> Donations by Status
+            <FiFileText className="h-4 w-4 text-rose-500" /> Service Requests by Status
           </h2>
-          {donationStats ? <BreakdownDoughnut groups={donationStats.byStatus} /> : <CardSkeleton />}
+          {documentStats ? <BreakdownDoughnut groups={documentStats.byStatus} /> : <CardSkeleton />}
         </div>
         <div className="card animate-fadeIn p-5">
           <h2 className="mb-4 flex items-center gap-2 font-display font-bold text-gray-800 dark:text-gray-100">

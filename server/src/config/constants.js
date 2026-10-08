@@ -54,20 +54,6 @@ const DOCUMENT_STATUS = Object.freeze({
   CLAIMED: 'claimed',
 });
 
-const DONATION_TYPE = Object.freeze({
-  CASH: 'cash',
-  GOODS: 'goods',
-  MEDICINE: 'medicine',
-  FOOD: 'food',
-  CLOTHES: 'clothes',
-});
-
-const DONATION_STATUS = Object.freeze({
-  PLEDGED: 'pledged',
-  RECEIVED: 'received',
-  DISTRIBUTED: 'distributed',
-});
-
 const EVENT_STATUS = Object.freeze({
   UPCOMING: 'upcoming',
   ONGOING: 'ongoing',
@@ -75,11 +61,9 @@ const EVENT_STATUS = Object.freeze({
   CANCELLED: 'cancelled',
 });
 
+// Interactive Evacuation Map layers. Flood zones, fire hazard, danger zones and road closures
+// were removed per panel revision; old records with those layers are hidden, not deleted.
 const HAZARD_LAYER = Object.freeze({
-  FLOOD: 'flood',
-  FIRE: 'fire',
-  DANGER_ZONE: 'danger_zone',
-  ROAD_CLOSURE: 'road_closure',
   EVACUATION_CENTER: 'evacuation_center',
   EVACUATION_ROUTE: 'evacuation_route',
   SAFE_AREA: 'safe_area',
@@ -104,7 +88,6 @@ const PERMISSIONS = Object.freeze({
   MANAGE_INCIDENTS: 'manage_incidents',
   MANAGE_ANNOUNCEMENTS: 'manage_announcements',
   MANAGE_EVENTS: 'manage_events',
-  MANAGE_DONATIONS: 'manage_donations',
   MANAGE_DOCUMENTS: 'manage_documents',
   MANAGE_HAZARDS: 'manage_hazards',
   MANAGE_FEEDBACK: 'manage_feedback',
@@ -122,8 +105,6 @@ module.exports = {
   INCIDENT_CATEGORY,
   DOCUMENT_TYPE,
   DOCUMENT_STATUS,
-  DONATION_TYPE,
-  DONATION_STATUS,
   EVENT_STATUS,
   HAZARD_LAYER,
   NOTIFICATION_TYPE,

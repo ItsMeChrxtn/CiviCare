@@ -74,8 +74,6 @@ export const DOCUMENT_STATUS = {
 export const CIVIL_STATUS = ['single', 'married', 'widowed', 'separated', 'divorced'];
 export const PUROKS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'Purok 6'];
 
-export const DONATION_TYPES = ['cash', 'goods', 'medicine', 'food', 'clothes'];
-export const DONATION_STATUS = { PLEDGED: 'pledged', RECEIVED: 'received', DISTRIBUTED: 'distributed' };
 
 export const EVENT_STATUS = { UPCOMING: 'upcoming', ONGOING: 'ongoing', COMPLETED: 'completed', CANCELLED: 'cancelled' };
 

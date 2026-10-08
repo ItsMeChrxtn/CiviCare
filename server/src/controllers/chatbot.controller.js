@@ -18,6 +18,21 @@ const getNode = catchAsync(async (req, res) => {
   res.status(200).json(new ApiResponse(200, { ...node.toObject(), children }));
 });
 
+// @route GET /api/chatbot/faq (public)
+// The FAQ and the Assistant share one source: every active Q&A node, nested under its parent topic.
+const getFaqTree = catchAsync(async (_req, res) => {
+  const nodes = await Chatbot.find({ isActive: true }).sort('order').select('label response parent order').lean();
+  const byParent = new Map();
+  nodes.forEach((n) => {
+    const key = String(n.parent || 'root');
+    if (!byParent.has(key)) byParent.set(key, []);
+    byParent.get(key).push(n);
+  });
+  const build = (key) =>
+    (byParent.get(key) || []).map((n) => ({ _id: n._id, question: n.label, answer: n.response, children: build(String(n._id)) }));
+  res.status(200).json(new ApiResponse(200, build('root')));
+});
+
 // ---------- Admin management ----------
 
 // @route GET /api/chatbot/admin/all
@@ -49,4 +64,4 @@ const deleteNode = catchAsync(async (req, res) => {
   res.status(200).json(new ApiResponse(200, null, 'Chatbot topic deleted'));
 });
 
-module.exports = { getMenu, getNode, getAllNodes, createNode, updateNode, deleteNode };
+module.exports = { getMenu, getNode, getFaqTree, getAllNodes, createNode, updateNode, deleteNode };

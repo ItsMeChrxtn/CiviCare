@@ -43,7 +43,7 @@ const Topbar = ({ onMenuClick }) => {
   const { user, logout } = useAuth();
   const { isDark, toggleTheme } = useTheme();
   const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
-  const { t, lang, toggleLang, largeText, highContrast, toggleLargeText, toggleHighContrast } = usePreferences();
+  const { t, lang, toggleLang, textSize, setTextSize, highContrast, toggleHighContrast } = usePreferences();
   const [emergency, setEmergency] = useSetting('emergency');
   const [menu, setMenu] = useState(null); // 'a11y' | 'alerts' | 'notifs' | 'user'
   const navigate = useNavigate();
@@ -88,7 +88,32 @@ const Topbar = ({ onMenuClick }) => {
           </button>
           <Dropdown open={menu === 'a11y'} className="w-64">
             <p className="px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-gray-400">{t('shell.accessibility')}</p>
-            <Toggle label={t('shell.largeText')} checked={largeText} onChange={toggleLargeText} />
+            <div className="flex items-center justify-between rounded-xl px-3 py-2 text-sm">
+              <span>{t('shell.textSize')}</span>
+              <span className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setTextSize(textSize - 1)}
+                  disabled={textSize === 0}
+                  aria-label={t('shell.smaller')}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-xs font-bold disabled:opacity-30 dark:border-gray-700"
+                >
+                  A−
+                </button>
+                <span className="w-20 text-center text-xs font-semibold" aria-live="polite">
+                  {t(`shell.size${textSize}`)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setTextSize(textSize + 1)}
+                  disabled={textSize === 2}
+                  aria-label={t('shell.larger')}
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-200 text-base font-bold disabled:opacity-30 dark:border-gray-700"
+                >
+                  A+
+                </button>
+              </span>
+            </div>
             <Toggle label={t('shell.highContrast')} checked={highContrast} onChange={toggleHighContrast} />
             <Toggle label={t('shell.darkTheme')} checked={isDark} onChange={toggleTheme} />
             <p className="px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('shell.language')}</p>

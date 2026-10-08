@@ -28,7 +28,7 @@ const OfficialDashboard = () => {
   const [overview, setOverview] = useState(null);
   const [recent, setRecent] = useState(null);
   const [trends, setTrends] = useState(null);
-  const [post, setPost] = useState({ title: '', content: '', sendSms: false });
+  const [post, setPost] = useState({ title: '', content: '', sendSms: false, important: false });
   const [image, setImage] = useState(null);
   const [posting, setPosting] = useState(false);
 
@@ -66,10 +66,11 @@ const OfficialDashboard = () => {
       form.append('content', post.title.trim() ? post.content.trim() : rest.join('\n').trim() || firstLine);
       form.append('category', 'general');
       form.append('sendSms', String(post.sendSms));
+      form.append('isPinned', String(post.important));
       if (image) form.append('coverImage', image);
       await api.post('/announcements', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success(post.sendSms ? 'Announcement posted and sent by SMS' : 'Announcement posted');
-      setPost({ title: '', content: '', sendSms: false });
+      setPost({ title: '', content: '', sendSms: false, important: false });
       setImage(null);
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to post announcement');
@@ -121,10 +122,16 @@ const OfficialDashboard = () => {
               </p>
             )}
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 pt-3 dark:border-gray-700">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={post.sendSms} onChange={(e) => setPost((p) => ({ ...p, sendSms: e.target.checked }))} className="h-4 w-4 accent-primary-600" />
-                Also send by SMS to all residents
-              </label>
+              <div className="space-y-1">
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={post.important} onChange={(e) => setPost((p) => ({ ...p, important: e.target.checked }))} className="h-4 w-4 accent-primary-600" />
+                  Mark as Important (featured on resident dashboard)
+                </label>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" checked={post.sendSms} onChange={(e) => setPost((p) => ({ ...p, sendSms: e.target.checked }))} className="h-4 w-4 accent-primary-600" />
+                  Also send by SMS to all residents
+                </label>
+              </div>
               <div className="flex items-center gap-3">
                 <label className="cursor-pointer text-gray-600 hover:text-primary-600" title="Attach photo">
                   <FiImage className="h-7 w-7" />

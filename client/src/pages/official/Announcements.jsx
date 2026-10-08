@@ -147,7 +147,7 @@ const Announcements = () => {
             </div>
           </div>
           <div className="flex flex-wrap gap-6 rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-800/50">
-            <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('isPinned')} className="accent-primary-600" /> Pin to top</label>
+            <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('isPinned')} className="accent-primary-600" /> Mark as Important (featured on the resident dashboard)</label>
             {!modalItem?._id && (
               <label className="flex items-center gap-2 text-sm"><input type="checkbox" {...register('sendSms')} className="accent-primary-600" /> Also send via SMS</label>
             )}

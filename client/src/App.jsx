@@ -17,7 +17,6 @@ const EventsList = lazy(() => import('./pages/public/EventsList'));
 const EventDetail = lazy(() => import('./pages/public/EventDetail'));
 const EmergencyHub = lazy(() => import('./pages/public/EmergencyHub'));
 const HazardMapPage = lazy(() => import('./pages/public/HazardMapPage'));
-const Donation = lazy(() => import('./pages/public/Donation'));
 const Contact = lazy(() => import('./pages/public/Contact'));
 const FAQ = lazy(() => import('./pages/public/FAQ'));
 const VerifyDocumentPage = lazy(() => import('./pages/public/VerifyDocumentPage'));
@@ -41,7 +40,6 @@ const ResidentIncidentDetail = lazy(() => import('./pages/resident/IncidentDetai
 const ResidentDocuments = lazy(() => import('./pages/resident/Documents'));
 const ResidentDocumentDetail = lazy(() => import('./pages/resident/DocumentDetail'));
 const ResidentEvents = lazy(() => import('./pages/resident/Events'));
-const ResidentDonations = lazy(() => import('./pages/resident/Donations'));
 const ResidentFeedback = lazy(() => import('./pages/resident/Feedback'));
 const ResidentAnnouncements = lazy(() => import('./pages/resident/Announcements'));
 const ResidentAssistant = lazy(() => import('./pages/resident/Assistant'));
@@ -55,7 +53,6 @@ const OfficialIncidentDetail = lazy(() => import('./pages/official/IncidentDetai
 const OfficialAnnouncements = lazy(() => import('./pages/official/Announcements'));
 const OfficialEvents = lazy(() => import('./pages/official/Events'));
 const OfficialEventParticipants = lazy(() => import('./pages/official/EventParticipants'));
-const OfficialDonations = lazy(() => import('./pages/official/Donations'));
 const OfficialDocuments = lazy(() => import('./pages/official/Documents'));
 const OfficialHazards = lazy(() => import('./pages/official/Hazards'));
 const OfficialFeedback = lazy(() => import('./pages/official/Feedback'));
@@ -67,7 +64,6 @@ const OfficialArchive = lazy(() => import('./pages/official/Archive'));
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
 const AdminUsers = lazy(() => import('./pages/admin/Users'));
 const AdminRoles = lazy(() => import('./pages/admin/Roles'));
-const AdminChatbot = lazy(() => import('./pages/admin/Chatbot'));
 const AdminHotlines = lazy(() => import('./pages/admin/Hotlines'));
 const AdminSettings = lazy(() => import('./pages/admin/Settings'));
 const AdminBackup = lazy(() => import('./pages/admin/Backup'));
@@ -95,7 +91,6 @@ function App() {
             <Route path="/events/:id" element={<EventDetail />} />
             <Route path="/emergency-hub" element={<EmergencyHub />} />
             <Route path="/hazard-map" element={<HazardMapPage />} />
-            <Route path="/donation" element={<Donation />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/verify-document/:referenceCode" element={<VerifyDocumentPage />} />
@@ -128,7 +123,6 @@ function App() {
                 <Route path="contact" element={<ResidentContact />} />
                 <Route path="events" element={<ResidentEvents />} />
                 <Route path="events/:id" element={<EventDetail />} />
-                <Route path="donations" element={<ResidentDonations />} />
                 <Route path="emergency-hub" element={<EmergencyHub />} />
                 <Route path="feedback" element={<ResidentFeedback />} />
                 <Route path="notifications" element={<NotificationsPage />} />
@@ -145,7 +139,6 @@ function App() {
                 <Route path="announcements" element={<OfficialAnnouncements />} />
                 <Route path="events" element={<OfficialEvents />} />
                 <Route path="events/:id/participants" element={<OfficialEventParticipants />} />
-                <Route path="donations" element={<OfficialDonations />} />
                 <Route path="documents" element={<OfficialDocuments />} />
                 <Route path="hazards" element={<OfficialHazards />} />
                 <Route path="feedback" element={<OfficialFeedback />} />
@@ -164,7 +157,6 @@ function App() {
                 <Route path="status" element={<AdminDashboard />} />
                 <Route path="users" element={<AdminUsers />} />
                 <Route path="roles" element={<AdminRoles />} />
-                <Route path="chatbot" element={<AdminChatbot />} />
                 <Route path="hotlines" element={<AdminHotlines />} />
                 <Route path="settings" element={<AdminSettings />} />
                 <Route path="backup" element={<AdminBackup />} />

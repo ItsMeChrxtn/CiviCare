@@ -152,16 +152,21 @@ const leaveEvent = catchAsync(async (req, res) => {
 const getParticipants = catchAsync(async (req, res) => {
   const participants = await EventRegistration.find({ event: req.params.id }).populate(
     'resident',
-    'firstName lastName email phone avatar qrCode'
+    'firstName lastName email phone avatar residentId'
   );
   res.status(200).json(new ApiResponse(200, participants));
 });
 
 // @route POST /api/events/:id/checkin (official scans resident QR code)
 const checkInAttendance = catchAsync(async (req, res) => {
-  const { qrCode } = req.body;
-  const resident = await User.findOne({ qrCode });
-  if (!resident) throw ApiError.notFound('Invalid QR code - resident not found.');
+  // Residents no longer carry a personal QR on their profile, so officials check people in
+  // by Resident ID (or straight from the participant list). qrCode is still accepted for old clients.
+  const { qrCode, residentId, userId } = req.body;
+  let resident = null;
+  if (userId) resident = await User.findById(userId);
+  else if (residentId) resident = await User.findOne({ residentId: String(residentId).trim().toUpperCase() });
+  else if (qrCode) resident = await User.findOne({ qrCode });
+  if (!resident) throw ApiError.notFound('Resident not found. Check the Resident ID.');
 
   const registration = await EventRegistration.findOne({ event: req.params.id, resident: resident._id });
   if (!registration) throw ApiError.notFound('This resident is not registered for this event.');

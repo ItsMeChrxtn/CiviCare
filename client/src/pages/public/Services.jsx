@@ -1,15 +1,14 @@
 import { Link } from 'react-router-dom';
-import { FiAlertTriangle, FiFileText, FiCalendar, FiGift, FiMap, FiPhoneCall, FiMessageSquare, FiArrowRight } from 'react-icons/fi';
+import { FiAlertTriangle, FiFileText, FiCalendar, FiMap, FiPhoneCall, FiMessageSquare, FiArrowRight } from 'react-icons/fi';
 import { DOCUMENT_TYPES } from '../../utils/constants';
 
 const SERVICES = [
   { icon: FiAlertTriangle, title: 'Incident Reporting', desc: 'Report fires, floods, accidents, and other incidents with geo-tagged location and photo evidence. Track status from Pending to Resolved.' },
   { icon: FiFileText, title: 'Document Requests', desc: 'Request official barangay documents online and download a QR-verifiable PDF once approved.', list: DOCUMENT_TYPES.map((d) => d.label) },
   { icon: FiCalendar, title: 'Community Events', desc: 'Browse and register for barangay events, check in via QR code, and receive a digital certificate of participation.' },
-  { icon: FiGift, title: 'Donation Drives', desc: 'Pledge cash or in-kind donations (goods, medicine, food, clothes) for relief operations and track their status.' },
-  { icon: FiMap, title: 'Hazard Mapping', desc: 'View an interactive map of flood zones, fire hazards, danger zones, road closures, and evacuation centers.' },
+  { icon: FiMap, title: 'Evacuation Map', desc: 'View an interactive map of evacuation centers, evacuation routes, safe areas, and emergency facilities.' },
   { icon: FiPhoneCall, title: 'Emergency Hub', desc: 'Access disaster guides (flood, fire, earthquake, typhoon), hotline directories, and evacuation maps in one place.' },
-  { icon: FiMessageSquare, title: 'Feedback & Chatbot', desc: 'Submit feedback or complaints and get instant answers to common questions through the CiviCare Assistant.' },
+  { icon: FiMessageSquare, title: 'Feedback & FAQ Assistant', desc: 'Submit feedback or complaints and get instant answers to common questions through the CiviCare Assistant.' },
 ];
 
 const Services = () => (

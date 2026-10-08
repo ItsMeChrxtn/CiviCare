@@ -4,7 +4,6 @@ import toast from 'react-hot-toast';
 import { FiCamera, FiUser } from 'react-icons/fi';
 import api from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
-import QRCodeDisplay from '../../components/qr/QRCodeDisplay';
 
 const Profile = () => {
   const { user, refreshMe } = useAuth();
@@ -78,9 +77,15 @@ const Profile = () => {
           <p className="text-sm capitalize text-gray-400">{user?.position || user?.role}</p>
           <p className="mt-1 text-sm text-gray-400">{user?.email}</p>
 
-          {user?.role === 'resident' && (
-            <div className="mt-6 w-full border-t border-gray-100 pt-6 dark:border-gray-800">
-              <QRCodeDisplay />
+          {user?.residentId && (
+            <div className="mt-6 w-full border-t border-gray-100 pt-6 text-center dark:border-gray-800">
+              <p className="text-xs text-gray-400">{user.role === 'resident' ? 'Resident ID' : 'Account ID'}</p>
+              <p className="font-mono text-lg font-bold">{user.residentId}</p>
+              {user.role === 'resident' && (
+                <p className="mt-1 text-xs text-gray-400">
+                  {user.isRbiVerified ? 'Verified in the Records of Barangay Inhabitants' : 'Not yet verified by the barangay'}
+                </p>
+              )}
             </div>
           )}
         </div>

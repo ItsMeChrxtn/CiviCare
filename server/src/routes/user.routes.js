@@ -13,7 +13,6 @@ router.use(protect);
 router.patch('/me', userController.updateMe);
 router.patch('/me/avatar', upload.single('avatar'), userController.uploadAvatar);
 router.patch('/me/valid-id', upload.single('validId'), userController.uploadValidId);
-router.get('/me/qrcode', userController.getMyQrCode);
 
 // Admin / Official management
 router.get('/stats/overview', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.getUserStats);

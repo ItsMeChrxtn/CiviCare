@@ -8,6 +8,7 @@ const router = express.Router();
 
 router.get('/menu', chatbotController.getMenu);
 router.get('/node/:id', chatbotController.getNode);
+router.get('/faq', chatbotController.getFaqTree);
 
 router.use(protect, restrictTo(ROLES.ADMIN));
 router.get('/admin/all', chatbotController.getAllNodes);

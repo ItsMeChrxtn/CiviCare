@@ -4,7 +4,6 @@ import {
   FiAlertCircle,
   FiBell,
   FiCalendar,
-  FiGift,
   FiFileText,
   FiMessageSquare,
   FiUsers,
@@ -39,7 +38,6 @@ export const RESIDENT_NAV = {
     { to: '/resident/contact', labelKey: 'nav.contact', icon: FiPhone },
   ],
   more: [
-    { to: '/resident/donations', labelKey: 'nav.donations', icon: FiGift },
     { to: '/resident/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
     { to: '/resident/notifications', labelKey: 'nav.notifications', icon: FiBell },
     { to: '/resident/profile', labelKey: 'nav.profile', icon: FiUser },
@@ -58,7 +56,6 @@ const STAFF_MAIN = [
 const STAFF_MORE = [
   { to: '/official/announcements', labelKey: 'nav.announcements', icon: FiVolume2 },
   { to: '/official/hazards', labelKey: 'nav.hazardMap', icon: FiMap },
-  { to: '/official/donations', labelKey: 'nav.donations', icon: FiGift },
   { to: '/official/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
   { to: '/official/reports', labelKey: 'nav.reports', icon: FiBarChart2 },
   { to: '/official/archive', labelKey: 'nav.archive', icon: FiArchive },
@@ -80,7 +77,6 @@ export const ADMIN_NAV = {
     { to: '/admin/status', labelKey: 'nav.status', icon: FiBarChart2 },
     { to: '/admin/users', labelKey: 'nav.users', icon: FiUsers },
     { to: '/admin/roles', labelKey: 'nav.roles', icon: FiKey },
-    { to: '/admin/chatbot', labelKey: 'nav.chatbot', icon: FiMessageSquare },
     { to: '/admin/faq', labelKey: 'nav.faq', icon: FiHelpCircle },
     { to: '/admin/hotlines', labelKey: 'nav.hotlines', icon: FiPhoneCall },
     { to: '/admin/settings', labelKey: 'nav.settings', icon: FiSettings },

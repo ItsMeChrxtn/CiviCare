@@ -337,9 +337,6 @@ const seedAnnouncementsAndEvents = async (officialId) => {
 
 const seedHazardsAndIncident = async (officialId, residentId) => {
   await Hazard.deleteMany({});
-  const square = (dLat, dLng, size) => [
-    [at(dLat, dLng), at(dLat, dLng + size), at(dLat + size, dLng + size), at(dLat + size, dLng), at(dLat, dLng)],
-  ];
   await Hazard.insertMany([
     {
       layer: 'evacuation_center',
@@ -373,22 +370,6 @@ const seedHazardsAndIncident = async (officialId, residentId) => {
       layer: 'evacuation_route',
       name: 'Evacuation route to Covered Court',
       geometry: { type: 'LineString', coordinates: [at(-0.003, -0.003), at(-0.0015, -0.0015), at(0, 0)] },
-      createdBy: officialId,
-    },
-    {
-      layer: 'flood',
-      name: 'Riverside Flood-Prone Area',
-      description: 'Low-lying area near the river, prone to flooding during heavy rains and high tide.',
-      geometry: { type: 'Polygon', coordinates: square(-0.004, -0.004, 0.0018) },
-      severityLevel: 'high',
-      createdBy: officialId,
-    },
-    {
-      layer: 'danger_zone',
-      name: 'Moderate flood risk area',
-      description: 'Areas with occasional flooding.',
-      geometry: { type: 'Polygon', coordinates: square(0.001, -0.0035, 0.0015) },
-      severityLevel: 'moderate',
       createdBy: officialId,
     },
   ]);

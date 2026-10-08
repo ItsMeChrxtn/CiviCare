@@ -11,8 +11,7 @@ const NAV_LINKS = [
   { to: '/announcements', label: 'Announcements' },
   { to: '/events', label: 'Events' },
   { to: '/emergency-hub', label: 'Emergency Hub' },
-  { to: '/hazard-map', label: 'Hazard Map' },
-  { to: '/donation', label: 'Donation' },
+  { to: '/hazard-map', label: 'Evacuation Map' },
   { to: '/contact', label: 'Contact' },
 ];
 

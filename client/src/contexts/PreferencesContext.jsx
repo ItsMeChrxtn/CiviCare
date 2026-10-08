@@ -3,6 +3,7 @@ import { TRANSLATIONS } from '../i18n/translations';
 
 const PreferencesContext = createContext(null);
 const STORAGE_KEY = 'civicare-preferences';
+const MAX_TEXT_SIZE = 2; // 0 normal, 1 large, 2 extra large
 
 const readStored = () => {
   try {
@@ -17,12 +18,18 @@ const readStored = () => {
  * Dark theme stays in ThemeContext. Preferences are per-device, stored locally.
  */
 export const PreferencesProvider = ({ children }) => {
-  const [prefs, setPrefs] = useState(() => ({ lang: 'en', largeText: false, highContrast: false, ...readStored() }));
+  const [prefs, setPrefs] = useState(() => {
+    const stored = readStored();
+    // Older saves used a boolean largeText; map it onto the 3-step text size.
+    const textSize = stored.textSize ?? (stored.largeText ? 1 : 0);
+    return { lang: 'en', highContrast: false, ...stored, textSize };
+  });
 
   useEffect(() => {
     const root = document.documentElement;
     root.lang = prefs.lang === 'tl' ? 'tl' : 'en';
-    root.classList.toggle('a11y-large', prefs.largeText);
+    root.classList.toggle('a11y-large', prefs.textSize === 1);
+    root.classList.toggle('a11y-xlarge', prefs.textSize === 2);
     root.classList.toggle('a11y-contrast', prefs.highContrast);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
@@ -46,7 +53,8 @@ export const PreferencesProvider = ({ children }) => {
       t,
       setLang: (lang) => setPrefs((p) => ({ ...p, lang })),
       toggleLang: () => setPrefs((p) => ({ ...p, lang: p.lang === 'en' ? 'tl' : 'en' })),
-      toggleLargeText: () => setPrefs((p) => ({ ...p, largeText: !p.largeText })),
+      largeText: prefs.textSize > 0,
+      setTextSize: (size) => setPrefs((p) => ({ ...p, textSize: Math.min(Math.max(size, 0), MAX_TEXT_SIZE) })),
       toggleHighContrast: () => setPrefs((p) => ({ ...p, highContrast: !p.highContrast })),
     }),
     [prefs, t]

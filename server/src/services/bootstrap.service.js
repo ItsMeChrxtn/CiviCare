@@ -22,10 +22,37 @@ const migrateAssignedIncidents = async () => {
   if (modifiedCount) console.log(`[Bootstrap] Moved ${modifiedCount} "assigned" incident(s) to "ongoing".`);
 };
 
+/**
+ * The separate FAQ list (settings key "faqs") was merged into the Assistant's Q&A tree.
+ * Move any entries there into top-level Q&A nodes once, then clear the old list.
+ */
+const migrateFaqsToAssistant = async () => {
+  const Setting = require('../models/Setting');
+  const Chatbot = require('../models/Chatbot');
+  const faqs = await Setting.findOne({ key: 'faqs' });
+  const items = Array.isArray(faqs?.value) ? faqs.value.filter((f) => f?.question && f?.answer) : [];
+  if (!items.length) return;
+
+  const lastOrder = (await Chatbot.findOne({ parent: null }).sort('-order').select('order'))?.order ?? -1;
+  let added = 0;
+  for (const [i, f] of items.entries()) {
+    // eslint-disable-next-line no-await-in-loop
+    const exists = await Chatbot.exists({ parent: null, label: f.question });
+    if (!exists) {
+      // eslint-disable-next-line no-await-in-loop
+      await Chatbot.create({ label: f.question, response: f.answer, parent: null, order: lastOrder + 1 + i });
+      added += 1;
+    }
+  }
+  await Setting.updateOne({ key: 'faqs' }, { value: [] });
+  console.log(`[Bootstrap] Moved ${added} FAQ entr${added === 1 ? 'y' : 'ies'} into the Assistant Q&A.`);
+};
+
 const runStartupTasks = async () => {
   try {
     await backfillResidentIds();
     await migrateAssignedIncidents();
+    await migrateFaqsToAssistant();
   } catch (err) {
     console.error('[Bootstrap] Startup task failed:', err.message);
   }

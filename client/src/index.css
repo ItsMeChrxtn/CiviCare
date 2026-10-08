@@ -45,6 +45,9 @@ html {
 html.a11y-large {
   font-size: 118.75%;
 }
+html.a11y-xlarge {
+  font-size: 137.5%;
+}
 
 /* Accessibility mode: high contrast. Darkens muted text, thickens borders, underlines links. */
 html.a11y-contrast body {

@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { format, differenceInYears } from 'date-fns';
 import toast from 'react-hot-toast';
+import { BsQrCode } from 'react-icons/bs';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -174,6 +175,17 @@ const Documents = () => {
             { header: t('service.purpose'), accessor: (r) => r.purpose },
             { header: 'Fee', accessor: (r) => (r.fee ? `₱${r.fee}` : 'Free') },
             { header: t('common.status'), accessor: (r) => <Badge status={r.status} /> },
+            {
+              header: 'QR Code',
+              accessor: (r) =>
+                ['ready_for_pickup', 'claimed'].includes(r.status) ? (
+                  <Link to={`/resident/documents/${r._id}`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:underline dark:text-primary-400">
+                    <BsQrCode /> View QR
+                  </Link>
+                ) : (
+                  <span className="text-xs text-gray-400">—</span>
+                ),
+            },
             { header: t('common.date'), accessor: (r) => format(new Date(r.createdAt), 'MMM d, yyyy') },
           ]}
           rows={rows}

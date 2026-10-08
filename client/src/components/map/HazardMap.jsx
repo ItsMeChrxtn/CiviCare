@@ -4,17 +4,15 @@ import L from 'leaflet';
 import api from '../../utils/api';
 import { DEFAULT_MAP_CENTER } from '../../utils/constants';
 
+// Interactive Evacuation Map layers. Flood zones, fire hazard, danger zones and road closures
+// were removed per panel revision; features on other layers are ignored by the map.
 export const LAYER_META = {
   evacuation_center: { label: 'Evacuation Center', color: '#16a34a', symbol: '⛺' },
+  evacuation_route: { label: 'Evacuation Route', color: '#0f766e', dashed: true },
+  safe_area: { label: 'Safe Area', color: '#0ea5e9' },
   health_center: { label: 'Health Center', color: '#db2777', symbol: '✚' },
   fire_station: { label: 'Fire Station', color: '#dc2626', symbol: '🔥' },
   police_station: { label: 'Police Station', color: '#1d4ed8', symbol: '🛡' },
-  evacuation_route: { label: 'Evacuation Route', color: '#0f766e', dashed: true },
-  safe_area: { label: 'Safe Area', color: '#0ea5e9' },
-  flood: { label: 'High-Risk Area (flood-prone)', color: '#ef4444', area: true },
-  danger_zone: { label: 'Medium-Risk Area', color: '#f59e0b', area: true },
-  fire: { label: 'Fire Hazard Zone', color: '#b91c1c', area: true },
-  road_closure: { label: 'Road Closure', color: '#6b7280' },
 };
 
 // Avoids Leaflet's broken default marker image paths under bundlers: every point is a colored divIcon.
@@ -39,10 +37,8 @@ export const HazardLegend = ({ className = '' }) => (
   <ul className={`space-y-1.5 text-xs ${className}`}>
     {Object.entries(LAYER_META).map(([key, meta]) => (
       <li key={key} className="flex items-center gap-2">
-        {meta.area ? (
-          <span className="h-3 w-4 rounded-sm border" style={{ backgroundColor: `${meta.color}55`, borderColor: meta.color }} />
-        ) : meta.dashed || key === 'road_closure' ? (
-          <span className="h-0 w-4 border-t-2" style={{ borderColor: meta.color, borderStyle: meta.dashed ? 'dashed' : 'solid' }} />
+        {meta.dashed ? (
+          <span className="h-0 w-4 border-t-2 border-dashed" style={{ borderColor: meta.color }} />
         ) : (
           <span className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] text-white" style={{ backgroundColor: meta.color }}>
             {meta.symbol}

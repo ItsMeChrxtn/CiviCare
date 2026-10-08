@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 /**
  * Records every archive/restore action performed on soft-deletable
- * documents (users, incidents, announcements, events, donations, documents...).
+ * documents (users, incidents, announcements, events, documents...).
  * The original record stays in its own collection with isArchived=true;
  * this collection is the audit trail + snapshot used to power the
  * Admin/Official "Archive System" screens and restore action.
