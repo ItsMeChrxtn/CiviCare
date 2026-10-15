@@ -3,10 +3,14 @@ import { FiChevronDown, FiHelpCircle } from 'react-icons/fi';
 import api from '../../utils/api';
 import EmptyState from '../../components/common/EmptyState';
 import { Skeleton } from '../../components/common/Skeleton';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 /** One question; follow-up questions (from the FAQ Manager) render nested inside its answer. */
 const FAQItem = ({ item, depth = 0 }) => {
+  const { lang } = usePreferences();
   const [open, setOpen] = useState(false);
+  const question = (lang === 'tl' && item.questionTl) || item.question;
+  const answer = (lang === 'tl' && item.answerTl) || item.answer;
   return (
     <div className={depth === 0 ? 'card overflow-hidden' : 'border-t border-gray-100 dark:border-gray-800'}>
       <button
@@ -14,12 +18,12 @@ const FAQItem = ({ item, depth = 0 }) => {
         aria-expanded={open}
         className={`flex w-full items-center justify-between gap-4 text-left font-semibold ${depth === 0 ? 'p-5' : 'px-5 py-3 text-sm'}`}
       >
-        {item.question}
+        {question}
         <FiChevronDown className={`h-5 w-5 shrink-0 text-primary-500 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
         <div className="animate-fadeIn">
-          <p className="whitespace-pre-line px-5 pb-4 text-sm text-gray-600 dark:text-gray-300">{item.answer}</p>
+          <p className="whitespace-pre-line px-5 pb-4 text-sm text-gray-600 dark:text-gray-300">{answer}</p>
           {item.children?.length > 0 && (
             <div className="mx-5 mb-4 rounded-xl bg-gray-50 dark:bg-gray-800/50">
               {item.children.map((c) => (
@@ -34,6 +38,7 @@ const FAQItem = ({ item, depth = 0 }) => {
 };
 
 const FAQ = () => {
+  const { t } = usePreferences();
   const [faqs, setFaqs] = useState(null);
 
   useEffect(() => {
@@ -49,7 +54,7 @@ const FAQ = () => {
         <span className="section-eyebrow">
           <FiHelpCircle /> FAQ
         </span>
-        <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight">Frequently Asked Questions</h1>
+        <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight">{t('assistant.faq')}</h1>
       </div>
 
       <div className="mt-12 space-y-3">

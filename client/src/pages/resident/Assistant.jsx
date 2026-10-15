@@ -17,7 +17,7 @@ const Assistant = () => {
   const [general] = useSetting('general');
   const [hotlines, setHotlines] = useState([]);
   const [callOpen, setCallOpen] = useState(false);
-  const { path, menu, response, isLoading, select, goBack, reset } = useChatbotTree({ greeting: '' });
+  const { path, menu, response, label, isLoading, select, goBack, reset } = useChatbotTree({ greeting: '' });
 
   useEffect(() => {
     api.get('/hotlines').then(({ data }) => setHotlines(data.data)).catch(() => {});
@@ -71,7 +71,7 @@ const Assistant = () => {
               <button onClick={reset} className="flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 font-semibold dark:border-gray-700">
                 <FiHome /> {t('assistant.mainMenu')}
               </button>
-              <span className="text-gray-400">{path.map((n) => n.label).join(' › ')}</span>
+              <span className="text-gray-400">{path.map(label).join(' › ')}</span>
             </div>
           )}
 
@@ -87,7 +87,7 @@ const Assistant = () => {
                   onClick={() => select(node)}
                   className="rounded-full border-2 border-primary-600 px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-600 hover:text-white dark:text-primary-300"
                 >
-                  {node.label}
+                  {label(node)}
                 </button>
               ))
             ) : (
@@ -113,7 +113,7 @@ const Assistant = () => {
             </a>
           ))}
           <a href="tel:911" className="flex items-center gap-3 rounded-xl bg-red-600 p-3 text-white">
-            <FiPhoneCall /> <span className="font-semibold">911 — National Emergency Hotline</span>
+            <FiPhoneCall /> <span className="font-semibold">{t('assistant.national911')}</span>
           </a>
         </div>
       </Modal>

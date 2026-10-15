@@ -3,6 +3,7 @@ const ApiResponse = require('../utils/ApiResponse');
 const User = require('../models/User');
 const Incident = require('../models/Incident');
 const Document = require('../models/Document');
+const Donation = require('../models/Donation');
 const Event = require('../models/Event');
 const Announcement = require('../models/Announcement');
 const Feedback = require('../models/Feedback');
@@ -44,6 +45,8 @@ const getOverview = catchAsync(async (_req, res) => {
     serviceRequestsThisMonth,
     incidentsThisMonth,
     puroks,
+    totalDonations,
+    pendingDonations,
   ] = await Promise.all([
     User.countDocuments({ role: ROLES.RESIDENT, isArchived: false }),
     Incident.countDocuments({ status: 'pending', isArchived: false }),
@@ -54,6 +57,8 @@ const getOverview = catchAsync(async (_req, res) => {
     Document.countDocuments({ createdAt: { $gte: monthStart } }),
     Incident.countDocuments({ createdAt: { $gte: monthStart } }),
     User.distinct('address.purok', { role: ROLES.RESIDENT, isArchived: false, 'address.purok': { $nin: [null, ''] } }),
+    Donation.countDocuments({ isArchived: false }),
+    Donation.countDocuments({ status: 'pledged', isArchived: false }),
   ]);
 
   res.status(200).json(
@@ -68,6 +73,8 @@ const getOverview = catchAsync(async (_req, res) => {
       serviceRequestsThisMonth,
       incidentsThisMonth,
       purokCount: puroks.length,
+      totalDonations,
+      pendingDonations,
     })
   );
 });
@@ -123,7 +130,19 @@ const getTrends = catchAsync(async (_req, res) => {
 
 const REPORT_MODELS = {
   incidents: { Model: Incident, title: 'Incident Reports', columns: ['referenceCode', 'title', 'category', 'severity', 'status', 'createdAt'] },
-  documents: { Model: Document, title: 'Service Requests', columns: ['referenceCode', 'type', 'purpose', 'status', 'fee', 'createdAt'] },
+  documents: { Model: Document, title: 'Service Requests', columns: ['referenceCode', 'type', 'purpose', 'status', 'createdAt'] },
+  donations: {
+    Model: Donation,
+    title: 'Donations',
+    populate: { path: 'donor', select: 'firstName lastName residentId' },
+    columns: ['referenceCode', 'donor', 'residentId', 'type', 'details', 'beneficiary', 'status', 'createdAt'],
+    map: (d) => ({
+      ...d,
+      donor: d.donor ? `${d.donor.firstName} ${d.donor.lastName}` : '',
+      residentId: d.donor?.residentId || '',
+      details: d.type === 'cash' ? `PHP ${d.amount}` : d.quantity || '',
+    }),
+  },
   announcements: { Model: Announcement, title: 'Announcements', columns: ['title', 'category', 'views', 'createdAt'] },
   feedback: { Model: Feedback, title: 'Feedback', columns: ['subject', 'category', 'status', 'rating', 'createdAt'] },
   residents: {
@@ -148,7 +167,9 @@ const fetchReportRows = async (query) => {
     if (to) filter.createdAt.$lte = new Date(to);
   }
 
-  const raw = await entry.Model.find(filter).sort('-createdAt').lean();
+  let finder = entry.Model.find(filter).sort('-createdAt');
+  if (entry.populate) finder = finder.populate(entry.populate);
+  const raw = await finder.lean();
   return { key, entry, rows: entry.map ? raw.map(entry.map) : raw };
 };
 

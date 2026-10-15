@@ -17,11 +17,11 @@ router.patch('/me/valid-id', upload.single('validId'), userController.uploadVali
 // Admin / Official management
 router.get('/stats/overview', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.getUserStats);
 router.get('/', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.getAllUsers);
-router.post('/', restrictTo(ROLES.ADMIN), userController.createUser);
+router.post('/', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.createUser);
 router.get('/:id', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.getUser);
-router.patch('/:id', restrictTo(ROLES.ADMIN), userController.updateUser);
+router.patch('/:id', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.updateUser);
 router.patch('/:id/verify', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.verifyResident);
-router.patch('/:id/toggle-active', restrictTo(ROLES.ADMIN), userController.toggleActive);
+router.patch('/:id/toggle-active', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.toggleActive);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.archiveUser);
 router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.restoreUser);
 router.delete('/:id', restrictTo(ROLES.ADMIN), userController.deleteUser);

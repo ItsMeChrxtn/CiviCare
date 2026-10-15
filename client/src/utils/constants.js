@@ -46,16 +46,18 @@ export const INCIDENT_CATEGORY_LABELS = {
 
 export const categoryLabel = (c) => INCIDENT_CATEGORY_LABELS[c] || c?.replace(/_/g, ' ');
 
-// The four documents offered on the Service Request screen.
+// Documents offered on the Service Request screen (panel revision: Barangay Clearance and
+// Certificate of Indigency only, both issued free of charge).
 export const SERVICE_DOCUMENTS = [
   { value: 'barangay_clearance', label: 'Barangay Clearance' },
-  { value: 'barangay_certificate', label: 'Barangay Certificate' },
-  { value: 'certificate_of_residency', label: 'Certificate of Residency' },
   { value: 'certificate_of_indigency', label: 'Certificate of Indigency' },
 ];
 
+// Labels for every type ever issued, so older requests still display correctly.
 export const DOCUMENT_TYPES = [
   ...SERVICE_DOCUMENTS,
+  { value: 'barangay_certificate', label: 'Barangay Certificate' },
+  { value: 'certificate_of_residency', label: 'Certificate of Residency' },
   { value: 'business_clearance', label: 'Business Clearance' },
   { value: 'cedula', label: 'Cedula (Community Tax Certificate)' },
 ];
@@ -71,6 +73,17 @@ export const DOCUMENT_STATUS = {
   CLAIMED: 'claimed',
 };
 
+// Donation pledges: types offered on the pledge form and their tracking states.
+export const DONATION_TYPES = ['cash', 'goods', 'food', 'medicine', 'clothes'];
+export const DONATION_STATUS = { PLEDGED: 'pledged', RECEIVED: 'received', DISTRIBUTED: 'distributed' };
+export const DONATION_TYPE_LABELS = { cash: 'Cash', goods: 'Goods', food: 'Food', medicine: 'Medicine', clothes: 'Clothes' };
+
+/** What was donated, e.g. "Medicine — 10 boxes paracetamol" or "Cash — ₱500". */
+export const donationDetails = (d) => {
+  const what = d.type === 'cash' ? `₱${Number(d.amount || 0).toLocaleString()}` : d.quantity || '';
+  return [DONATION_TYPE_LABELS[d.type] || d.type, what].filter(Boolean).join(' — ');
+};
+
 export const CIVIL_STATUS = ['single', 'married', 'widowed', 'separated', 'divorced'];
 export const PUROKS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'Purok 6'];
 
@@ -78,7 +91,7 @@ export const PUROKS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'P
 export const EVENT_STATUS = { UPCOMING: 'upcoming', ONGOING: 'ongoing', COMPLETED: 'completed', CANCELLED: 'cancelled' };
 
 // Barangay Magdiwang, Noveleta, Cavite (overridable via Admin > Settings > general.mapCenter).
-export const DEFAULT_MAP_CENTER = [14.4296, 120.8794];
+export const DEFAULT_MAP_CENTER = [14.4318, 120.8852];
 
 // Leaflet pin colors on the officials' map: red Pending, yellow Ongoing, green Resolved.
 export const INCIDENT_PIN_COLORS = { pending: '#dc2626', assigned: '#eab308', ongoing: '#eab308', resolved: '#16a34a' };

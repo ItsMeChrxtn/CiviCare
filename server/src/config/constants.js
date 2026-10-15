@@ -45,6 +45,9 @@ const DOCUMENT_TYPE = Object.freeze({
   CEDULA: 'cedula',
 });
 
+// Only these can be requested now (panel revision); the other types stay valid for older records.
+const REQUESTABLE_DOCUMENT_TYPES = Object.freeze([DOCUMENT_TYPE.BARANGAY_CLEARANCE, DOCUMENT_TYPE.INDIGENCY]);
+
 const DOCUMENT_STATUS = Object.freeze({
   PENDING: 'pending',
   PROCESSING: 'processing',
@@ -52,6 +55,21 @@ const DOCUMENT_STATUS = Object.freeze({
   REJECTED: 'rejected',
   READY: 'ready_for_pickup',
   CLAIMED: 'claimed',
+});
+
+// Donation pledges (resident portal) and their tracking states (officials/admin).
+const DONATION_TYPE = Object.freeze({
+  CASH: 'cash',
+  GOODS: 'goods',
+  FOOD: 'food',
+  MEDICINE: 'medicine',
+  CLOTHES: 'clothes',
+});
+
+const DONATION_STATUS = Object.freeze({
+  PLEDGED: 'pledged',
+  RECEIVED: 'received',
+  DISTRIBUTED: 'distributed',
 });
 
 const EVENT_STATUS = Object.freeze({
@@ -104,7 +122,10 @@ module.exports = {
   INCIDENT_SEVERITY,
   INCIDENT_CATEGORY,
   DOCUMENT_TYPE,
+  REQUESTABLE_DOCUMENT_TYPES,
   DOCUMENT_STATUS,
+  DONATION_TYPE,
+  DONATION_STATUS,
   EVENT_STATUS,
   HAZARD_LAYER,
   NOTIFICATION_TYPE,

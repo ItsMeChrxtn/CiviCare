@@ -21,6 +21,7 @@ import {
   FiCheckSquare,
   FiSun,
   FiActivity,
+  FiGift,
 } from 'react-icons/fi';
 
 /**
@@ -35,6 +36,7 @@ export const RESIDENT_NAV = {
     { to: '/resident/documents', labelKey: 'nav.serviceRequest', icon: FiFileText },
     { to: '/resident/events', labelKey: 'nav.events', icon: FiCheckSquare },
     { to: '/resident/emergency-hub', labelKey: 'nav.emergencyHub', icon: FiSun },
+    { to: '/resident/donations', labelKey: 'nav.donations', icon: FiGift },
     { to: '/resident/contact', labelKey: 'nav.contact', icon: FiPhone },
   ],
   more: [
@@ -54,6 +56,7 @@ const STAFF_MAIN = [
 ];
 
 const STAFF_MORE = [
+  { to: '/official/donations', labelKey: 'nav.donations', icon: FiGift },
   { to: '/official/announcements', labelKey: 'nav.announcements', icon: FiVolume2 },
   { to: '/official/hazards', labelKey: 'nav.hazardMap', icon: FiMap },
   { to: '/official/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
@@ -65,6 +68,7 @@ export const OFFICIAL_NAV = {
   main: [{ to: '/official', labelKey: 'nav.overview', icon: FiHome, end: true }, ...STAFF_MAIN],
   more: [
     ...STAFF_MORE,
+    { to: '/official/users', labelKey: 'nav.manageUsers', icon: FiUsers },
     { to: '/official/notifications', labelKey: 'nav.notifications', icon: FiBell },
     { to: '/official/profile', labelKey: 'nav.profile', icon: FiUser },
   ],

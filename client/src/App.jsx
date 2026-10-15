@@ -44,6 +44,7 @@ const ResidentFeedback = lazy(() => import('./pages/resident/Feedback'));
 const ResidentAnnouncements = lazy(() => import('./pages/resident/Announcements'));
 const ResidentAssistant = lazy(() => import('./pages/resident/Assistant'));
 const ResidentContact = lazy(() => import('./pages/resident/Contact'));
+const ResidentDonations = lazy(() => import('./pages/resident/Donations'));
 
 // Official
 const OfficialDashboard = lazy(() => import('./pages/official/Dashboard'));
@@ -59,6 +60,7 @@ const OfficialFeedback = lazy(() => import('./pages/official/Feedback'));
 const OfficialBroadcast = lazy(() => import('./pages/official/Broadcast'));
 const OfficialReports = lazy(() => import('./pages/official/Reports'));
 const OfficialArchive = lazy(() => import('./pages/official/Archive'));
+const OfficialDonations = lazy(() => import('./pages/official/Donations'));
 
 // Admin
 const AdminDashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -124,6 +126,7 @@ function App() {
                 <Route path="events" element={<ResidentEvents />} />
                 <Route path="events/:id" element={<EventDetail />} />
                 <Route path="emergency-hub" element={<EmergencyHub />} />
+                <Route path="donations" element={<ResidentDonations />} />
                 <Route path="feedback" element={<ResidentFeedback />} />
                 <Route path="notifications" element={<NotificationsPage />} />
               </Route>
@@ -134,6 +137,7 @@ function App() {
               <Route path="/official" element={<DashboardLayout />}>
                 <Route index element={<OfficialDashboard />} />
                 <Route path="residents" element={<OfficialResidents />} />
+                <Route path="users" element={<AdminUsers />} />
                 <Route path="incidents" element={<OfficialIncidents />} />
                 <Route path="incidents/:id" element={<OfficialIncidentDetail />} />
                 <Route path="announcements" element={<OfficialAnnouncements />} />
@@ -145,6 +149,7 @@ function App() {
                 <Route path="broadcast" element={<OfficialBroadcast />} />
                 <Route path="reports" element={<OfficialReports />} />
                 <Route path="archive" element={<OfficialArchive />} />
+                <Route path="donations" element={<OfficialDonations />} />
                 <Route path="profile" element={<ResidentProfile />} />
                 <Route path="notifications" element={<NotificationsPage />} />
               </Route>

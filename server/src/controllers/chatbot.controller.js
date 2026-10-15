@@ -6,7 +6,7 @@ const Chatbot = require('../models/Chatbot');
 // @route GET /api/chatbot/menu?parent=<id|null> (public - rule-based button navigation)
 const getMenu = catchAsync(async (req, res) => {
   const parent = req.query.parent && req.query.parent !== 'null' ? req.query.parent : null;
-  const nodes = await Chatbot.find({ parent, isActive: true }).sort('order').select('label icon parent');
+  const nodes = await Chatbot.find({ parent, isActive: true }).sort('order').select('label labelTl icon parent');
   res.status(200).json(new ApiResponse(200, nodes));
 });
 
@@ -14,14 +14,14 @@ const getMenu = catchAsync(async (req, res) => {
 const getNode = catchAsync(async (req, res) => {
   const node = await Chatbot.findById(req.params.id);
   if (!node) throw ApiError.notFound('Topic not found');
-  const children = await Chatbot.find({ parent: node._id, isActive: true }).sort('order').select('label icon');
+  const children = await Chatbot.find({ parent: node._id, isActive: true }).sort('order').select('label labelTl icon');
   res.status(200).json(new ApiResponse(200, { ...node.toObject(), children }));
 });
 
 // @route GET /api/chatbot/faq (public)
 // The FAQ and the Assistant share one source: every active Q&A node, nested under its parent topic.
 const getFaqTree = catchAsync(async (_req, res) => {
-  const nodes = await Chatbot.find({ isActive: true }).sort('order').select('label response parent order').lean();
+  const nodes = await Chatbot.find({ isActive: true }).sort('order').select('label labelTl response responseTl parent order').lean();
   const byParent = new Map();
   nodes.forEach((n) => {
     const key = String(n.parent || 'root');
@@ -29,7 +29,14 @@ const getFaqTree = catchAsync(async (_req, res) => {
     byParent.get(key).push(n);
   });
   const build = (key) =>
-    (byParent.get(key) || []).map((n) => ({ _id: n._id, question: n.label, answer: n.response, children: build(String(n._id)) }));
+    (byParent.get(key) || []).map((n) => ({
+      _id: n._id,
+      question: n.label,
+      questionTl: n.labelTl,
+      answer: n.response,
+      answerTl: n.responseTl,
+      children: build(String(n._id)),
+    }));
   res.status(200).json(new ApiResponse(200, build('root')));
 });
 

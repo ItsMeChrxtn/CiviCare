@@ -5,7 +5,6 @@ import { FiSearch, FiEye, FiTrash2, FiDownload, FiUserCheck, FiSlash, FiCheckCir
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import { downloadFile } from '../../utils/download';
-import { useAuth } from '../../contexts/AuthContext';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
@@ -33,8 +32,6 @@ const initials = (u) => `${u.firstName?.[0] || ''}${u.lastName?.[0] || ''}`.toUp
 
 /** Resident Management (docu Figure 16). */
 const Residents = () => {
-  const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
   const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/users', { role: 'resident' });
   const [filter, setFilter] = useState('all');
   const [viewing, setViewing] = useState(null);
@@ -180,16 +177,14 @@ const Residents = () => {
                       >
                         <FiUserCheck />
                       </button>
-                      {isAdmin && (
-                        <button
-                          onClick={() => toggleSuspend(r)}
-                          className="rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800"
-                          title={r.isActive ? 'Suspend account' : 'Reactivate account'}
-                          aria-label="Toggle suspension"
-                        >
-                          <FiSlash />
-                        </button>
-                      )}
+                      <button
+                        onClick={() => toggleSuspend(r)}
+                        className="rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800"
+                        title={r.isActive ? 'Suspend account' : 'Reactivate account'}
+                        aria-label="Toggle suspension"
+                      >
+                        <FiSlash />
+                      </button>
                       <button onClick={() => setConfirming(r)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10" title="Archive" aria-label="Archive">
                         <FiTrash2 />
                       </button>
@@ -252,11 +247,9 @@ const Residents = () => {
               <button onClick={() => toggleVerify(viewing)} className="btn-primary">
                 <FiUserCheck /> {viewing.isRbiVerified ? 'Remove verification' : 'Verify in RBI'}
               </button>
-              {isAdmin && (
-                <button onClick={() => toggleSuspend(viewing)} className={viewing.isActive ? 'btn-danger' : 'btn-secondary'}>
-                  <FiSlash /> {viewing.isActive ? 'Suspend' : 'Reactivate'}
-                </button>
-              )}
+              <button onClick={() => toggleSuspend(viewing)} className={viewing.isActive ? 'btn-danger' : 'btn-secondary'}>
+                <FiSlash /> {viewing.isActive ? 'Suspend' : 'Reactivate'}
+              </button>
             </div>
           </div>
         )}

@@ -3,12 +3,20 @@ import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
   const isStaff = user?.role === 'official' || user?.role === 'admin';
+  const { setEnglishOnly } = usePreferences();
+
+  // EN/TL translation is for residents only; the staff portal is always English.
+  useEffect(() => {
+    setEnglishOnly(isStaff);
+    return () => setEnglishOnly(false);
+  }, [isStaff, setEnglishOnly]);
 
   // Blue palette for the officials/admin portal; green (the :root default) for residents.
   // Set on <html> so portaled modals pick up the same theme.

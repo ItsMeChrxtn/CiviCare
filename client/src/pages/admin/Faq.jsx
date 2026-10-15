@@ -46,11 +46,19 @@ const Faq = () => {
   }, [nodes]);
 
   const openCreate = (parent = null) => {
-    reset({ label: '', response: '', parent: parent?._id || '', order: 0, isActive: true });
+    reset({ label: '', labelTl: '', response: '', responseTl: '', parent: parent?._id || '', order: 0, isActive: true });
     setModalItem({});
   };
   const openEdit = (node) => {
-    reset({ label: node.label, response: node.response, parent: node.parent?._id || '', order: node.order, isActive: node.isActive });
+    reset({
+      label: node.label,
+      labelTl: node.labelTl || '',
+      response: node.response,
+      responseTl: node.responseTl || '',
+      parent: node.parent?._id || '',
+      order: node.order,
+      isActive: node.isActive,
+    });
     setModalItem(node);
   };
 
@@ -136,6 +144,11 @@ const Faq = () => {
                   )}
                 </p>
                 <p className="mt-0.5 line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{n.response}</p>
+                {n.labelTl ? (
+                  <p className="mt-0.5 line-clamp-1 text-xs italic text-gray-400">TL: {n.labelTl}</p>
+                ) : (
+                  <p className="mt-0.5 text-xs text-amber-600">No Tagalog translation yet</p>
+                )}
               </div>
               <div className="flex shrink-0 gap-1">
                 <button onClick={() => openCreate(n)} title="Add follow-up question" aria-label="Add follow-up question" className="rounded-lg p-1.5 text-primary-600 transition hover:bg-primary-50 dark:hover:bg-primary-500/10">
@@ -165,6 +178,18 @@ const Faq = () => {
             <label htmlFor="faq-a" className="mb-1 block text-sm font-medium">Answer</label>
             <textarea id="faq-a" rows={5} {...register('response', { required: true })} className="input-field" />
             {errors.response && <p className="mt-1 text-xs text-red-500">Answer is required</p>}
+          </div>
+          <div className="space-y-3 rounded-xl bg-gray-50 p-3 dark:bg-gray-800/50">
+            <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Tagalog (shown when residents switch to TL)</p>
+            <div>
+              <label htmlFor="faq-q-tl" className="mb-1 block text-sm font-medium">Tanong (Question in Tagalog)</label>
+              <input id="faq-q-tl" {...register('labelTl')} className="input-field" />
+            </div>
+            <div>
+              <label htmlFor="faq-a-tl" className="mb-1 block text-sm font-medium">Sagot (Answer in Tagalog)</label>
+              <textarea id="faq-a-tl" rows={4} {...register('responseTl')} className="input-field" />
+            </div>
+            <p className="text-xs text-gray-400">Leave blank to show the English text.</p>
           </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_6rem]">
             <div>

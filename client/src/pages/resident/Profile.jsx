@@ -4,9 +4,11 @@ import toast from 'react-hot-toast';
 import { FiCamera, FiUser } from 'react-icons/fi';
 import api from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 const Profile = () => {
   const { user, refreshMe } = useAuth();
+  const { t } = usePreferences();
   const { register, handleSubmit, formState: { isSubmitting } } = useForm({
     defaultValues: {
       firstName: user?.firstName,
@@ -28,9 +30,9 @@ const Profile = () => {
       const { purok, street, city, province, ...rest } = values;
       await api.patch('/users/me', { ...rest, address: { purok, street, city, province } });
       await refreshMe();
-      toast.success('Profile updated successfully');
+      toast.success(t('profile.updated'));
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update profile');
+      toast.error(err.response?.data?.message || t('profile.updateFailed'));
     }
   };
 
@@ -43,9 +45,9 @@ const Profile = () => {
       formData.append('avatar', file);
       await api.patch('/users/me/avatar', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
       await refreshMe();
-      toast.success('Avatar updated');
+      toast.success(t('profile.avatarUpdated'));
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to upload avatar');
+      toast.error(err.response?.data?.message || t('profile.avatarFailed'));
     } finally {
       setAvatarUploading(false);
     }
@@ -54,8 +56,8 @@ const Profile = () => {
   return (
     <div>
       <div className="page-header">
-        <h1 className="page-title">My Profile</h1>
-        <p className="page-subtitle">Manage your personal information and account details.</p>
+        <h1 className="page-title">{t('nav.profile')}</h1>
+        <p className="page-subtitle">{t('profile.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -79,11 +81,11 @@ const Profile = () => {
 
           {user?.residentId && (
             <div className="mt-6 w-full border-t border-gray-100 pt-6 text-center dark:border-gray-800">
-              <p className="text-xs text-gray-400">{user.role === 'resident' ? 'Resident ID' : 'Account ID'}</p>
+              <p className="text-xs text-gray-400">{user.role === 'resident' ? t('shell.residentId') : t('profile.accountId')}</p>
               <p className="font-mono text-lg font-bold">{user.residentId}</p>
               {user.role === 'resident' && (
                 <p className="mt-1 text-xs text-gray-400">
-                  {user.isRbiVerified ? 'Verified in the Records of Barangay Inhabitants' : 'Not yet verified by the barangay'}
+                  {user.isRbiVerified ? t('profile.rbiVerified') : t('profile.rbiNotVerified')}
                 </p>
               )}
             </div>
@@ -91,46 +93,46 @@ const Profile = () => {
         </div>
 
         <div className="card animate-fadeIn p-6 lg:col-span-2">
-          <h2 className="mb-4 font-display text-lg font-bold text-gray-900 dark:text-gray-50">Edit Profile</h2>
+          <h2 className="mb-4 font-display text-lg font-bold text-gray-900 dark:text-gray-50">{t('profile.edit')}</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">First Name</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('service.firstName')}</label>
                 <input {...register('firstName')} className="input-field" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Last Name</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('service.lastName')}</label>
                 <input {...register('lastName')} className="input-field" />
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Middle Name</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('service.middleName')}</label>
               <input {...register('middleName')} className="input-field" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Mobile Number</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('auth.phone')}</label>
                 <input {...register('phone')} className="input-field" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Occupation</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('profile.occupation')}</label>
                 <input {...register('occupation')} className="input-field" />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-3 border-t border-gray-100 pt-4 dark:border-gray-800">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">Purok / Street</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('profile.purokStreet')}</label>
                 <input {...register('purok')} className="input-field" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">City</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-gray-200">{t('profile.city')}</label>
                 <input {...register('city')} className="input-field" />
               </div>
             </div>
 
             <button type="submit" disabled={isSubmitting} className="btn-primary">
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
+              {isSubmitting ? t('common.saving') : t('common.saveChanges')}
             </button>
           </form>
         </div>

@@ -19,6 +19,9 @@ const ROLE_BADGE_CLASSES = {
 
 const Users = () => {
   const { user: currentUser } = useAuth();
+  const isAdmin = currentUser?.role === 'admin';
+  // Officials manage resident and official accounts; admin accounts stay admin-only.
+  const canManage = (r) => r._id !== currentUser?._id && (isAdmin || r.role !== 'admin');
   const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/users');
   const [isOpen, setIsOpen] = useState(false);
   const [confirming, setConfirming] = useState(null);
@@ -61,7 +64,7 @@ const Users = () => {
     <div>
       <div className="page-header mb-3">
         <h1 className="page-title">Manage Users</h1>
-        <p className="page-subtitle">Create and manage resident, official, and admin accounts.</p>
+        <p className="page-subtitle">{isAdmin ? 'Create and manage resident, official, and admin accounts.' : 'Create and manage resident and official accounts.'}</p>
       </div>
 
       <div className="card mb-4 flex flex-wrap items-center gap-3 p-4">
@@ -90,8 +93,8 @@ const Users = () => {
             {
               header: 'Active',
               accessor: (r) =>
-                r._id === currentUser?._id ? (
-                  <FiToggleRight className="h-6 w-6 text-gray-300" title="You cannot deactivate your own account" />
+                !canManage(r) ? (
+                  <FiToggleRight className="h-6 w-6 text-gray-300" title="You cannot change this account" />
                 ) : (
                   <button onClick={() => toggleActive(r)} className="text-primary-600">
                     {r.isActive ? <FiToggleRight className="h-6 w-6" /> : <FiToggleLeft className="h-6 w-6 text-gray-400" />}
@@ -101,7 +104,7 @@ const Users = () => {
             {
               header: 'Actions',
               accessor: (r) =>
-                r._id !== currentUser?._id && (
+                canManage(r) && (
                   <button onClick={() => setConfirming(r)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
                     <FiArchive /> Archive
                   </button>
@@ -112,7 +115,7 @@ const Users = () => {
         />
       </div>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Create Official / Admin Account">
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={isAdmin ? 'Create Official / Admin Account' : 'Create Account'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -138,7 +141,8 @@ const Users = () => {
               <label className="mb-1 block text-sm font-medium">Role</label>
               <select {...register('role', { required: true })} className="input-field capitalize">
                 <option value="official">Official</option>
-                <option value="admin">Admin</option>
+                {!isAdmin && <option value="resident">Resident</option>}
+                {isAdmin && <option value="admin">Admin</option>}
               </select>
             </div>
             <div>

@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Polyline, Polygon, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Polyline, Polygon, Popup, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import api from '../../utils/api';
 import { DEFAULT_MAP_CENTER } from '../../utils/constants';
+import { usePreferences } from '../../contexts/PreferencesContext';
 
 // Interactive Evacuation Map layers. Flood zones, fire hazard, danger zones and road closures
 // were removed per panel revision; features on other layers are ignored by the map.
@@ -24,34 +25,40 @@ const pointIcon = (meta) =>
     iconAnchor: [12, 12],
   });
 
-const FitToFeatures = ({ points }) => {
+// The map always opens centered on Barangay Magdiwang, Noveleta, Cavite (panel revision);
+// re-centers when the configured center arrives after the first render.
+const KeepCentered = ({ center, zoom }) => {
   const map = useMap();
   useEffect(() => {
-    if (points.length > 1) map.fitBounds(points, { padding: [40, 40], maxZoom: 17 });
-  }, [points, map]);
+    map.setView(center, zoom);
+  }, [map, center[0], center[1], zoom]); // eslint-disable-line react-hooks/exhaustive-deps
   return null;
 };
 
 /** Legend list matching the map symbology; rendered separately in the hub layout. */
-export const HazardLegend = ({ className = '' }) => (
-  <ul className={`space-y-1.5 text-xs ${className}`}>
-    {Object.entries(LAYER_META).map(([key, meta]) => (
-      <li key={key} className="flex items-center gap-2">
-        {meta.dashed ? (
-          <span className="h-0 w-4 border-t-2 border-dashed" style={{ borderColor: meta.color }} />
-        ) : (
-          <span className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] text-white" style={{ backgroundColor: meta.color }}>
-            {meta.symbol}
-          </span>
-        )}
-        {meta.label}
-      </li>
-    ))}
-  </ul>
-);
+export const HazardLegend = ({ className = '' }) => {
+  const { t } = usePreferences();
+  return (
+    <ul className={`space-y-1.5 text-xs ${className}`}>
+      {Object.entries(LAYER_META).map(([key, meta]) => (
+        <li key={key} className="flex items-center gap-2">
+          {meta.dashed ? (
+            <span className="h-0 w-4 border-t-2 border-dashed" style={{ borderColor: meta.color }} />
+          ) : (
+            <span className="flex h-4 w-4 items-center justify-center rounded-full text-[8px] text-white" style={{ backgroundColor: meta.color }}>
+              {meta.symbol}
+            </span>
+          )}
+          {t(`layer.${key}`, null, meta.label)}
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 /** Barangay hazard / evacuation map with toggleable GeoJSON-style layers (points, lines, polygons). */
 const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_CENTER, zoom = 16, children }) => {
+  const { t } = usePreferences();
   const [hazards, setHazards] = useState([]);
   const [activeLayers, setActiveLayers] = useState(Object.keys(LAYER_META));
 
@@ -63,10 +70,6 @@ const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_C
     setActiveLayers((prev) => (prev.includes(layer) ? prev.filter((l) => l !== layer) : [...prev, layer]));
 
   const visible = useMemo(() => hazards.filter((h) => activeLayers.includes(h.layer) && LAYER_META[h.layer]), [hazards, activeLayers]);
-  const pointCoords = useMemo(
-    () => visible.filter((h) => h.geometry.type === 'Point').map((h) => [h.geometry.coordinates[1], h.geometry.coordinates[0]]),
-    [visible]
-  );
 
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 dark:border-gray-800">
@@ -83,7 +86,7 @@ const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_C
               style={activeLayers.includes(key) ? { backgroundColor: meta.color } : {}}
             >
               <span className="h-2 w-2 rounded-full" style={{ backgroundColor: meta.color }} />
-              {meta.label}
+              {t(`layer.${key}`, null, meta.label)}
             </button>
           ))}
         </div>
@@ -95,7 +98,7 @@ const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_C
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <FitToFeatures points={pointCoords} />
+          <KeepCentered center={center} zoom={zoom} />
 
           {visible.map((hazard) => {
             const meta = LAYER_META[hazard.layer];
@@ -103,7 +106,7 @@ const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_C
               <Popup>
                 <p className="font-semibold">{hazard.name}</p>
                 {hazard.description && <p className="text-xs">{hazard.description}</p>}
-                {hazard.capacity ? <p className="text-xs">Capacity: {hazard.capacity}</p> : null}
+                {hazard.capacity ? <p className="text-xs">{t('map.capacity')}: {hazard.capacity}</p> : null}
                 {hazard.contactNumber && <p className="text-xs">📞 {hazard.contactNumber}</p>}
               </Popup>
             );
@@ -112,6 +115,11 @@ const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_C
               return (
                 <Marker key={hazard._id} position={[lat, lng]} icon={pointIcon(meta)}>
                   {popup}
+                  {hazard.layer === 'evacuation_center' && (
+                    <Tooltip permanent direction="top" offset={[0, -14]}>
+                      {hazard.name}
+                    </Tooltip>
+                  )}
                 </Marker>
               );
             }

@@ -12,6 +12,7 @@ import useSocketEvent from '../../hooks/useSocketEvent';
 import useClickOutside from '../../hooks/useClickOutside';
 import { activeAlerts } from '../../utils/emergency';
 import { findNavItem } from './dashboardNav';
+import portalLink from '../../utils/portalLink';
 
 const Dropdown = ({ open, children, className = 'w-72' }) =>
   open ? (
@@ -77,10 +78,12 @@ const Topbar = ({ onMenuClick }) => {
       </h1>
 
       <div className="flex items-center gap-0.5 sm:gap-1">
-        <button onClick={toggleLang} className={iconBtn} aria-label={`${t('shell.language')}: ${lang.toUpperCase()}`} title={t('shell.language')}>
-          <FiGlobe className="h-5 w-5" />
-          <span className="text-xs font-bold">{lang.toUpperCase()}</span>
-        </button>
+        {isResident && (
+          <button onClick={toggleLang} className={iconBtn} aria-label={`${t('shell.language')}: ${lang.toUpperCase()}`} title={t('shell.language')}>
+            <FiGlobe className="h-5 w-5" />
+            <span className="text-xs font-bold">{lang.toUpperCase()}</span>
+          </button>
+        )}
 
         <div className="relative">
           <button onClick={() => toggle('a11y')} className={iconBtn} aria-label={t('shell.accessibility')} title={t('shell.accessibility')}>
@@ -116,20 +119,24 @@ const Topbar = ({ onMenuClick }) => {
             </div>
             <Toggle label={t('shell.highContrast')} checked={highContrast} onChange={toggleHighContrast} />
             <Toggle label={t('shell.darkTheme')} checked={isDark} onChange={toggleTheme} />
-            <p className="px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('shell.language')}</p>
-            <div className="flex gap-2 px-3 pb-2">
-              {['en', 'tl'].map((code) => (
-                <button
-                  key={code}
-                  onClick={() => lang !== code && toggleLang()}
-                  className={`flex flex-1 items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-sm font-semibold ${
-                    lang === code ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-300' : 'border-gray-200 dark:border-gray-700'
-                  }`}
-                >
-                  {lang === code && <FiCheck />} {code === 'en' ? 'English' : 'Tagalog'}
-                </button>
-              ))}
-            </div>
+            {isResident && (
+              <>
+                <p className="px-3 pb-1 pt-2 text-xs font-bold uppercase tracking-wider text-gray-400">{t('shell.language')}</p>
+                <div className="flex gap-2 px-3 pb-2">
+                  {['en', 'tl'].map((code) => (
+                    <button
+                      key={code}
+                      onClick={() => lang !== code && toggleLang()}
+                      className={`flex flex-1 items-center justify-center gap-1 rounded-lg border px-2 py-1.5 text-sm font-semibold ${
+                        lang === code ? 'border-primary-600 bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-300' : 'border-gray-200 dark:border-gray-700'
+                      }`}
+                    >
+                      {lang === code && <FiCheck />} {code === 'en' ? 'English' : 'Tagalog'}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </Dropdown>
         </div>
 
@@ -180,7 +187,7 @@ const Topbar = ({ onMenuClick }) => {
                   key={n._id || n.createdAt}
                   onClick={() => {
                     if (n._id) markAsRead(n._id);
-                    if (n.link) navigate(n.link);
+                    if (n.link) navigate(portalLink(n.link, user?.role));
                     close();
                   }}
                   className={`block w-full rounded-xl px-3 py-2 text-left text-sm transition hover:bg-gray-50 dark:hover:bg-gray-800 ${

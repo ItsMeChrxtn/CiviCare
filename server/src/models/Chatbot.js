@@ -7,8 +7,11 @@ const mongoose = require('mongoose');
  */
 const chatbotNodeSchema = new mongoose.Schema(
   {
-    label: { type: String, required: true, trim: true }, // button text
-    response: { type: String, required: true, trim: true }, // shown when this node is selected
+    label: { type: String, required: true, trim: true }, // button text (English)
+    response: { type: String, required: true, trim: true }, // shown when this node is selected (English)
+    // Tagalog versions for residents using the TL language toggle; English is shown when blank.
+    labelTl: { type: String, trim: true, default: '' },
+    responseTl: { type: String, trim: true, default: '' },
     parent: { type: mongoose.Schema.Types.ObjectId, ref: 'Chatbot', default: null },
     order: { type: Number, default: 0 },
     icon: { type: String, trim: true }, // react-icon name, optional

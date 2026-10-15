@@ -195,7 +195,6 @@ const Documents = () => {
                 ['Address', d.address],
                 ['Contact', selected.requestedBy?.phone || selected.requestedBy?.email],
                 ['Purpose', selected.purpose],
-                ['Fee', selected.fee ? `₱${selected.fee} (pay upon release)` : 'Free'],
               ].map(([k, v]) => (
                 <div key={k} className={k === 'Address' || k === 'Purpose' ? 'col-span-2' : ''}>
                   <dt className="text-xs text-gray-400">{k}</dt>

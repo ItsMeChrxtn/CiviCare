@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { FiArrowLeft } from 'react-icons/fi';
 import api from '../../utils/api';
+import { useAuth } from '../../contexts/AuthContext';
 import PageLoader from '../../components/common/PageLoader';
 
 const AnnouncementDetail = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [announcement, setAnnouncement] = useState(null);
 
   useEffect(() => {
     api.get(`/announcements/${id}`).then(({ data }) => setAnnouncement(data.data));
   }, [id]);
 
+  if (user?.role === 'resident') return <Navigate to={`/resident/announcements?focus=${id}`} replace />;
   if (!announcement) return <PageLoader />;
 
   return (

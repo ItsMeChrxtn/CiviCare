@@ -16,7 +16,7 @@ const DEFAULTS = {
       'of the Katipunan during the 1896 Philippine Revolution, led by General Mariano Alvarez. Today, Barangay Magdiwang is ' +
       'a residential and community-focused area that continues to provide public services and development programs for its ' +
       'residents, supporting safety, welfare, and civic participation within the community.',
-    mapCenter: [14.4296, 120.8794],
+    mapCenter: [14.4318, 120.8852], // Barangay Magdiwang, Noveleta, Cavite
   },
   emergency: {
     floodRiskLevel: 'moderate', // low | moderate | high | critical
@@ -32,14 +32,8 @@ const DEFAULTS = {
   faqs: [],
   categories: {
     incidentCategories: ['fire', 'flood', 'earthquake', 'typhoon', 'medical', 'crime', 'accident', 'infrastructure', 'other'],
-    documentFees: {
-      barangay_clearance: 50,
-      barangay_certificate: 30,
-      certificate_of_residency: 30,
-      certificate_of_indigency: 0,
-      business_clearance: 100,
-      cedula: 30,
-    },
+    // Panel revision: only these two documents are offered, and both are free of charge.
+    documentTypes: ['barangay_clearance', 'certificate_of_indigency'],
   },
 };
 

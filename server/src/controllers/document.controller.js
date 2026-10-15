@@ -14,7 +14,7 @@ const { notifyRole, notifyUser } = require('../services/notification.service');
 const { deliverSms } = require('../services/sms.service');
 const { writeLog } = require('../services/log.service');
 const { archiveDocument: archiveRecord, restoreDocument: restoreRecord } = require('../services/archive.service');
-const { NOTIFICATION_TYPE, ROLES, DOCUMENT_STATUS, DOCUMENT_TYPE } = require('../config/constants');
+const { NOTIFICATION_TYPE, ROLES, DOCUMENT_STATUS, REQUESTABLE_DOCUMENT_TYPES } = require('../config/constants');
 
 const CLIENT_URL = () => process.env.CLIENT_URL;
 const HASH_SECRET = () => process.env.DOCUMENT_HASH_SECRET || process.env.JWT_ACCESS_SECRET;
@@ -52,12 +52,12 @@ const parseDetails = (details) => {
 // @route POST /api/documents (resident requests a document)
 const createDocumentRequest = catchAsync(async (req, res) => {
   const { type, purpose, priority } = req.body;
-  if (!Object.values(DOCUMENT_TYPE).includes(type)) throw ApiError.badRequest('Invalid document type.');
+  if (!REQUESTABLE_DOCUMENT_TYPES.includes(type)) {
+    throw ApiError.badRequest('Only Barangay Clearance and Certificate of Indigency can be requested.');
+  }
   if (!purpose?.trim()) throw ApiError.badRequest('Purpose of request is required.');
 
   const details = parseDetails(req.body.details);
-  const categorySettings = await Setting.findOne({ key: 'categories' });
-  const fee = categorySettings?.value?.documentFees?.[type] ?? 0;
 
   const referenceCode = await nextReferenceCode(Document, 'DOC');
 
@@ -68,7 +68,7 @@ const createDocumentRequest = catchAsync(async (req, res) => {
     purpose,
     details,
     priority: priority === 'urgent' ? 'urgent' : 'normal',
-    fee,
+    fee: 0, // documents are issued free of charge
   });
 
   const officials = await User.find({ role: ROLES.OFFICIAL, isArchived: false }).select('_id');

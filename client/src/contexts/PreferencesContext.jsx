@@ -25,9 +25,16 @@ export const PreferencesProvider = ({ children }) => {
     return { lang: 'en', highContrast: false, ...stored, textSize };
   });
 
+  // English/Tagalog is for residents (clients) only; the officials/admin portal stays in English.
+  const [englishOnly, setEnglishOnly] = useState(false);
+  const lang = englishOnly ? 'en' : prefs.lang;
+
+  useEffect(() => {
+    document.documentElement.lang = lang === 'tl' ? 'tl' : 'en';
+  }, [lang]);
+
   useEffect(() => {
     const root = document.documentElement;
-    root.lang = prefs.lang === 'tl' ? 'tl' : 'en';
     root.classList.toggle('a11y-large', prefs.textSize === 1);
     root.classList.toggle('a11y-xlarge', prefs.textSize === 2);
     root.classList.toggle('a11y-contrast', prefs.highContrast);
@@ -40,24 +47,26 @@ export const PreferencesProvider = ({ children }) => {
 
   const t = useCallback(
     (key, vars, fallback) => {
-      const template = TRANSLATIONS[prefs.lang]?.[key] ?? TRANSLATIONS.en[key] ?? (fallback !== undefined ? fallback : key);
+      const template = TRANSLATIONS[lang]?.[key] ?? TRANSLATIONS.en[key] ?? (fallback !== undefined ? fallback : key);
       if (!vars || typeof template !== 'string') return template;
       return template.replace(/\{(\w+)\}/g, (_, name) => (vars[name] !== undefined ? vars[name] : `{${name}}`));
     },
-    [prefs.lang]
+    [lang]
   );
 
   const value = useMemo(
     () => ({
       ...prefs,
+      lang,
       t,
+      setEnglishOnly,
       setLang: (lang) => setPrefs((p) => ({ ...p, lang })),
       toggleLang: () => setPrefs((p) => ({ ...p, lang: p.lang === 'en' ? 'tl' : 'en' })),
       largeText: prefs.textSize > 0,
       setTextSize: (size) => setPrefs((p) => ({ ...p, textSize: Math.min(Math.max(size, 0), MAX_TEXT_SIZE) })),
       toggleHighContrast: () => setPrefs((p) => ({ ...p, highContrast: !p.highContrast })),
     }),
-    [prefs, t]
+    [prefs, lang, t]
   );
 
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;

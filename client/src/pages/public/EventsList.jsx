@@ -1,6 +1,7 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { FiMapPin, FiCalendar } from 'react-icons/fi';
+import { useAuth } from '../../contexts/AuthContext';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import { CardSkeleton } from '../../components/common/Skeleton';
 import EmptyState from '../../components/common/EmptyState';
@@ -9,6 +10,9 @@ import Pagination from '../../components/common/Pagination';
 
 const EventsList = () => {
   const { rows, meta, params, setPage, isLoading } = usePaginatedFetch('/events', { limit: 9, sort: 'startDate' });
+  const { user } = useAuth();
+
+  if (user?.role === 'resident') return <Navigate to="/resident/events" replace />;
 
   return (
     <div className="mx-auto max-w-6xl animate-fadeIn px-4 py-16 lg:px-8">

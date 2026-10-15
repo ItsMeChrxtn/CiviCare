@@ -7,7 +7,7 @@ import TrendLineChart from '../../components/charts/TrendLineChart';
 import BreakdownDoughnut from '../../components/charts/BreakdownDoughnut';
 import { CardSkeleton } from '../../components/common/Skeleton';
 
-const EXPORT_MODULES = ['incidents', 'documents', 'residents', 'announcements', 'feedback'];
+const EXPORT_MODULES = ['incidents', 'documents', 'residents', 'donations', 'announcements', 'feedback'];
 const FORMAT_EXT = { excel: 'xlsx', csv: 'csv', pdf: 'pdf' };
 
 const Reports = () => {

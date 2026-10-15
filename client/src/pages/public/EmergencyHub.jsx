@@ -15,6 +15,18 @@ import { activeAlerts, isAlertActive, RISK_STYLES } from '../../utils/emergency'
 const GUIDES = [
   {
     key: 'gobag',
+    titleTl: 'Emergency go-bag checklist',
+    itemsTl: [
+      'Inuming tubig (3 litro bawat tao kada araw, para sa 3 araw)',
+      'Pagkaing handa nang kainin at abrelata',
+      'Flashlight, ekstrang baterya at power bank',
+      'First aid kit at mga maintenance na gamot',
+      'Kopya ng mga ID at mahahalagang dokumento sa waterproof na lalagyan',
+      'Perang barya at maliliit na halaga',
+      'Pito, face mask, at kapote',
+      'Pamalit na damit, kumot, at hygiene kit',
+      'Radyong de-baterya',
+    ],
     title: 'Emergency go-bag checklist',
     checklist: true,
     items: [
@@ -31,10 +43,18 @@ const GUIDES = [
   },
   {
     key: 'family',
+    titleTl: 'Plano ng pamilya sa paglikas',
+    itemsTl: [
+      "Alamin ang evacuation center (Medina's Compound — tingnan ang mapa sa ibaba)",
+      'Magkasundo sa meeting point ng pamilya',
+      'Itakda kung sino ang magdadala ng go-bag, alagang hayop, at tutulong sa matatanda/PWD',
+      'I-save ang hotline ng barangay at MDRRMO sa bawat cellphone',
+      'Sanayin ang buong pamilya sa ruta ng paglikas',
+    ],
     title: 'Family evacuation plan',
     checklist: true,
     items: [
-      'Know your nearest evacuation center (see the map below)',
+      "Know the evacuation center (Medina's Compound — see the map below)",
       'Agree on a family meeting point',
       'Assign who brings the go-bag, pets, and assists elderly/PWD members',
       'Save barangay and MDRRMO hotlines on every phone',
@@ -43,6 +63,14 @@ const GUIDES = [
   },
   {
     key: 'firstaid',
+    titleTl: 'Gabay sa first aid',
+    itemsTl: [
+      'Sugat: diinan gamit ang malinis na tela, saka itaas ang bahagi.',
+      'Paso: palamigin sa umaagos na tubig nang 10-20 minuto; huwag lagyan ng toothpaste o yelo.',
+      'Nahimatay: ihiga nang patag at itaas ang mga binti; tingnan ang paghinga.',
+      'Nalunod: humingi ng tulong, magsimula ng rescue breaths/CPR kung sanay, panatilihing mainit ang tao.',
+      'Nakuryente: patayin muna ang pinagmumulan ng kuryente bago hawakan ang biktima.',
+    ],
     title: 'First aid guides',
     items: [
       'Wounds: apply direct pressure with a clean cloth, then elevate.',
@@ -54,6 +82,14 @@ const GUIDES = [
   },
   {
     key: 'earthquake',
+    titleTl: 'Mga gagawin sa lindol',
+    itemsTl: [
+      'DUCK, COVER at HOLD sa ilalim ng matibay na mesa.',
+      'Lumayo sa bintana, estante at mga nakasabit na bagay.',
+      'Kapag tumigil ang pagyanig, lumabas nang mahinahon at pumunta sa open area.',
+      'Iwasan ang mga sirang gusali, poste at kawad ng kuryente.',
+      'Asahan ang aftershocks; sundin ang utos ng barangay.',
+    ],
     title: 'Earthquake safety procedures',
     items: [
       'DROP, COVER and HOLD ON under a sturdy table.',
@@ -65,6 +101,14 @@ const GUIDES = [
   },
   {
     key: 'flood',
+    titleTl: 'Paghahanda sa baha',
+    itemsTl: [
+      'Bantayan ang rainfall warning ng PAGASA at SMS alerts ng barangay',
+      'Ilipat sa mataas na lugar ang mahahalagang gamit at appliances',
+      'Patayin ang main switch ng kuryente kung maaaring pasukin ng tubig',
+      'Huwag lumusong o magmaneho sa baha',
+      'Lumikas nang maaga kapag sinabihan ng barangay',
+    ],
     title: 'Flood preparedness',
     checklist: true,
     items: [
@@ -77,6 +121,14 @@ const GUIDES = [
   },
   {
     key: 'typhoon',
+    titleTl: 'Paghahanda sa bagyo',
+    itemsTl: [
+      'Siguraduhing matibay ang bubong, bintana at mga gamit sa labas',
+      'Mag-imbak ng pagkain, tubig at gamot para sa hindi bababa sa 3 araw',
+      'I-charge ang cellphone at power bank; ihanda ang flashlight',
+      'Lumayo sa baybayin at pampang ng ilog kapag may storm surge',
+      'Sundin ang pre-emptive evacuation orders',
+    ],
     title: 'Typhoon preparedness',
     checklist: true,
     items: [
@@ -106,7 +158,7 @@ const Panel = ({ title, children, className = '', titleClass = '' }) => (
 );
 
 const EmergencyHub = () => {
-  const { t } = usePreferences();
+  const { t, lang } = usePreferences();
   const { pathname, hash } = useLocation();
   const inPortal = pathname.startsWith('/resident');
   const [general] = useSetting('general');
@@ -232,7 +284,7 @@ const EmergencyHub = () => {
                     className="flex w-full items-center justify-between py-2.5 text-left text-sm font-semibold"
                   >
                     <span>
-                      {g.title}
+                      {lang === 'tl' ? g.titleTl : g.title}
                       {done !== null && (
                         <span className="ml-2 text-xs font-normal text-gray-400">
                           {done}/{g.items.length}
@@ -243,18 +295,18 @@ const EmergencyHub = () => {
                   </button>
                   {isOpen && (
                     <ul className="space-y-1.5 pb-3">
-                      {g.items.map((item) =>
+                      {g.items.map((item, i) =>
                         g.checklist ? (
                           <li key={item}>
                             <label className="flex cursor-pointer items-start gap-2 text-sm">
                               <input type="checkbox" checked={!!checked[item]} onChange={() => toggleItem(item)} className="mt-0.5 h-4 w-4 accent-primary-600" />
-                              <span className={checked[item] ? 'text-gray-400 line-through' : ''}>{item}</span>
+                              <span className={checked[item] ? 'text-gray-400 line-through' : ''}>{lang === 'tl' ? g.itemsTl[i] : item}</span>
                             </label>
                           </li>
                         ) : (
                           <li key={item} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
                             <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-primary-600" />
-                            {item}
+                            {lang === 'tl' ? g.itemsTl[i] : item}
                           </li>
                         )
                       )}
@@ -292,7 +344,7 @@ const EmergencyHub = () => {
                     <FiBell className="h-4 w-4" />
                   </span>
                   <span className="flex-1">
-                    <span className="block text-sm font-semibold">{a.label}</span>
+                    <span className="block text-sm font-semibold">{t(`alert.${a.key}`, null, a.label)}</span>
                     <span className={`block text-xs ${active ? 'font-semibold text-orange-600' : 'text-gray-500'}`}>{a.level}</span>
                   </span>
                   <span className={`h-2.5 w-2.5 rounded-full ${active ? 'bg-orange-500' : 'bg-blue-500'}`} />

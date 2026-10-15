@@ -6,6 +6,19 @@ const User = require('../models/User');
 const { uploadBuffer, deleteAsset } = require('../services/cloudinary.service');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
 const { writeLog } = require('../services/log.service');
+const { ROLES } = require('../config/constants');
+
+/**
+ * Officials share Manage Users with admins but may only manage resident and official accounts:
+ * they cannot create, edit, suspend or archive an admin, or promote anyone to admin.
+ */
+const assertCanManage = async (req, targetId) => {
+  if (req.user.role === ROLES.ADMIN) return;
+  if (req.body?.role === ROLES.ADMIN) throw ApiError.forbidden('Only an admin can assign the admin role.');
+  if (!targetId) return;
+  const target = await User.findById(targetId).select('role');
+  if (target?.role === ROLES.ADMIN) throw ApiError.forbidden('Only an admin can manage admin accounts.');
+};
 
 const SELF_UPDATABLE_FIELDS = [
   'firstName',
@@ -102,6 +115,7 @@ const getUser = catchAsync(async (req, res) => {
 // @route POST /api/users (admin creates official/admin accounts)
 const createUser = catchAsync(async (req, res) => {
   const { generateCode } = require('../services/qrcode.service');
+  await assertCanManage(req);
   const existing = await User.findOne({ email: req.body.email });
   if (existing) throw ApiError.conflict('An account with this email already exists.');
 
@@ -121,6 +135,7 @@ const createUser = catchAsync(async (req, res) => {
 const updateUser = catchAsync(async (req, res) => {
   const forbidden = ['password', 'email', 'qrCode', 'residentId'];
   forbidden.forEach((field) => delete req.body[field]);
+  await assertCanManage(req, req.params.id);
 
   const user = await User.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -138,6 +153,7 @@ const toggleActive = catchAsync(async (req, res) => {
   if (String(req.params.id) === String(req.user._id)) {
     throw ApiError.badRequest('You cannot deactivate your own account.');
   }
+  await assertCanManage(req, req.params.id);
 
   const user = await User.findById(req.params.id);
   if (!user) throw ApiError.notFound('User not found');
@@ -180,6 +196,7 @@ const archiveUser = catchAsync(async (req, res) => {
   if (String(req.params.id) === String(req.user._id)) {
     throw ApiError.badRequest('You cannot archive your own account.');
   }
+  await assertCanManage(req, req.params.id);
 
   const doc = await archiveDocument({
     Model: User,
@@ -193,6 +210,7 @@ const archiveUser = catchAsync(async (req, res) => {
 
 // @route PATCH /api/users/:id/restore
 const restoreUser = catchAsync(async (req, res) => {
+  await assertCanManage(req, req.params.id);
   const doc = await restoreDocument({
     Model: User,
     moduleName: 'user',

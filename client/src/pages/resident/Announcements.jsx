@@ -56,11 +56,11 @@ const Announcements = () => {
               aria-label={t('common.search')}
             />
           </div>
-          <select onChange={(e) => updateFilters({ category: e.target.value || undefined })} className="input-field w-auto capitalize" aria-label="Category">
+          <select onChange={(e) => updateFilters({ category: e.target.value || undefined })} className="input-field w-auto" aria-label={t('ann.category')}>
             <option value="">{t('common.all')}</option>
             {CATEGORIES.map((c) => (
               <option key={c} value={c}>
-                {c}
+                {t(`ann.cat.${c}`)}
               </option>
             ))}
           </select>
@@ -90,7 +90,7 @@ const Announcements = () => {
 
       <div className="hidden md:block">
         <div className="sticky top-1/2 flex -translate-y-1/2 flex-col items-center gap-3">
-          <button onClick={() => move(-1)} disabled={index === 0} className="text-primary-700 transition hover:scale-110 disabled:opacity-30" aria-label="Previous announcement">
+          <button onClick={() => move(-1)} disabled={index === 0} className="text-primary-700 transition hover:scale-110 disabled:opacity-30" aria-label={t('ann.prev')}>
             <FiChevronUp className="h-12 w-12" strokeWidth={3} />
           </button>
           <span className="text-xs font-semibold text-gray-500">
@@ -100,7 +100,7 @@ const Announcements = () => {
             onClick={() => move(1)}
             disabled={index >= rows.length - 1}
             className="text-primary-700 transition hover:scale-110 disabled:opacity-30"
-            aria-label="Next announcement"
+            aria-label={t('ann.next')}
           >
             <FiChevronDown className="h-12 w-12" strokeWidth={3} />
           </button>

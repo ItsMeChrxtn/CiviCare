@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { FiSettings, FiMessageSquare, FiMail, FiTag } from 'react-icons/fi';
 import api from '../../utils/api';
-import { DOCUMENT_TYPES } from '../../utils/constants';
+import { SERVICE_DOCUMENTS } from '../../utils/constants';
 import PageLoader from '../../components/common/PageLoader';
 import { invalidateSetting } from '../../hooks/useSetting';
 
@@ -22,20 +22,12 @@ const Settings = () => {
 
   useEffect(() => {
     if (!settings) return;
-    if (tab === 'categories') {
-      reset(settings.categories?.documentFees || {});
-    } else {
-      reset(settings[tab] || {});
-    }
+    if (tab !== 'categories') reset(settings[tab] || {});
   }, [tab, settings, reset]);
 
   const onSubmit = async (values) => {
     try {
-      if (tab === 'categories') {
-        await api.put('/settings/categories', { ...settings.categories, documentFees: values });
-      } else {
-        await api.put(`/settings/${tab}`, values);
-      }
+      await api.put(`/settings/${tab}`, values);
       toast.success('Settings saved successfully');
       invalidateSetting(tab);
       load();
@@ -50,7 +42,7 @@ const Settings = () => {
     <div>
       <div className="page-header">
         <h1 className="page-title">System Settings</h1>
-        <p className="page-subtitle">Configure barangay information, notifications, and document fees.</p>
+        <p className="page-subtitle">Configure barangay information, notifications, and offered documents.</p>
       </div>
 
       <div className="mb-6 flex flex-wrap gap-2 border-b border-gray-100 dark:border-gray-800">
@@ -150,21 +142,23 @@ const Settings = () => {
 
         {tab === 'categories' && (
           <>
-            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Set the processing fee (PHP) for each document type.</p>
+            <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">Documents residents can request through Service Request. Both are issued free of charge.</p>
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {DOCUMENT_TYPES.map((d) => (
+              {SERVICE_DOCUMENTS.map((d) => (
                 <div key={d.value} className="flex items-center justify-between gap-3 py-2.5 first:pt-0 last:pb-0">
-                  <label className="text-sm">{d.label}</label>
-                  <input type="number" min="0" {...register(d.value)} className="input-field w-32" />
+                  <span className="text-sm">{d.label}</span>
+                  <span className="badge bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">Free</span>
                 </div>
               ))}
             </div>
           </>
         )}
 
-        <button type="submit" disabled={isSubmitting} className="btn-primary">
-          {isSubmitting ? 'Saving...' : 'Save Settings'}
-        </button>
+        {tab !== 'categories' && (
+          <button type="submit" disabled={isSubmitting} className="btn-primary">
+            {isSubmitting ? 'Saving...' : 'Save Settings'}
+          </button>
+        )}
       </form>
     </div>
   );

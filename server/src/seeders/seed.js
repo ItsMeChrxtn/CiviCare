@@ -37,7 +37,7 @@ const PERMISSION_SEED = Object.entries(PERMISSIONS).map(([, key]) => ({
 }));
 
 // Barangay Magdiwang, Noveleta, Cavite - approximate center used for the map seed data.
-const CENTER = { lat: 14.4296, lng: 120.8794 };
+const CENTER = { lat: 14.4318, lng: 120.8852 };
 const at = (dLat, dLng) => [CENTER.lng + dLng, CENTER.lat + dLat]; // GeoJSON [lng, lat]
 
 // 911 and Red Cross 143 are national numbers. The local numbers are placeholders:
@@ -52,91 +52,8 @@ const HOTLINE_SEED = [
   { name: 'Red Cross Cavite', category: 'medical', number: '143', availability: '24/7', order: 7 },
 ];
 
-// Decision tree for the menu-driven virtual assistant: top-level buttons with child buttons.
-const CHATBOT_SEED = [
-  {
-    label: 'Barangay Clearance',
-    response: 'What would you like to know about the Barangay Clearance?',
-    children: [
-      {
-        label: 'Requirements',
-        response:
-          'Requirements: (1) one valid government-issued ID, (2) proof of residency in Barangay Magdiwang, (3) the purpose of the request. First-time requesters not yet in the Records of Barangay Inhabitants (RBI) must visit the Barangay Hall for the Data Capture Form and picture taking.',
-      },
-      {
-        label: 'How to request',
-        response:
-          'Go to Service Request, tick "Barangay Clearance", fill in your personal details and purpose, then press Submit. You will receive an SMS once it is ready for pick-up.',
-      },
-      { label: 'Fee & processing time', response: 'Fee: PHP 50.00, payable upon release. Processing: 1-2 working days, during office hours only.' },
-    ],
-  },
-  {
-    label: 'Other Certificates',
-    response: 'CiviCare can process these documents:',
-    children: [
-      { label: 'Barangay Certificate', response: 'A general certification that you are a registered resident. Fee: PHP 30.00. Requirements: valid ID and purpose.' },
-      { label: 'Certificate of Residency', response: 'Certifies your residency in Barangay Magdiwang. Fee: PHP 30.00. Requirements: valid ID and proof of address.' },
-      { label: 'Certificate of Indigency', response: 'For residents applying for financial, medical, or legal assistance. Free of charge. Requirements: valid ID and purpose.' },
-    ],
-  },
-  {
-    label: 'Report an Incident',
-    response: 'How to report an incident in CiviCare:',
-    children: [
-      {
-        label: 'Reporting steps',
-        response:
-          '1) Open Incident Reporting. 2) Tap "Use your location" or tap the map where it happened. 3) Pick the type (Fire, Electrical, Road Accident, Rescue, Others). 4) Choose the priority. 5) Press REPORT NOW. You will get an SMS with your ticket number.',
-      },
-      {
-        label: 'Ticket status meaning',
-        response: 'PENDING - received, waiting for a responder. ONGOING - a responder is handling it. RESOLVED - the concern has been addressed.',
-      },
-      {
-        label: 'What can be reported',
-        response:
-          'Community emergencies such as floods, fires, medical emergencies, road accidents, interpersonal disputes, and criminal incidents. Political complaints are not handled through CiviCare.',
-      },
-    ],
-  },
-  {
-    label: 'Emergency Hotlines',
-    response: 'For life-threatening emergencies call 911. All verified local numbers (barangay, BFP, PNP, MDRRMO, health center) are in the Emergency & Disaster Hub.',
-  },
-  {
-    label: 'Evacuation Procedures',
-    response: 'Choose a hazard:',
-    children: [
-      {
-        label: 'Flood',
-        response:
-          'Move to higher ground when water starts rising. Turn off electricity at the main switch. Bring your go-bag and proceed to the nearest evacuation center shown on the Digital Evacuation Map. Avoid walking through floodwater.',
-      },
-      {
-        label: 'Fire',
-        response: 'Alert neighbors, call BFP, stay low under smoke, never use elevators, and go to your family meeting point. Do not go back inside.',
-      },
-      {
-        label: 'Earthquake',
-        response: 'DROP, COVER and HOLD ON. When shaking stops, exit carefully and move to an open area away from buildings, posts, and wires. Expect aftershocks.',
-      },
-      {
-        label: 'Typhoon',
-        response: 'Monitor PAGASA signals and barangay SMS alerts. Secure loose objects, store food and water, charge phones, and evacuate early when advised.',
-      },
-    ],
-  },
-  {
-    label: 'Health Programs',
-    response:
-      'The Barangay Health Center runs free check-ups, blood pressure monitoring, immunization, and medical missions. Schedules are posted in Announcements and Events & Activities.',
-  },
-  {
-    label: 'Office Hours',
-    response: 'The Barangay Hall is open Monday to Friday, 8:00 AM - 5:00 PM, except on public holidays.',
-  },
-];
+// Decision tree for the menu-driven virtual assistant (English + Tagalog), shared with the startup migration.
+const { CHATBOT_TREE: CHATBOT_SEED } = require('./chatbotTree');
 
 const seedPermissionsAndRoles = async () => {
   const permissions = await Permission.insertMany(PERMISSION_SEED, { ordered: false }).catch(() => Permission.find());
@@ -281,14 +198,7 @@ const seedSettings = async (adminId) => {
     {
       key: 'categories',
       value: {
-        documentFees: {
-          barangay_clearance: 50,
-          barangay_certificate: 30,
-          certificate_of_residency: 30,
-          certificate_of_indigency: 0,
-          business_clearance: 100,
-          cedula: 30,
-        },
+        documentTypes: ['barangay_clearance', 'certificate_of_indigency'],
       },
       updatedBy: adminId,
     },
@@ -340,8 +250,8 @@ const seedHazardsAndIncident = async (officialId, residentId) => {
   await Hazard.insertMany([
     {
       layer: 'evacuation_center',
-      name: 'Barangay Magdiwang Covered Court (Evacuation Center)',
-      description: 'Primary evacuation center with capacity for 500 individuals.',
+      name: "Medina's Compound Evacuation Center",
+      description: "Evacuation center at Medina's Compound, Magdiwang Highway, Noveleta, Cavite.",
       geometry: { type: 'Point', coordinates: at(0, 0) },
       capacity: 500,
       contactPerson: 'Barangay Captain',
@@ -368,7 +278,7 @@ const seedHazardsAndIncident = async (officialId, residentId) => {
     },
     {
       layer: 'evacuation_route',
-      name: 'Evacuation route to Covered Court',
+      name: "Evacuation route to Medina's Compound",
       geometry: { type: 'LineString', coordinates: [at(-0.003, -0.003), at(-0.0015, -0.0015), at(0, 0)] },
       createdBy: officialId,
     },

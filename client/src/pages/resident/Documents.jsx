@@ -164,23 +164,22 @@ const Documents = () => {
           emptyMessage={t('service.noRequests')}
           columns={[
             {
-              header: 'Request ID',
+              header: t('doc.requestId'),
               accessor: (r) => (
                 <Link to={`/resident/documents/${r._id}`} className="font-medium text-primary-700 hover:underline dark:text-primary-400">
                   {r.referenceCode}
                 </Link>
               ),
             },
-            { header: 'Document', accessor: (r) => documentLabel(r.type) },
+            { header: t('doc.document'), accessor: (r) => documentLabel(r.type) },
             { header: t('service.purpose'), accessor: (r) => r.purpose },
-            { header: 'Fee', accessor: (r) => (r.fee ? `₱${r.fee}` : 'Free') },
             { header: t('common.status'), accessor: (r) => <Badge status={r.status} /> },
             {
-              header: 'QR Code',
+              header: t('doc.qrCode'),
               accessor: (r) =>
                 ['ready_for_pickup', 'claimed'].includes(r.status) ? (
                   <Link to={`/resident/documents/${r._id}`} className="inline-flex items-center gap-1 text-xs font-semibold text-primary-700 hover:underline dark:text-primary-400">
-                    <BsQrCode /> View QR
+                    <BsQrCode /> {t('doc.viewQr')}
                   </Link>
                 ) : (
                   <span className="text-xs text-gray-400">—</span>

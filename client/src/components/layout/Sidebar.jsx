@@ -61,8 +61,8 @@ const Sidebar = ({ open, onClose }) => {
         } ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
         <Link to={`/${user?.role}`} className="flex items-center gap-2.5 border-b border-white/15 px-4 py-3 text-white" onClick={onClose}>
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white p-1 ring-2 ring-amber-300">
-            <img src="/civicare-logo.svg" alt="" className="h-full w-full" />
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-amber-300">
+            <img src="/magdiwang-logo.jpeg" alt="Barangay Magdiwang seal" className="h-full w-full object-cover" />
           </span>
           <span className="min-w-0">
             <span className="block font-display text-base font-extrabold leading-tight">

@@ -68,7 +68,7 @@ const IncidentDetail = () => {
               <div className="mt-4 grid grid-cols-2 gap-3">
                 {incident.images.map((img) => (
                   <a key={img.publicId || img.url} href={img.url} target="_blank" rel="noreferrer">
-                    <img src={img.url} alt="Incident evidence" className="h-28 w-full rounded-xl object-cover" />
+                    <img src={img.url} alt={t('incident.photo')} className="h-28 w-full rounded-xl object-cover" />
                   </a>
                 ))}
               </div>

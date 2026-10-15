@@ -12,7 +12,15 @@ const AuthShell = ({ children, showTabs = true }) => {
     }`;
 
   return (
-    <div className="flex min-h-screen flex-col bg-brand-sand dark:bg-gray-950 lg:flex-row">
+    <div className="relative isolate flex min-h-screen flex-col overflow-hidden bg-brand-sand dark:bg-gray-950 lg:flex-row">
+      {/* Barangay Magdiwang seal as the page background */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
+        <img
+          src="/magdiwang-logo.jpeg"
+          alt=""
+          className="h-[120vmin] w-[120vmin] max-w-none rounded-full object-cover opacity-[0.12] mix-blend-multiply dark:opacity-[0.08] dark:mix-blend-screen"
+        />
+      </div>
       <div className="relative flex flex-col items-center justify-center px-6 py-10 lg:w-1/2">
         <button
           onClick={toggleLang}
@@ -21,7 +29,10 @@ const AuthShell = ({ children, showTabs = true }) => {
           <FiGlobe /> {lang.toUpperCase()}
         </button>
         <Link to="/" className="flex flex-col items-center">
-          <img src="/civicare-logo.svg" alt="CiviCare" className="h-32 w-auto sm:h-44" />
+          <div className="flex items-center gap-4">
+            <img src="/magdiwang-logo.jpeg" alt="Barangay Magdiwang seal" className="h-28 w-28 rounded-full object-cover shadow-card sm:h-36 sm:w-36" />
+            <img src="/civicare-logo.svg" alt="CiviCare" className="h-28 w-auto sm:h-36" />
+          </div>
           <span className="mt-2 font-display text-5xl font-extrabold tracking-tight sm:text-6xl">
             <span className="text-[#1e3f99]">Civi</span>
             <span className="text-[#2f9a3a]">Care</span>
@@ -29,6 +40,7 @@ const AuthShell = ({ children, showTabs = true }) => {
           <span className="mt-1 border-t border-gray-400 pt-1 text-xs font-semibold tracking-[0.25em] text-gray-600 dark:text-gray-400">
             {t('auth.tagline')}
           </span>
+          <span className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-300">Barangay Magdiwang, Noveleta, Cavite</span>
         </Link>
         <p className="mt-10 text-sm text-gray-600 dark:text-gray-400 lg:absolute lg:bottom-6 lg:left-8 lg:mt-0">© 2026 CIVICARE</p>
       </div>

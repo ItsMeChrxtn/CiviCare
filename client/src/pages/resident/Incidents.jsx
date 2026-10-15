@@ -82,7 +82,7 @@ const Incidents = () => {
       setShowDetails(false);
       refetch();
     } catch (err) {
-      toast.error(err.response?.data?.errors?.[0]?.message || err.response?.data?.message || 'Failed to report incident');
+      toast.error(err.response?.data?.errors?.[0]?.message || err.response?.data?.message || t('incident.failed'));
     } finally {
       setSubmitting(false);
     }

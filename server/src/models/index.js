@@ -8,6 +8,7 @@ module.exports = {
   Event: require('./Event'),
   EventRegistration: require('./EventRegistration'),
   Document: require('./Document'),
+  Donation: require('./Donation'),
   Notification: require('./Notification'),
   Feedback: require('./Feedback'),
   Hazard: require('./Hazard'),

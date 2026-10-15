@@ -6,7 +6,8 @@ const mongoose = require('mongoose');
  *  { key: 'sms',     value: { senderName, enabled } }
  *  { key: 'email',   value: { fromName, enabled } }
  *  { key: 'faqs',    value: [{ question, answer, order }] }
- *  { key: 'categories', value: { incidentCategories: [...], documentFees: {...} } }
+ *  { key: 'categories', value: { incidentCategories: [...], documentTypes: [...] } }
+ *  { key: 'migrations', value: ['2026-10-panel-map', ...] }  (one-time startup migrations)
  */
 const settingSchema = new mongoose.Schema(
   {
