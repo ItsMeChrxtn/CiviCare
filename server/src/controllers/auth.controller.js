@@ -19,7 +19,8 @@ const PENDING_TTL_MS = 15 * 60 * 1000; // unverified signup record self-deletes 
 
 // @route POST /api/auth/register
 const register = catchAsync(async (req, res) => {
-  const { middleName, email, password, phone, birthdate, gender } = req.body;
+  const { middleName, email, password, phone, birthdate, gender, civilStatus, residencySince } = req.body;
+  const residentSinceBirth = Boolean(req.body.residentSinceBirth);
   // The registration screen collects a single "Full Name"; older clients still send the split fields.
   const split = req.body.fullName ? splitFullName(req.body.fullName) : {};
   const firstName = req.body.firstName || split.firstName;
@@ -47,6 +48,9 @@ const register = catchAsync(async (req, res) => {
     phone,
     birthdate,
     gender,
+    civilStatus,
+    residencySince: residentSinceBirth ? birthdate : residencySince,
+    residentSinceBirth,
     address,
     otpCode,
     otpExpiresAt: new Date(now + OTP_TTL_MS),
@@ -94,6 +98,9 @@ const verifyEmail = catchAsync(async (req, res) => {
     phone: pending.phone,
     birthdate: pending.birthdate,
     gender: pending.gender,
+    civilStatus: pending.civilStatus,
+    residencySince: pending.residencySince,
+    residentSinceBirth: pending.residentSinceBirth,
     address: pending.address,
     role: ROLES.RESIDENT,
     qrCode: generateCode(),

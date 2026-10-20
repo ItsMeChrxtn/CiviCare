@@ -32,6 +32,14 @@ const pendingRegistrationSchema = new mongoose.Schema(
     phone: { type: String, trim: true },
     birthdate: { type: Date },
     gender: { type: String, enum: ['male', 'female', 'other'], default: 'other' },
+    civilStatus: {
+      type: String,
+      enum: ['single', 'married', 'widowed', 'separated', 'divorced'],
+      default: 'single',
+    },
+    // When the resident started living at their current address; residentSinceBirth marks "Since Birth".
+    residencySince: { type: Date },
+    residentSinceBirth: { type: Boolean, default: false },
     address: addressSchema,
 
     otpCode: { type: String, required: true },

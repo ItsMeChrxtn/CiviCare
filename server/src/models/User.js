@@ -39,6 +39,9 @@ const userSchema = new mongoose.Schema(
       default: 'single',
     },
     occupation: { type: String, trim: true },
+    // When the resident started living at their current address; residentSinceBirth marks "Since Birth".
+    residencySince: { type: Date },
+    residentSinceBirth: { type: Boolean, default: false },
     address: addressSchema,
 
     avatar: {

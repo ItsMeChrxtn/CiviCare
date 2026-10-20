@@ -14,6 +14,13 @@ const registerValidator = [
     .optional({ checkFalsy: true })
     .matches(/^09\d{9}$/)
     .withMessage('Phone must be a valid PH mobile number (e.g. 09171234567)'),
+  body('gender').optional({ checkFalsy: true }).isIn(['male', 'female', 'other']).withMessage('Invalid gender'),
+  body('civilStatus')
+    .optional({ checkFalsy: true })
+    .isIn(['single', 'married', 'widowed', 'separated', 'divorced'])
+    .withMessage('Invalid civil status'),
+  body('birthdate').optional({ checkFalsy: true }).isISO8601().withMessage('Birth date must be a valid date'),
+  body('residencySince').optional({ checkFalsy: true }).isISO8601().withMessage('Date of residency must be a valid date'),
 ];
 
 const loginValidator = [
