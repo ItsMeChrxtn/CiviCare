@@ -11,8 +11,8 @@ const NavItem = ({ item, onClose, t }) => (
     end={item.end}
     onClick={onClose}
     className={({ isActive }) =>
-      `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-white transition-colors duration-150 ${
-        isActive ? 'bg-white/15 ring-1 ring-inset ring-white' : 'hover:bg-white/10'
+      `flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition duration-150 ${
+        isActive ? 'bg-white text-primary-800 shadow-soft' : 'text-white/85 hover:bg-white/10 hover:text-white'
       }`
     }
   >
@@ -29,7 +29,7 @@ const NavGroup = ({ label, items, onClose, t, defaultOpen = false }) => {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-xs font-bold uppercase tracking-wider text-white/70 hover:text-white"
+        className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-[11px] font-bold uppercase tracking-wider text-accent-300/90 hover:text-accent-200"
         aria-expanded={open}
       >
         {label}
@@ -56,17 +56,22 @@ const Sidebar = ({ open, onClose }) => {
     <>
       {open && <div className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden" onClick={onClose} />}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-64 shrink-0 transform flex-col overflow-y-auto transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
-          isResident ? 'bg-brand-green' : 'bg-brand-blue'
-        } ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-64 shrink-0 transform flex-col overflow-y-auto transition-transform duration-300 lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 shell-sidebar ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
       >
-        <Link to={`/${user?.role}`} className="flex items-center gap-2.5 border-b border-white/15 px-4 py-3 text-white" onClick={onClose}>
+        <Link to={`/${user?.role}`} className="flex items-center gap-2.5 border-b border-white/10 px-4 py-4 text-white" onClick={onClose}>
           <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-amber-300">
             <img src="/magdiwang-logo.jpeg" alt="Barangay Magdiwang seal" className="h-full w-full object-cover" />
           </span>
           <span className="min-w-0">
             <span className="block font-display text-base font-extrabold leading-tight">
-              CIVICARE{!isResident && ' Admin'}
+              CIVICARE
+              {!isResident && (
+                <span className="ml-1.5 rounded-md bg-accent-400 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wider text-primary-950">
+                  {user?.role === 'admin' ? 'Admin' : 'Official'}
+                </span>
+              )}
             </span>
             <span className="block truncate text-[11px] text-white/80">{t('shell.brgy')}</span>
           </span>

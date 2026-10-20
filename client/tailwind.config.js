@@ -5,8 +5,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Driven by CSS variables (see index.css) so the whole UI follows the portal theme:
-        // green for the public site + resident portal, blue for the officials/admin portal.
+        // Driven by CSS variables (see index.css) so opacity modifiers work on the CiviCare green.
         primary: Object.fromEntries(
           [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((shade) => [
             shade,
@@ -16,8 +15,6 @@ export default {
         brand: {
           green: '#0b7a3e',
           greenDark: '#085c2e',
-          blue: '#1546b8',
-          blueDark: '#0f3590',
           sand: '#efede4',
           orange: '#f28c1b',
         },

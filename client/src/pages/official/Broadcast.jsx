@@ -226,7 +226,7 @@ const Broadcast = () => {
             <span className="badge bg-gray-100 text-gray-600">Skipped: {usage?.totals?.skipped ?? 0}</span>
           </div>
         </div>
-        {usage ? <TrendLineChart series={series} label="Messages sent" color="#1546b8" /> : <CardSkeleton />}
+        {usage ? <TrendLineChart series={series} label="Messages sent" color="#0b7a3e" /> : <CardSkeleton />}
       </section>
 
       <section className="card p-5">

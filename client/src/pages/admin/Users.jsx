@@ -12,8 +12,8 @@ import { useAuth } from '../../contexts/AuthContext';
 
 const ROLES = ['resident', 'official', 'admin'];
 const ROLE_BADGE_CLASSES = {
-  resident: 'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400',
-  official: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-500/10 dark:text-indigo-400',
+  resident: 'bg-gray-100 text-gray-700 dark:bg-gray-500/10 dark:text-gray-300',
+  official: 'bg-teal-100 text-teal-700 dark:bg-teal-500/10 dark:text-teal-400',
   admin: 'bg-primary-100 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400',
 };
 

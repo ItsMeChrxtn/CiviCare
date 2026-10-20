@@ -65,9 +65,7 @@ const Topbar = ({ onMenuClick }) => {
   return (
     <header
       ref={ref}
-      className={`sticky top-0 z-20 flex items-center gap-2 px-3 py-2.5 text-white shadow-md lg:px-6 ${
-        isResident ? 'bg-brand-green' : 'bg-brand-blue'
-      }`}
+      className="shell-topbar sticky top-0 z-20 flex items-center gap-2 px-3 py-2.5 text-white shadow-md lg:px-6"
     >
       <button onClick={onMenuClick} className={`${iconBtn} lg:hidden`} aria-label="Open menu">
         <FiMenu className="h-5 w-5" />

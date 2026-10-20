@@ -18,13 +18,6 @@ const DashboardLayout = () => {
     return () => setEnglishOnly(false);
   }, [isStaff, setEnglishOnly]);
 
-  // Blue palette for the officials/admin portal; green (the :root default) for residents.
-  // Set on <html> so portaled modals pick up the same theme.
-  useEffect(() => {
-    document.documentElement.classList.toggle('theme-staff', isStaff);
-    return () => document.documentElement.classList.remove('theme-staff');
-  }, [isStaff]);
-
   return (
     <div className="flex min-h-screen bg-[rgb(var(--portal-bg))] dark:bg-gray-950">
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />

@@ -32,7 +32,7 @@ const Analytics = () => {
         </div>
         <div className="card animate-fadeIn p-5">
           <h2 className="mb-4 flex items-center gap-2 font-display font-bold text-gray-800 dark:text-gray-100">
-            <FiFileText className="h-4 w-4 text-blue-500" /> Documents Processed (12 months)
+            <FiFileText className="h-4 w-4 text-teal-500" /> Documents Processed (12 months)
           </h2>
           {trends ? <TrendLineChart series={trends.documents} label="Documents" color="#3b82f6" /> : <CardSkeleton />}
         </div>

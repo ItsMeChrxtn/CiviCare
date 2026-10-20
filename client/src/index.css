@@ -4,9 +4,9 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Portal themes. Values are space-separated RGB so Tailwind opacity modifiers keep working. */
+/* Portal theme. Values are space-separated RGB so Tailwind opacity modifiers keep working. */
 :root {
-  /* Resident / public: CiviCare green */
+  /* CiviCare green: public site, resident, officials and admin portals */
   --primary-50: 238 248 241;
   --primary-100: 214 239 222;
   --primary-200: 173 222 189;
@@ -19,22 +19,6 @@
   --primary-900: 9 64 35;
   --primary-950: 3 36 18;
   --portal-bg: 239 237 228;
-}
-
-/* Officials / admin portal: government blue */
-:root.theme-staff {
-  --primary-50: 238 243 255;
-  --primary-100: 219 230 254;
-  --primary-200: 190 209 253;
-  --primary-300: 146 178 251;
-  --primary-400: 96 138 246;
-  --primary-500: 55 100 236;
-  --primary-600: 21 70 184;
-  --primary-700: 17 57 156;
-  --primary-800: 18 48 126;
-  --primary-900: 19 42 100;
-  --primary-950: 12 25 61;
-  --portal-bg: 236 240 247;
 }
 
 html {
@@ -150,5 +134,18 @@ h1, h2, h3, .font-display {
 
   .page-subtitle {
     @apply text-sm text-gray-500 dark:text-gray-400;
+  }
+
+  /* Portal chrome, matching the landing page hero (green into teal). */
+  .shell-sidebar {
+    @apply bg-gradient-to-b from-primary-800 via-primary-800 to-primary-950;
+  }
+
+  .shell-topbar {
+    @apply bg-gradient-to-r from-primary-800 via-primary-700 to-teal-600;
+  }
+
+  .hero-panel {
+    @apply relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-800 via-primary-700 to-teal-600 text-white shadow-card;
   }
 }

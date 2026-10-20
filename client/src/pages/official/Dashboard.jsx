@@ -12,8 +12,8 @@ import TrendLineChart from '../../components/charts/TrendLineChart';
 import { CardSkeleton } from '../../components/common/Skeleton';
 import { categoryLabel } from '../../utils/constants';
 
-const BlueStat = ({ value, label, sub, icon: Icon }) => (
-  <div className="flex items-center justify-center gap-4 rounded-xl bg-brand-blue p-5 text-white shadow-card">
+const HeroStat = ({ value, label, sub, icon: Icon }) => (
+  <div className="hero-panel flex items-center justify-center gap-4 p-5">
     <div>
       <p className="font-display text-4xl font-extrabold leading-none">{value ?? '—'}</p>
       <p className="mt-1 text-lg font-bold leading-tight">{label}</p>
@@ -84,18 +84,18 @@ const OfficialDashboard = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <BlueStat value={overview?.residents?.toLocaleString()} label="Residents" sub={`As of ${month}`} icon={MdPerson} />
-        <BlueStat
+        <HeroStat value={overview?.residents?.toLocaleString()} label="Residents" sub={`As of ${month}`} icon={MdPerson} />
+        <HeroStat
           value={overview?.activeIncidents}
           label="Active Incidents"
           sub={`As of ${overview?.purokCount ?? '—'} puroks`}
           icon={FiAlertTriangle}
         />
-        <BlueStat value={overview?.serviceRequestsThisMonth} label="Service Request" sub="This month" icon={FiCalendar} />
+        <HeroStat value={overview?.serviceRequestsThisMonth} label="Service Request" sub="This month" icon={FiCalendar} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <form onSubmit={publish} className="flex flex-col rounded-xl bg-brand-blue p-3 shadow-card">
+        <form onSubmit={publish} className="flex flex-col rounded-2xl bg-gradient-to-br from-primary-800 to-teal-600 p-3 shadow-card">
           <h2 className="py-2 text-center font-display text-xl font-bold text-white">Announcement</h2>
           <div className="flex flex-1 flex-col rounded-lg bg-[#fbf8ec] p-4 dark:bg-gray-900">
             <input
@@ -145,7 +145,7 @@ const OfficialDashboard = () => {
           </div>
         </form>
 
-        <section className="rounded-xl bg-brand-blue p-3 shadow-card">
+        <section className="rounded-2xl bg-gradient-to-br from-primary-800 to-teal-600 p-3 shadow-card">
           <div className="rounded-lg bg-white p-4 dark:bg-gray-900">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-display font-bold">Recent Incidents</h2>
@@ -196,7 +196,7 @@ const OfficialDashboard = () => {
         </div>
         <div className="card p-5">
           <h2 className="mb-4 font-display font-bold">Service Requests (12 months)</h2>
-          {trends ? <TrendLineChart series={trends.documents} label="Requests" color="#1546b8" /> : <CardSkeleton />}
+          {trends ? <TrendLineChart series={trends.documents} label="Requests" color="#0b7a3e" /> : <CardSkeleton />}
         </div>
       </div>
     </div>
