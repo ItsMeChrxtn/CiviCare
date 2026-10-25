@@ -1,23 +1,21 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiHome, FiPhoneCall, FiMessageSquare } from 'react-icons/fi';
+import { FiPhoneCall } from 'react-icons/fi';
 import api from '../../utils/api';
 import useSetting from '../../hooks/useSetting';
-import useChatbotTree from '../../hooks/useChatbotTree';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import Modal from '../../components/common/Modal';
 import HotlineIcon from '../../components/common/HotlineIcon';
 
 const telHref = (n) => `tel:${String(n).replace(/[^\d+]/g, '')}`;
 
-/** Menu-driven virtual assistant (docu Figure 7): quick actions plus a button-only FAQ decision tree. */
+/** Menu-driven virtual assistant (docu Figure 7): quick actions. FAQs are on the landing page only (panel revision). */
 const Assistant = () => {
   const { t } = usePreferences();
   const navigate = useNavigate();
   const [general] = useSetting('general');
   const [hotlines, setHotlines] = useState([]);
   const [callOpen, setCallOpen] = useState(false);
-  const { path, menu, response, label, isLoading, select, goBack, reset } = useChatbotTree({ greeting: '' });
 
   useEffect(() => {
     api.get('/hotlines').then(({ data }) => setHotlines(data.data)).catch(() => {});
@@ -56,46 +54,6 @@ const Assistant = () => {
         ))}
       </div>
 
-      <section className="border-t border-gray-100 px-6 py-6 dark:border-gray-800" aria-live="polite">
-        <div className="mx-auto max-w-2xl">
-          <h2 className="flex items-center gap-2 font-display text-lg font-bold">
-            <FiMessageSquare className="text-primary-600" /> {t('assistant.faq')}
-          </h2>
-          <p className="text-sm text-gray-500">{t('assistant.faqHint')}</p>
-
-          {path.length > 0 && (
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <button onClick={goBack} className="flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 font-semibold dark:border-gray-700">
-                <FiArrowLeft /> {t('common.back')}
-              </button>
-              <button onClick={reset} className="flex items-center gap-1 rounded-full border border-gray-200 px-3 py-1 font-semibold dark:border-gray-700">
-                <FiHome /> {t('assistant.mainMenu')}
-              </button>
-              <span className="text-gray-400">{path.map(label).join(' › ')}</span>
-            </div>
-          )}
-
-          {response && <div className="mt-4 whitespace-pre-line rounded-2xl rounded-tl-sm bg-primary-50 p-4 text-sm leading-relaxed text-gray-800 dark:bg-primary-500/10 dark:text-gray-100">{response}</div>}
-
-          <div className="mt-4 flex flex-wrap gap-2">
-            {isLoading ? (
-              <p className="text-sm text-gray-400">{t('common.loading')}</p>
-            ) : menu.length ? (
-              menu.map((node) => (
-                <button
-                  key={node._id}
-                  onClick={() => select(node)}
-                  className="rounded-full border-2 border-primary-600 px-4 py-2 text-sm font-semibold text-primary-700 transition hover:bg-primary-600 hover:text-white dark:text-primary-300"
-                >
-                  {label(node)}
-                </button>
-              ))
-            ) : (
-              <p className="text-sm text-gray-400">{t('assistant.noMore')}</p>
-            )}
-          </div>
-        </div>
-      </section>
 
       <Modal isOpen={callOpen} onClose={() => setCallOpen(false)} title={t('assistant.callTitle')} size="sm">
         <p className="mb-3 text-sm text-gray-500">{t('assistant.callBody', { hours: general?.officeHours || '' })}</p>

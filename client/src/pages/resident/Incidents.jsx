@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { FiAlertTriangle, FiLifeBuoy, FiChevronDown, FiCamera, FiMapPin } from 'react-icons/fi';
-import { MdLocalFireDepartment } from 'react-icons/md';
+import { MdLocalFireDepartment, MdMyLocation } from 'react-icons/md';
 import { FaCarCrash } from 'react-icons/fa';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import useSetting from '../../hooks/useSetting';
@@ -17,11 +17,12 @@ import { TableSkeleton } from '../../components/common/Skeleton';
 import { PRIORITY_OPTIONS, categoryLabel } from '../../utils/constants';
 
 // The four quick buttons on the report screen; "Others" opens the remaining categories.
+// Panel revision: small, white-only icons.
 const QUICK = [
-  { value: 'fire', icon: MdLocalFireDepartment, color: 'text-red-500' },
-  { value: 'electrical', icon: FiAlertTriangle, color: 'text-yellow-400' },
-  { value: 'road_accident', icon: FaCarCrash, color: 'text-white' },
-  { value: 'rescue', icon: FiLifeBuoy, color: 'text-white' },
+  { value: 'fire', icon: MdLocalFireDepartment },
+  { value: 'electrical', icon: FiAlertTriangle },
+  { value: 'road_accident', icon: FaCarCrash },
+  { value: 'rescue', icon: FiLifeBuoy },
 ];
 const OTHERS = ['flood', 'medical', 'crime', 'dispute', 'other'];
 
@@ -98,6 +99,16 @@ const Incidents = () => {
       <section className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900 sm:p-4">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_15rem]">
           <div className="overflow-hidden rounded-xl border-4 border-primary-700">
+            <div className="flex justify-end bg-primary-700 px-2 pb-1">
+              <button
+                type="button"
+                onClick={useMyLocation}
+                disabled={locating}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-60"
+              >
+                <MdMyLocation className="h-4 w-4" /> {locating ? t('incident.locating') : t('incident.useLocation')}
+              </button>
+            </div>
             <LocationPicker value={location} onChange={setLocation} center={general?.mapCenter} height="22rem" />
             <p className="flex items-center gap-1.5 bg-primary-700 px-3 py-1.5 text-xs text-white">
               <FiMapPin />
@@ -108,9 +119,9 @@ const Incidents = () => {
           <div>
             <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">{t('incident.type')}</p>
             <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label={t('incident.type')}>
-              {QUICK.map(({ value, icon: Icon, color }) => (
+              {QUICK.map(({ value, icon: Icon }) => (
                 <button key={value} type="button" role="radio" aria-checked={category === value} onClick={() => setCategory(value)} className={tile(category === value)}>
-                  <Icon className={`h-10 w-10 ${color}`} />
+                  <Icon className="h-6 w-6 text-white" />
                   {t(`cat.${value}`)}
                 </button>
               ))}
@@ -151,15 +162,6 @@ const Incidents = () => {
         </div>
 
         <div className="mt-4 flex flex-col items-stretch gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <button
-            type="button"
-            onClick={useMyLocation}
-            disabled={locating}
-            className="rounded-lg bg-gray-900 px-5 py-3 text-sm font-bold text-white shadow transition hover:bg-black disabled:opacity-60"
-          >
-            {locating ? t('incident.locating') : t('incident.useLocation')}
-          </button>
-
           <button
             type="button"
             onClick={submit}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { FiChevronDown, FiHelpCircle } from 'react-icons/fi';
 import api from '../../utils/api';
-import EmptyState from '../../components/common/EmptyState';
-import { Skeleton } from '../../components/common/Skeleton';
+import EmptyState from '../common/EmptyState';
+import { Skeleton } from '../common/Skeleton';
 import { usePreferences } from '../../contexts/PreferencesContext';
 
 /** One question; follow-up questions (from the FAQ Manager) render nested inside its answer. */
@@ -37,8 +37,8 @@ const FAQItem = ({ item, depth = 0 }) => {
   );
 };
 
-const FAQ = () => {
-  const { t } = usePreferences();
+/** FAQ accordion fed by the FAQ Manager. Panel revision: FAQs appear only on the landing page. */
+const FAQList = () => {
   const [faqs, setFaqs] = useState(null);
 
   useEffect(() => {
@@ -49,28 +49,19 @@ const FAQ = () => {
   }, []);
 
   return (
-    <div className="mx-auto max-w-3xl animate-fadeIn px-4 py-16 lg:px-8">
-      <div className="mx-auto max-w-2xl text-center">
-        <span className="section-eyebrow">
-          <FiHelpCircle /> FAQ
-        </span>
-        <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight">{t('assistant.faq')}</h1>
-      </div>
-
-      <div className="mt-12 space-y-3">
-        {faqs === null &&
-          Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="card p-5">
-              <Skeleton className="h-5 w-2/3" />
-            </div>
-          ))}
-        {faqs?.length === 0 && <EmptyState icon={FiHelpCircle} title="No FAQs yet" message="Check back later for answers to common questions." />}
-        {faqs?.map((item) => (
-          <FAQItem key={item._id} item={item} />
+    <div className="space-y-3">
+      {faqs === null &&
+        Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="card p-5">
+            <Skeleton className="h-5 w-2/3" />
+          </div>
         ))}
-      </div>
+      {faqs?.length === 0 && <EmptyState icon={FiHelpCircle} title="No FAQs yet" message="Check back later for answers to common questions." />}
+      {faqs?.map((item) => (
+        <FAQItem key={item._id} item={item} />
+      ))}
     </div>
   );
 };
 
-export default FAQ;
+export default FAQList;

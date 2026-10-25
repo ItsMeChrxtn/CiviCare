@@ -71,9 +71,9 @@ const Topbar = ({ onMenuClick }) => {
         <FiMenu className="h-5 w-5" />
       </button>
 
-      <h1 className="min-w-0 flex-1 truncate text-center font-display text-lg font-extrabold uppercase tracking-wide sm:text-2xl">
-        {navItem ? t(navItem.labelKey) : ''}
-      </h1>
+      {/* Panel revision: no visible page title here; the current page is already highlighted in the sidebar. */}
+      <h1 className="sr-only">{navItem ? t(navItem.labelKey) : ''}</h1>
+      <div className="flex-1" />
 
       <div className="flex items-center gap-0.5 sm:gap-1">
         {isResident && (

@@ -190,7 +190,7 @@ const en = {
 
   // Incident reporting
   'incident.title': 'Incident Reporting',
-  'incident.useLocation': 'Use your location',
+  'incident.useLocation': 'Use my location',
   'incident.reportNow': 'REPORT NOW',
   'incident.priority': 'Priority',
   'incident.pinHint': 'Tap the map to pin the exact location, or use your current location.',
@@ -429,6 +429,22 @@ const en = {
   'assistant.close': 'Close assistant',
   'assistant.noMoreWidget': 'No more topics. Use the back arrow to go up.',
   'assistant.national911': '911 — National Emergency Hotline',
+  // Panel revision (Oct 2026)
+  'dash.floodAlert': 'Flood Alert',
+  'dash.serviceStatus': 'Service Request Status',
+  'dash.incidentStatus': 'Incident Report Status',
+  'service.searchPh': 'Search request ID or purpose',
+  'service.allDocuments': 'All documents',
+  'service.allStatuses': 'All statuses',
+  'events.on': 'Events on {date}',
+  'events.allMonth': 'All events in {month}',
+  'events.showAll': 'Show all',
+  'events.noneDay': 'No events on this day.',
+  'donation.checklist': 'What will you donate? (check all that apply)',
+  'donation.qtyPh': 'Quantity (e.g. 2 sacks)',
+  'donation.others': 'Others (optional)',
+  'donation.chooseOne': 'Please check at least one item to donate.',
+  'donation.amountRequired': 'Please enter the cash amount.',
 };
 
 const tl = {
@@ -610,7 +626,7 @@ const tl = {
   'dash.noAnnouncements': 'Wala pang anunsyo.',
 
   'incident.title': 'Pag-uulat ng Insidente',
-  'incident.useLocation': 'Gamitin ang lokasyon mo',
+  'incident.useLocation': 'Gamitin ang lokasyon ko',
   'incident.reportNow': 'IULAT NGAYON',
   'incident.priority': 'Prayoridad',
   'incident.pinHint': 'Pindutin ang mapa para markahan ang eksaktong lugar, o gamitin ang kasalukuyang lokasyon mo.',
@@ -842,6 +858,22 @@ const tl = {
   'assistant.close': 'Isara ang assistant',
   'assistant.noMoreWidget': 'Wala nang ibang paksa. Pindutin ang back arrow para bumalik.',
   'assistant.national911': '911 — Pambansang Emergency Hotline',
+  // Panel revision (Oct 2026)
+  'dash.floodAlert': 'Babala sa Baha',
+  'dash.serviceStatus': 'Status ng Hiling na Serbisyo',
+  'dash.incidentStatus': 'Status ng Ulat na Insidente',
+  'service.searchPh': 'Hanapin ang request ID o layunin',
+  'service.allDocuments': 'Lahat ng dokumento',
+  'service.allStatuses': 'Lahat ng status',
+  'events.on': 'Mga kaganapan sa {date}',
+  'events.allMonth': 'Lahat ng kaganapan sa {month}',
+  'events.showAll': 'Ipakita lahat',
+  'events.noneDay': 'Walang kaganapan sa araw na ito.',
+  'donation.checklist': 'Ano ang idodonate mo? (i-check lahat ng naaangkop)',
+  'donation.qtyPh': 'Dami (hal. 2 sako)',
+  'donation.others': 'Iba pa (opsyonal)',
+  'donation.chooseOne': 'Mag-check ng kahit isang idodonate.',
+  'donation.amountRequired': 'Ilagay ang halaga ng cash.',
 };
 
 export const TRANSLATIONS = { en, tl };

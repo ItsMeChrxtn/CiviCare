@@ -10,14 +10,15 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import Badge from '../../components/common/Badge';
 import DataTable from '../../components/common/DataTable';
-import { SERVICE_DOCUMENTS, CIVIL_STATUS, documentLabel } from '../../utils/constants';
+import { FiSearch } from 'react-icons/fi';
+import { SERVICE_DOCUMENTS, CIVIL_STATUS, DOCUMENT_STATUS, documentLabel } from '../../utils/constants';
 
 const fullAddress = (a) => [a?.street, a?.purok, a?.barangay && `Brgy. ${a.barangay}`, a?.city, a?.province].filter(Boolean).join(', ');
 
 const Documents = () => {
   const { user } = useAuth();
   const { t } = usePreferences();
-  const { rows, meta, params, setPage, isLoading, refetch } = usePaginatedFetch('/documents');
+  const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/documents');
   const [selected, setSelected] = useState([]);
   const {
     register,
@@ -155,7 +156,38 @@ const Documents = () => {
       </form>
 
       <section className="card p-5">
-        <h2 className="mb-4 font-display text-lg font-bold">{t('service.myRequests')}</h2>
+        <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <h2 className="font-display text-lg font-bold">{t('service.myRequests')}</h2>
+          {/* Panel revision: filters so residents can track their requests. */}
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <div className="relative sm:w-56">
+              <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="search"
+                placeholder={t('service.searchPh')}
+                onChange={(e) => updateFilters({ search: e.target.value || undefined })}
+                className="input-field !py-2 pl-9"
+                aria-label={t('service.searchPh')}
+              />
+            </div>
+            <select onChange={(e) => updateFilters({ type: e.target.value || undefined })} className="input-field !py-2 sm:w-52" aria-label={t('doc.document')}>
+              <option value="">{t('service.allDocuments')}</option>
+              {SERVICE_DOCUMENTS.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+            <select onChange={(e) => updateFilters({ status: e.target.value || undefined })} className="input-field !py-2 sm:w-44" aria-label={t('common.status')}>
+              <option value="">{t('service.allStatuses')}</option>
+              {Object.values(DOCUMENT_STATUS).map((s) => (
+                <option key={s} value={s}>
+                  {t(`status.${s}`)}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <DataTable
           isLoading={isLoading}
           page={meta.page || params.page}

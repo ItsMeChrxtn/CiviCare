@@ -78,6 +78,20 @@ export const DONATION_TYPES = ['cash', 'goods', 'food', 'medicine', 'clothes'];
 export const DONATION_STATUS = { PLEDGED: 'pledged', RECEIVED: 'received', DISTRIBUTED: 'distributed' };
 export const DONATION_TYPE_LABELS = { cash: 'Cash', goods: 'Goods', food: 'Food', medicine: 'Medicine', clothes: 'Clothes' };
 
+// Commonly donated items shown as a checklist in the pledge form; `type` is the donation type it is filed under.
+export const DONATION_PRESETS = [
+  { key: 'rice', type: 'food', label: 'Rice', labelTl: 'Bigas' },
+  { key: 'canned', type: 'food', label: 'Canned Goods', labelTl: 'De-lata' },
+  { key: 'noodles', type: 'food', label: 'Instant Noodles', labelTl: 'Instant Noodles' },
+  { key: 'water', type: 'food', label: 'Bottled Water', labelTl: 'Bote ng Tubig' },
+  { key: 'medicine', type: 'medicine', label: 'Medicines', labelTl: 'Gamot' },
+  { key: 'firstaid', type: 'medicine', label: 'First Aid Kit', labelTl: 'First Aid Kit' },
+  { key: 'hygiene', type: 'goods', label: 'Hygiene Kits', labelTl: 'Hygiene Kit' },
+  { key: 'school', type: 'goods', label: 'School Supplies', labelTl: 'Gamit sa Paaralan' },
+  { key: 'clothes', type: 'clothes', label: 'Clothes', labelTl: 'Damit' },
+  { key: 'blankets', type: 'clothes', label: 'Blankets / Sleeping Mats', labelTl: 'Kumot / Banig' },
+];
+
 /** What was donated, e.g. "Medicine — 10 boxes paracetamol" or "Cash — ₱500". */
 export const donationDetails = (d) => {
   const what = d.type === 'cash' ? `₱${Number(d.amount || 0).toLocaleString()}` : d.quantity || '';

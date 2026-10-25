@@ -17,7 +17,17 @@ const DEFAULTS = {
       'a residential and community-focused area that continues to provide public services and development programs for its ' +
       'residents, supporting safety, welfare, and civic participation within the community.',
     mapCenter: [14.4318, 120.8852], // Barangay Magdiwang, Noveleta, Cavite
+    // Landing page (panel revision): Barangay Hall background photo, mission and vision.
+    heroImage: '',
+    mission:
+      'To deliver efficient, transparent, and responsive public service to every resident of Barangay Magdiwang, ' +
+      'and to build a safe, prepared, and united community through active citizen participation.',
+    vision:
+      'A peaceful, progressive, and disaster-resilient Barangay Magdiwang where every resident is informed, ' +
+      'protected, and empowered to take part in community development.',
   },
+  // Barangay officials on the landing page: [{ name, position, committee, photo, order }]
+  officials: [],
   emergency: {
     floodRiskLevel: 'moderate', // low | moderate | high | critical
     alerts: [
@@ -108,6 +118,13 @@ const updateSetting = catchAsync(async (req, res) => {
   res.status(200).json(new ApiResponse(200, setting.value, 'Settings updated successfully'));
 });
 
+// @route POST /api/settings/upload (admin - landing page background and officials' photos)
+const uploadImage = catchAsync(async (req, res) => {
+  if (!req.file) throw require('../utils/ApiError').badRequest('Please choose an image.');
+  const { url } = await require('../services/cloudinary.service').uploadBuffer(req.file.buffer, 'settings');
+  res.status(201).json(new ApiResponse(201, { url }, 'Image uploaded'));
+});
+
 // @route GET /api/settings/backup/export (admin - JSON snapshot of all collections)
 const exportBackup = catchAsync(async (_req, res) => {
   const snapshot = await createSnapshot();
@@ -161,6 +178,7 @@ module.exports = {
   getAllSettings,
   updateSetting,
   updateEmergencyStatus,
+  uploadImage,
   exportBackup,
   restoreBackup,
   getAutoBackups,

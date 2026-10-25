@@ -9,9 +9,9 @@ import EmptyState from '../../components/common/EmptyState';
 import { CardSkeleton } from '../../components/common/Skeleton';
 
 /**
- * FAQ Manager. One list of questions and answers feeds both the public FAQ page and the
- * resident Assistant (button-based chatbot). A question placed "under" another becomes a
- * follow-up button in the Assistant and a nested item on the FAQ page.
+ * FAQ Manager. One list of questions and answers feeds the FAQ section of the landing page and
+ * the landing page chat assistant (button-based). A question placed "under" another becomes a
+ * follow-up button in the assistant and a nested item in the FAQ section.
  */
 const Faq = () => {
   const [nodes, setNodes] = useState(null);
@@ -113,7 +113,7 @@ const Faq = () => {
         <div className="page-header mb-0">
           <h1 className="page-title">FAQ Manager</h1>
           <p className="page-subtitle">
-            Questions and answers shown on the FAQ page and in the resident Assistant. Add follow-up questions under a topic to build the Assistant's menu.
+            Questions and answers shown in the landing page FAQ section and chat assistant. Add follow-up questions under a topic to build the assistant's menu.
           </p>
         </div>
         <button onClick={() => openCreate()} className="btn-primary shrink-0">
@@ -226,7 +226,7 @@ const Faq = () => {
         onClose={() => setDeleting(null)}
         onConfirm={remove}
         title="Delete FAQ"
-        message={`Delete "${deleting?.label}"? It will disappear from the FAQ page and the Assistant.`}
+        message={`Delete "${deleting?.label}"? It will disappear from the landing page FAQ and the assistant.`}
         confirmLabel="Delete"
         danger
       />

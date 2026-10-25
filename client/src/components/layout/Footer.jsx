@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
-import { FiFacebook, FiMail, FiPhone, FiMapPin } from 'react-icons/fi';
+import { FiMail, FiPhone, FiMapPin, FiClock } from 'react-icons/fi';
+import useSetting from '../../hooks/useSetting';
 
-const Footer = () => (
+const Footer = () => {
+  const [general] = useSetting('general');
+  return (
   <footer className="relative border-t border-gray-100 bg-white dark:border-gray-800 dark:bg-gray-950">
     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary-400/60 to-transparent" />
     <div className="mx-auto grid max-w-7xl grid-cols-1 gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4 lg:px-8">
@@ -21,7 +24,7 @@ const Footer = () => (
         <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
           <li><Link to="/about" className="hover:text-primary-600">About</Link></li>
           <li><Link to="/services" className="hover:text-primary-600">Services</Link></li>
-          <li><Link to="/faq" className="hover:text-primary-600">FAQ</Link></li>
+          <li><Link to="/#faq" className="hover:text-primary-600">FAQ</Link></li>
           <li><Link to="/contact" className="hover:text-primary-600">Contact</Link></li>
         </ul>
       </div>
@@ -38,10 +41,10 @@ const Footer = () => (
       <div>
         <h4 className="mb-3 font-semibold">Contact Us</h4>
         <ul className="space-y-2 text-sm text-gray-500 dark:text-gray-400">
-          <li className="flex items-center gap-2"><FiMapPin /> 123 Rizal St., Quezon City</li>
-          <li className="flex items-center gap-2"><FiPhone /> (02) 8123-4567</li>
-          <li className="flex items-center gap-2"><FiMail /> info@civicare.gov.ph</li>
-          <li className="flex items-center gap-2"><FiFacebook /> /BarangaySanIsidro</li>
+          {general?.address && <li className="flex items-start gap-2"><FiMapPin className="mt-0.5 shrink-0" /> {general.address}</li>}
+          {general?.officeHours && <li className="flex items-start gap-2"><FiClock className="mt-0.5 shrink-0" /> {general.officeHours}</li>}
+          {general?.phone && <li className="flex items-center gap-2"><FiPhone /> {general.phone}</li>}
+          {general?.email && <li className="flex items-center gap-2"><FiMail /> {general.email}</li>}
         </ul>
       </div>
     </div>
@@ -49,6 +52,7 @@ const Footer = () => (
       &copy; {new Date().getFullYear()} CiviCare Barangay System. All rights reserved.
     </div>
   </footer>
-);
+  );
+};
 
 export default Footer;

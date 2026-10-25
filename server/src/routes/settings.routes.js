@@ -3,6 +3,7 @@ const settingsController = require('../controllers/settings.controller');
 const { protect, optionalAuth } = require('../middleware/auth');
 const { restrictTo } = require('../middleware/role');
 const { ROLES } = require('../config/constants');
+const upload = require('../middleware/upload');
 
 const router = express.Router();
 
@@ -14,6 +15,7 @@ router.put('/emergency', protect, restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), setti
 
 router.use(protect, restrictTo(ROLES.ADMIN));
 router.get('/', settingsController.getAllSettings);
+router.post('/upload', upload.single('image'), settingsController.uploadImage);
 router.put('/:key', settingsController.updateSetting);
 router.get('/backup/export', settingsController.exportBackup);
 router.post('/backup/restore', settingsController.restoreBackup);

@@ -1,19 +1,35 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { FiSettings, FiMessageSquare, FiMail, FiTag } from 'react-icons/fi';
+import { FiSettings, FiMessageSquare, FiMail, FiTag, FiUsers, FiImage } from 'react-icons/fi';
 import api from '../../utils/api';
 import { SERVICE_DOCUMENTS } from '../../utils/constants';
 import PageLoader from '../../components/common/PageLoader';
 import { invalidateSetting } from '../../hooks/useSetting';
+import OfficialsEditor, { uploadImage } from './OfficialsEditor';
 
-const TABS = ['general', 'sms', 'email', 'categories'];
-const TAB_ICONS = { general: FiSettings, sms: FiMessageSquare, email: FiMail, categories: FiTag };
+const TABS = ['general', 'officials', 'sms', 'email', 'categories'];
+const TAB_ICONS = { general: FiSettings, officials: FiUsers, sms: FiMessageSquare, email: FiMail, categories: FiTag };
 
 const Settings = () => {
   const [tab, setTab] = useState('general');
   const [settings, setSettings] = useState(null);
-  const { register, handleSubmit, reset, formState: { isSubmitting } } = useForm();
+  const [uploading, setUploading] = useState(false);
+  const { register, handleSubmit, reset, watch, setValue, formState: { isSubmitting } } = useForm();
+  const heroImage = watch('heroImage');
+
+  const pickHero = async (file) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      setValue('heroImage', await uploadImage(file), { shouldDirty: true });
+      toast.success('Photo uploaded. Click Save Settings to apply it.');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const load = () => api.get('/settings').then(({ data }) => setSettings(data.data));
   useEffect(() => {
@@ -22,7 +38,7 @@ const Settings = () => {
 
   useEffect(() => {
     if (!settings) return;
-    if (tab !== 'categories') reset(settings[tab] || {});
+    if (!['categories', 'officials'].includes(tab)) reset(settings[tab] || {});
   }, [tab, settings, reset]);
 
   const onSubmit = async (values) => {
@@ -62,6 +78,15 @@ const Settings = () => {
         })}
       </div>
 
+      {tab === 'officials' ? (
+        <OfficialsEditor
+          initial={settings.officials || []}
+          onSaved={() => {
+            invalidateSetting('officials');
+            load();
+          }}
+        />
+      ) : (
       <form onSubmit={handleSubmit(onSubmit)} className="card animate-fadeIn max-w-2xl space-y-4 p-6">
         {tab === 'general' && (
           <>
@@ -88,8 +113,35 @@ const Settings = () => {
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">About the Barangay (resident dashboard)</label>
+              <label className="mb-1 block text-sm font-medium">About Magdiwang (landing page)</label>
               <textarea rows={4} {...register('about')} className="input-field" />
+            </div>
+            <div className="space-y-4 rounded-xl border border-gray-100 p-4 dark:border-gray-800">
+              <p className="text-sm font-semibold">Landing page</p>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Background photo (Barangay Hall)</label>
+                {heroImage && <img src={heroImage} alt="Landing page background" className="mb-2 h-36 w-full rounded-xl object-cover" />}
+                <div className="flex flex-wrap gap-2">
+                  <label className="btn-secondary cursor-pointer !py-2 text-sm">
+                    <FiImage /> {uploading ? 'Uploading...' : heroImage ? 'Change photo' : 'Upload photo'}
+                    <input type="file" accept="image/*" className="sr-only" disabled={uploading} onChange={(e) => pickHero(e.target.files[0])} />
+                  </label>
+                  {heroImage && (
+                    <button type="button" onClick={() => setValue('heroImage', '', { shouldDirty: true })} className="btn-ghost !py-2 text-sm text-red-600">
+                      Remove
+                    </button>
+                  )}
+                </div>
+                <input type="hidden" {...register('heroImage')} />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Mission</label>
+                <textarea rows={3} {...register('mission')} className="input-field" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Vision</label>
+                <textarea rows={3} {...register('vision')} className="input-field" />
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -160,6 +212,7 @@ const Settings = () => {
           </button>
         )}
       </form>
+      )}
     </div>
   );
 };

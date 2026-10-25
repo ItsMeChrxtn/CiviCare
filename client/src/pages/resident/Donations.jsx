@@ -19,7 +19,6 @@ const Donations = () => {
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="page-header !mb-0">
-          <h1 className="page-title">{t('donation.title')}</h1>
           <p className="page-subtitle">{t('donation.subtitle')}</p>
         </div>
         <button onClick={() => setIsOpen(true)} className="btn-primary">

@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import PublicLayout from './components/layout/PublicLayout';
 import DashboardLayout from './components/layout/DashboardLayout';
@@ -18,7 +18,6 @@ const EventDetail = lazy(() => import('./pages/public/EventDetail'));
 const EmergencyHub = lazy(() => import('./pages/public/EmergencyHub'));
 const HazardMapPage = lazy(() => import('./pages/public/HazardMapPage'));
 const Contact = lazy(() => import('./pages/public/Contact'));
-const FAQ = lazy(() => import('./pages/public/FAQ'));
 const VerifyDocumentPage = lazy(() => import('./pages/public/VerifyDocumentPage'));
 const NotFound = lazy(() => import('./pages/public/NotFound'));
 const Legal = lazy(() => import('./pages/public/Legal'));
@@ -94,7 +93,8 @@ function App() {
             <Route path="/emergency-hub" element={<EmergencyHub />} />
             <Route path="/hazard-map" element={<HazardMapPage />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/faq" element={<FAQ />} />
+            {/* FAQs are only on the landing page (panel revision) */}
+            <Route path="/faq" element={<Navigate to="/#faq" replace />} />
             <Route path="/verify-document/:referenceCode" element={<VerifyDocumentPage />} />
             <Route path="/verify" element={<ScanVerify />} />
             <Route path="/terms" element={<Legal type="terms" />} />
