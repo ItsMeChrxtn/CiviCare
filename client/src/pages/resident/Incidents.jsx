@@ -98,39 +98,36 @@ const Incidents = () => {
     <div className="space-y-6">
       <section className="rounded-2xl bg-white p-3 shadow-card dark:bg-gray-900 sm:p-4">
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_15rem]">
-          {/* On phones the Report Now button drops below the incident type and priority */}
-          <div className="contents">
-            <div className="overflow-hidden rounded-xl border-4 border-primary-700 lg:col-start-1 lg:row-start-1">
-              <div className="flex justify-end bg-primary-700 px-2 pb-1">
-                <button
-                  type="button"
-                  onClick={useMyLocation}
-                  disabled={locating}
-                  className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-60"
-                >
-                  <MdMyLocation className="h-4 w-4" /> {locating ? t('incident.locating') : t('incident.useLocation')}
-                </button>
-              </div>
-              <LocationPicker value={location} onChange={setLocation} center={general?.mapCenter} height="22rem" />
-              <p className="flex items-center gap-1.5 bg-primary-700 px-3 py-1.5 text-xs text-white">
-                <FiMapPin />
-                {location ? `${t('incident.pinned')}: ${location[0].toFixed(5)}, ${location[1].toFixed(5)}` : t('incident.pinHint')}
-              </p>
+          <div className="overflow-hidden rounded-xl border-4 border-primary-700 lg:col-start-1 lg:row-start-1">
+            <div className="flex justify-end bg-primary-700 px-2 pb-1">
+              <button
+                type="button"
+                onClick={useMyLocation}
+                disabled={locating}
+                className="flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-60"
+              >
+                <MdMyLocation className="h-4 w-4" /> {locating ? t('incident.locating') : t('incident.useLocation')}
+              </button>
             </div>
-            {/* Panel revision: Report Now sits at the right corner under the map */}
-            <div className="order-last flex justify-end self-start lg:order-none lg:col-start-1 lg:row-start-2">
+            {/* Panel revision: Report Now is attached to the map's bottom-right corner (above the attribution) */}
+            <div className="relative">
+              <LocationPicker value={location} onChange={setLocation} center={general?.mapCenter} height="22rem" />
               <button
                 type="button"
                 onClick={submit}
                 disabled={submitting}
-                className="w-full rounded-lg bg-red-600 px-8 py-3 font-display text-xl font-extrabold tracking-wide text-white shadow-lg transition hover:bg-red-700 active:scale-[0.98] disabled:opacity-60 sm:w-auto"
+                className="absolute bottom-7 right-3 z-[1000] rounded-lg bg-red-600 px-5 py-2 font-display text-base font-extrabold tracking-wide text-white shadow-lg transition hover:bg-red-700 active:scale-[0.98] disabled:opacity-60 sm:px-7 sm:py-2.5 sm:text-lg"
               >
                 {submitting ? t('common.loading') : t('incident.reportNow')}
               </button>
             </div>
+            <p className="flex items-center gap-1.5 bg-primary-700 px-3 py-1.5 text-xs text-white">
+              <FiMapPin />
+              {location ? `${t('incident.pinned')}: ${location[0].toFixed(5)}, ${location[1].toFixed(5)}` : t('incident.pinHint')}
+            </p>
           </div>
 
-          <div className="lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <div className="lg:col-start-2 lg:row-start-1">
             <p className="mb-2 text-xs font-bold uppercase tracking-wider text-gray-500">{t('incident.type')}</p>
             <div className="grid grid-cols-2 gap-3" role="radiogroup" aria-label={t('incident.type')}>
               {QUICK.map(({ value, icon: Icon }) => (
