@@ -8,7 +8,6 @@ import {
   FiMessageSquare,
   FiUsers,
   FiMap,
-  FiPhone,
   FiPhoneCall,
   FiSettings,
   FiClipboard,
@@ -27,6 +26,7 @@ import {
 /**
  * Sidebar navigation per portal. `labelKey` is translated at render time.
  * `main` mirrors the docu screens (Figures 6-19); `more` holds the extra modules.
+ * Panel revision: the resident Assistant and Contact Us pages were removed (FAQs and contacts live on the landing page).
  */
 export const RESIDENT_NAV = {
   main: [
@@ -37,14 +37,12 @@ export const RESIDENT_NAV = {
     { to: '/resident/events', labelKey: 'nav.events', icon: FiCheckSquare },
     { to: '/resident/emergency-hub', labelKey: 'nav.emergencyHub', icon: FiSun },
     { to: '/resident/donations', labelKey: 'nav.donations', icon: FiGift },
-    { to: '/resident/contact', labelKey: 'nav.contact', icon: FiPhone },
   ],
   more: [
     { to: '/resident/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
     { to: '/resident/notifications', labelKey: 'nav.notifications', icon: FiBell },
     { to: '/resident/profile', labelKey: 'nav.profile', icon: FiUser },
   ],
-  assistant: '/resident/assistant',
 };
 
 const STAFF_MAIN = [
@@ -99,7 +97,6 @@ export const findNavItem = (role, pathname) => {
   const nav = NAV_BY_ROLE[role];
   if (!nav) return null;
   const all = [...nav.main, ...(nav.more || []), ...(nav.system || [])];
-  if (pathname === nav.assistant) return { labelKey: 'nav.assistant' };
   return all
     .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
     .sort((a, b) => b.to.length - a.to.length)[0];

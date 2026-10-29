@@ -165,7 +165,7 @@ const Broadcast = () => {
             <div className="space-y-4">
               <div>
                 <p className="mb-1 text-sm font-medium">Flood Risk Level</p>
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {['low', 'moderate', 'high', 'critical'].map((r) => (
                     <button
                       key={r}

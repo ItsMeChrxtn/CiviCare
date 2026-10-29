@@ -1,6 +1,7 @@
 const express = require('express');
 const documentController = require('../controllers/document.controller');
 const { protect } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const { restrictTo } = require('../middleware/role');
 const { ROLES } = require('../config/constants');
 
@@ -11,7 +12,7 @@ router.get('/verify/:referenceCode', documentController.verifyDocument); // publ
 router.use(protect);
 
 router.get('/stats/overview', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.getDocumentStats);
-router.post('/', restrictTo(ROLES.RESIDENT), documentController.createDocumentRequest);
+router.post('/', restrictTo(ROLES.RESIDENT), upload.single('validId'), documentController.createDocumentRequest);
 router.get('/', documentController.getAllDocuments);
 router.get('/:id', documentController.getDocument);
 router.patch('/:id/priority', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.setPriority);

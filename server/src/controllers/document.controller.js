@@ -9,7 +9,7 @@ const User = require('../models/User');
 const { nextReferenceCode } = require('../utils/referenceCode');
 const { generateDocumentPdf } = require('../services/pdf.service');
 const { generateQrDataUrl } = require('../services/qrcode.service');
-const { uploadPdfBuffer } = require('../services/cloudinary.service');
+const { uploadBuffer, uploadPdfBuffer } = require('../services/cloudinary.service');
 const { notifyRole, notifyUser } = require('../services/notification.service');
 const { deliverSms } = require('../services/sms.service');
 const { writeLog } = require('../services/log.service');
@@ -59,6 +59,10 @@ const createDocumentRequest = catchAsync(async (req, res) => {
 
   const details = parseDetails(req.body.details);
 
+  // Valid ID with a Magdiwang address, so officials can verify residency before processing.
+  if (!req.file) throw ApiError.badRequest('Please upload a photo of your Barangay ID or any valid ID with your Magdiwang address.');
+  const validId = await uploadBuffer(req.file.buffer, 'valid-ids');
+
   const referenceCode = await nextReferenceCode(Document, 'DOC');
 
   const document = await Document.create({
@@ -67,6 +71,7 @@ const createDocumentRequest = catchAsync(async (req, res) => {
     type,
     purpose,
     details,
+    validId,
     priority: priority === 'urgent' ? 'urgent' : 'normal',
     fee: 0, // documents are issued free of charge
   });

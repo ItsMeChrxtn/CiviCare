@@ -17,7 +17,7 @@ import portalLink from '../../utils/portalLink';
 const Dropdown = ({ open, children, className = 'w-72' }) =>
   open ? (
     <div
-      className={`absolute right-0 top-full z-30 mt-2 origin-top-right animate-scaleIn rounded-2xl border border-gray-100 bg-white p-2 text-gray-900 shadow-card-hover dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 ${className}`}
+      className={`absolute right-0 top-full z-30 mt-2 max-w-[calc(100vw-1.5rem)] origin-top-right animate-scaleIn rounded-2xl border border-gray-100 bg-white p-2 text-gray-900 shadow-card-hover dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100 ${className}`}
     >
       {children}
     </div>
@@ -65,7 +65,7 @@ const Topbar = ({ onMenuClick }) => {
   return (
     <header
       ref={ref}
-      className="shell-topbar sticky top-0 z-20 flex items-center gap-2 px-3 py-2.5 text-white shadow-md lg:px-6"
+      className="shell-topbar sticky top-0 z-20 flex items-center gap-2 px-2 py-2 text-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.25)] sm:px-3 sm:py-2.5 lg:px-6"
     >
       <button onClick={onMenuClick} className={`${iconBtn} lg:hidden`} aria-label="Open menu">
         <FiMenu className="h-5 w-5" />
@@ -73,6 +73,11 @@ const Topbar = ({ onMenuClick }) => {
 
       {/* Panel revision: no visible page title here; the current page is already highlighted in the sidebar. */}
       <h1 className="sr-only">{navItem ? t(navItem.labelKey) : ''}</h1>
+      {/* Phones/tablets: the sidebar is hidden, so keep the brand visible next to the menu button */}
+      <Link to={`/${user?.role}`} className="flex min-w-0 items-center gap-2 lg:hidden">
+        <img src="/magdiwang-logo.jpeg" alt="" className="h-8 w-8 shrink-0 rounded-full bg-white object-cover ring-2 ring-amber-300" />
+        <span className="hidden font-display text-sm font-extrabold tracking-wide min-[400px]:block">CIVICARE</span>
+      </Link>
       <div className="flex-1" />
 
       <div className="flex items-center gap-0.5 sm:gap-1">

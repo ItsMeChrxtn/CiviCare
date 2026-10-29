@@ -23,7 +23,7 @@ const DashboardLayout = () => {
       <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <div className="flex min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 p-4 lg:p-6">
+        <main className="flex-1 px-3 py-4 pb-10 sm:p-5 lg:p-8">
           <div key={location.pathname} className="mx-auto max-w-7xl animate-slideUp">
             <Outlet />
           </div>

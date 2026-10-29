@@ -12,6 +12,12 @@ const documentSchema = new mongoose.Schema(
     // Extra fields depending on document type (business name, income bracket, etc.)
     details: { type: mongoose.Schema.Types.Mixed, default: {} },
 
+    // Photo of the resident's Barangay ID or any valid ID showing a Magdiwang address (panel revision)
+    validId: {
+      url: { type: String, default: '' },
+      publicId: { type: String, default: '' },
+    },
+
     status: { type: String, enum: Object.values(DOCUMENT_STATUS), default: DOCUMENT_STATUS.PENDING },
     priority: { type: String, enum: ['normal', 'urgent'], default: 'normal' },
 

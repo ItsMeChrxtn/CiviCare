@@ -203,6 +203,17 @@ const Documents = () => {
               ))}
             </dl>
 
+            <div>
+              <p className="mb-1 text-xs text-gray-400">Barangay ID / Valid ID (check the Magdiwang address)</p>
+              {selected.validId?.url ? (
+                <a href={selected.validId.url} target="_blank" rel="noreferrer" className="block w-fit">
+                  <img src={selected.validId.url} alt="Uploaded valid ID" className="max-h-64 rounded-lg border border-gray-200 object-contain dark:border-gray-700" />
+                </a>
+              ) : (
+                <p className="text-sm text-gray-500">No ID uploaded (request made before ID upload was required).</p>
+              )}
+            </div>
+
             {['pending', 'processing'].includes(selected.status) && (
               <div className="space-y-3">
                 <div className="flex flex-wrap gap-2">

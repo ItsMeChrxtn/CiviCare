@@ -416,16 +416,13 @@ const Register = () => {
         </div>
       </form>
 
-      <div className="mt-5 space-y-2 text-center text-sm">
+      <div className="mt-5 text-center text-sm">
         <p>
           {t('auth.haveAccount')}{' '}
           <Link to="/login" className="font-semibold text-blue-600 hover:underline dark:text-blue-400">
             {t('reg.loginHere')}
           </Link>
         </p>
-        <Link to="/" className="inline-flex items-center gap-1 text-gray-600 hover:underline dark:text-gray-400">
-          <FiArrowLeft /> {t('reg.backToPortal')}
-        </Link>
       </div>
     </AuthShell>
   );

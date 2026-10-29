@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { format, differenceInYears } from 'date-fns';
@@ -10,8 +10,10 @@ import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import Badge from '../../components/common/Badge';
 import DataTable from '../../components/common/DataTable';
-import { FiSearch } from 'react-icons/fi';
+import { FiSearch, FiUpload, FiX } from 'react-icons/fi';
 import { SERVICE_DOCUMENTS, CIVIL_STATUS, DOCUMENT_STATUS, documentLabel } from '../../utils/constants';
+
+const MAX_ID_SIZE = 5 * 1024 * 1024; // matches the server's upload limit
 
 const fullAddress = (a) => [a?.street, a?.purok, a?.barangay && `Brgy. ${a.barangay}`, a?.city, a?.province].filter(Boolean).join(', ');
 
@@ -20,6 +22,11 @@ const Documents = () => {
   const { t } = usePreferences();
   const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/documents');
   const [selected, setSelected] = useState([]);
+  const [validId, setValidId] = useState(null);
+  // Panel revision: the next steps and reminders only appear once the personal details are submitted.
+  const [submitted, setSubmitted] = useState(false);
+  const validIdPreview = useMemo(() => (validId ? URL.createObjectURL(validId) : ''), [validId]);
+  useEffect(() => () => validIdPreview && URL.revokeObjectURL(validIdPreview), [validIdPreview]);
   const {
     register,
     handleSubmit,
@@ -39,13 +46,33 @@ const Documents = () => {
 
   const toggle = (value) => setSelected((s) => (s.includes(value) ? s.filter((v) => v !== value) : [...s, value]));
 
+  const pickValidId = (file) => {
+    if (file && file.size > MAX_ID_SIZE) {
+      toast.error(t('service.validIdTooBig'));
+      return;
+    }
+    setValidId(file || null);
+  };
+
   const onSubmit = async ({ purpose, ...details }) => {
     if (!selected.length) return toast.error(t('service.chooseOne'));
+    if (!validId) return toast.error(t('service.validIdMissing'));
     try {
       // One request per ticked document so each can be approved and tracked on its own.
-      await Promise.all(selected.map((type) => api.post('/documents', { type, purpose, details })));
+      await Promise.all(
+        selected.map((type) => {
+          const form = new FormData();
+          form.append('type', type);
+          form.append('purpose', purpose);
+          form.append('details', JSON.stringify(details));
+          form.append('validId', validId);
+          return api.post('/documents', form, { headers: { 'Content-Type': 'multipart/form-data' } });
+        })
+      );
       toast.success(t('service.sent', { count: selected.length }), { duration: 6000 });
       setSelected([]);
+      setValidId(null);
+      setSubmitted(true);
       reset({ ...details, purpose: '' });
       refetch();
     } catch (err) {
@@ -84,12 +111,13 @@ const Documents = () => {
 
   return (
     <div className="space-y-6">
-      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 gap-4 lg:grid-cols-[15rem_1fr_17rem]">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className={`grid grid-cols-1 gap-4 md:grid-cols-[13rem_1fr] ${submitted ? 'lg:grid-cols-[15rem_1fr_17rem]' : 'lg:grid-cols-[15rem_1fr]'}`}
+      >
         <fieldset className="h-fit rounded-xl bg-brand-green p-4 text-white shadow-card">
           <legend className="sr-only">{t('service.available')}</legend>
-          <p className="mb-3 flex items-baseline gap-2 font-display font-bold">
-            <span className="text-2xl">1</span> —{t('service.available')}—
-          </p>
+          <p className="mb-3 font-display font-bold">{t('service.available')}</p>
           <div className="space-y-3">
             {SERVICE_DOCUMENTS.map((d) => (
               <label key={d.value} className="flex cursor-pointer items-start gap-3 text-sm font-semibold">
@@ -101,20 +129,49 @@ const Documents = () => {
         </fieldset>
 
         <section className="rounded-xl bg-white p-5 shadow-card dark:bg-gray-900">
-          <p className="mb-4 flex items-baseline gap-3 font-display font-bold">
-            <span className="text-2xl">2</span>
-            <span className="flex-1 text-center">{t('service.personal')}</span>
-          </p>
+          <p className="mb-4 text-center font-display font-bold">{t('service.personal')}</p>
           <div className="space-y-3">
             {field('firstName', 'service.firstName')}
             {field('middleName', 'service.middleName', { optional: true })}
             {field('lastName', 'service.lastName')}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {field('age', 'service.age', { type: 'number' })}
               {field('civilStatus', 'service.civilStatus', { select: true })}
             </div>
             {field('address', 'service.address')}
             {field('purpose', 'service.purpose')}
+            <div>
+              <p className="mb-1 block text-sm font-medium">
+                {t('service.validId')} <span className="text-red-500">*</span>
+              </p>
+              <p className="mb-2 text-xs text-gray-500 dark:text-gray-400">{t('service.validIdHint')}</p>
+              {validId ? (
+                <div className="relative w-fit">
+                  <img src={validIdPreview} alt={t('service.validId')} className="max-h-48 rounded-lg border border-gray-200 object-contain dark:border-gray-700" />
+                  <button
+                    type="button"
+                    onClick={() => setValidId(null)}
+                    className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1 text-white shadow"
+                    aria-label={t('service.validIdRemove')}
+                  >
+                    <FiX className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="input-field flex cursor-pointer items-center gap-2 text-gray-500">
+                  <FiUpload className="shrink-0" /> <span className="truncate">{t('service.validIdPick')}</span>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    onChange={(e) => {
+                      pickValidId(e.target.files[0]);
+                      e.target.value = '';
+                    }}
+                  />
+                </label>
+              )}
+            </div>
           </div>
           <div className="mt-5 flex justify-center gap-4">
             <button type="submit" disabled={isSubmitting} className="btn-primary min-w-[8rem]">
@@ -124,6 +181,7 @@ const Documents = () => {
               type="button"
               onClick={() => {
                 setSelected([]);
+                setValidId(null);
                 reset();
               }}
               className="btn-danger min-w-[8rem]"
@@ -133,26 +191,27 @@ const Documents = () => {
           </div>
         </section>
 
-        <aside className="space-y-3">
-          <div className="rounded-xl bg-brand-green p-4 text-sm text-white shadow-card">
-            <p className="font-display text-2xl font-bold">3</p>
-            <p className="font-semibold">{t('service.step3')}</p>
-            <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px]">
-              <li>{t('service.ifYes')}</li>
-              <li>{t('service.ifNo')}</li>
-            </ul>
-            <p className="mt-4 font-display text-2xl font-bold">4</p>
-            <p className="font-semibold">{t('service.step4')}</p>
-          </div>
-          <div className="text-center text-[13px] text-primary-800 dark:text-primary-300">
-            <p className="font-bold">{t('service.reminders')}</p>
-            <ul className="mt-1 list-disc space-y-1 pl-5 text-left">
-              <li>{t('service.rem1')}</li>
-              <li>{t('service.rem2')}</li>
-            </ul>
-            <p className="mt-3 font-semibold">{t('service.thanks')}</p>
-          </div>
-        </aside>
+        {submitted && (
+          <aside className="animate-slideUp space-y-3 md:col-span-2 lg:col-span-1">
+            <div className="rounded-xl bg-brand-green p-4 text-sm text-white shadow-card">
+              <p className="mb-2 font-display text-base font-bold">{t('service.nextSteps')}</p>
+              <p className="font-semibold">{t('service.step3')}</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-[13px]">
+                <li>{t('service.ifYes')}</li>
+                <li>{t('service.ifNo')}</li>
+              </ul>
+              <p className="mt-4 font-semibold">{t('service.step4')}</p>
+            </div>
+            <div className="text-center text-[13px] text-primary-800 dark:text-primary-300">
+              <p className="font-bold">{t('service.reminders')}</p>
+              <ul className="mt-1 list-disc space-y-1 pl-5 text-left">
+                <li>{t('service.rem1')}</li>
+                <li>{t('service.rem2')}</li>
+              </ul>
+              <p className="mt-3 font-semibold">{t('service.thanks')}</p>
+            </div>
+          </aside>
+        )}
       </form>
 
       <section className="card p-5">

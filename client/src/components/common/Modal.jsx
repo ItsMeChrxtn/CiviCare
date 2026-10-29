@@ -9,21 +9,23 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-gray-950/50 backdrop-blur-sm sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
         >
           <motion.div
-            className={`glass-card w-full ${widths[size]} max-h-[90vh] overflow-y-auto bg-white dark:bg-gray-900 p-6 shadow-card-hover`}
-            initial={{ scale: 0.95, opacity: 0, y: 10 }}
-            animate={{ scale: 1, opacity: 1, y: 0 }}
-            exit={{ scale: 0.95, opacity: 0, y: 10 }}
-            transition={{ type: 'spring', damping: 24, stiffness: 300 }}
+            className={`w-full ${widths[size]} max-h-[92vh] overflow-y-auto rounded-t-3xl border border-gray-200/70 bg-white p-5 shadow-card-hover dark:border-gray-800 dark:bg-gray-900 sm:max-h-[90vh] sm:rounded-2xl sm:p-6`}
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 24 }}
+            transition={{ type: 'spring', damping: 26, stiffness: 320 }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="mb-4 flex items-center justify-between">
+            {/* Grab handle so the bottom sheet reads as one on phones */}
+            <div className="mx-auto -mt-1 mb-3 h-1.5 w-10 rounded-full bg-gray-200 dark:bg-gray-700 sm:hidden" />
+            <div className="sticky -top-5 z-10 -mx-5 mb-4 flex items-center justify-between gap-3 bg-white px-5 pb-2 pt-1 dark:bg-gray-900 sm:static sm:mx-0 sm:p-0">
               <h3 className="font-display text-lg font-bold tracking-tight">{title}</h3>
               <button
                 onClick={onClose}

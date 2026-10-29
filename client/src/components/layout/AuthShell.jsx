@@ -1,5 +1,5 @@
 import { Link, NavLink } from 'react-router-dom';
-import { FiGlobe } from 'react-icons/fi';
+import { FiArrowLeft, FiGlobe } from 'react-icons/fi';
 import { usePreferences } from '../../contexts/PreferencesContext';
 
 /** Shared Login/Register frame: logo panel on the left, tabbed card on the right (docu Figures 4-5). */
@@ -21,13 +21,20 @@ const AuthShell = ({ children, showTabs = true }) => {
           className="h-[120vmin] w-[120vmin] max-w-none rounded-full object-cover opacity-[0.12] mix-blend-multiply dark:opacity-[0.08] dark:mix-blend-screen"
         />
       </div>
-      <div className="relative flex flex-col items-center justify-center px-6 py-10 lg:w-1/2">
-        <button
-          onClick={toggleLang}
-          className="absolute right-4 top-4 flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold text-gray-600 hover:bg-black/5 dark:text-gray-300 lg:left-4 lg:right-auto"
-        >
-          <FiGlobe /> {lang.toUpperCase()}
-        </button>
+      {/* Panel revision: explicit way back to the landing page */}
+      <Link
+        to="/"
+        className="absolute left-4 top-4 z-10 inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 shadow-soft transition hover:bg-gray-50 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 dark:hover:bg-gray-800"
+      >
+        <FiArrowLeft /> {t('auth.backToLanding')}
+      </Link>
+      <button
+        onClick={toggleLang}
+        className="absolute right-4 top-4 z-10 flex items-center gap-1 rounded-lg px-2 py-1 text-sm font-semibold text-gray-600 hover:bg-black/5 dark:text-gray-300"
+      >
+        <FiGlobe /> {lang.toUpperCase()}
+      </button>
+      <div className="relative flex flex-col items-center justify-center px-6 pb-10 pt-20 lg:w-1/2 lg:py-10">
         <Link to="/" className="flex flex-col items-center">
           <div className="flex items-center gap-4">
             <img src="/magdiwang-logo.jpeg" alt="Barangay Magdiwang seal" className="h-28 w-28 rounded-full object-cover shadow-card sm:h-36 sm:w-36" />

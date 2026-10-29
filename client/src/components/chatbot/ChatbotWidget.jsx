@@ -26,7 +26,7 @@ const ChatbotWidget = () => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="glass-card fixed bottom-24 right-6 z-40 flex h-[28rem] w-80 flex-col overflow-hidden bg-white dark:bg-gray-900"
+            className="glass-card fixed inset-x-3 bottom-24 z-40 flex h-[28rem] max-h-[70vh] flex-col overflow-hidden bg-white dark:bg-gray-900 sm:inset-x-auto sm:right-6 sm:w-80"
           >
             <div className="flex items-center gap-2 bg-primary-600 px-4 py-3 text-white">
               {path.length > 0 && (

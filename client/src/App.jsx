@@ -41,8 +41,6 @@ const ResidentDocumentDetail = lazy(() => import('./pages/resident/DocumentDetai
 const ResidentEvents = lazy(() => import('./pages/resident/Events'));
 const ResidentFeedback = lazy(() => import('./pages/resident/Feedback'));
 const ResidentAnnouncements = lazy(() => import('./pages/resident/Announcements'));
-const ResidentAssistant = lazy(() => import('./pages/resident/Assistant'));
-const ResidentContact = lazy(() => import('./pages/resident/Contact'));
 const ResidentDonations = lazy(() => import('./pages/resident/Donations'));
 
 // Official
@@ -121,8 +119,9 @@ function App() {
                 <Route path="documents" element={<ResidentDocuments />} />
                 <Route path="documents/:id" element={<ResidentDocumentDetail />} />
                 <Route path="announcements" element={<ResidentAnnouncements />} />
-                <Route path="assistant" element={<ResidentAssistant />} />
-                <Route path="contact" element={<ResidentContact />} />
+                {/* Assistant and Contact Us live only on the landing page (panel revision) */}
+                <Route path="assistant" element={<Navigate to="/#faq" replace />} />
+                <Route path="contact" element={<Navigate to="/#contact" replace />} />
                 <Route path="events" element={<ResidentEvents />} />
                 <Route path="events/:id" element={<EventDetail />} />
                 <Route path="emergency-hub" element={<EmergencyHub />} />
