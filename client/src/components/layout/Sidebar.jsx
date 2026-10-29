@@ -5,9 +5,9 @@ import { NAV_BY_ROLE } from './dashboardNav';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 
-// Panel revision: every portal uses a white sidebar, with green only as an accent.
+// Panel revision: every portal uses an off-white (#f5f4ef) sidebar, with green only as an accent.
 const THEME = {
-  aside: 'border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900',
+  aside: 'border-r border-gray-200 bg-[#f5f4ef] dark:border-gray-800 dark:bg-gray-900',
   brand: 'border-gray-100 text-primary-800 dark:border-gray-800 dark:text-primary-300',
   brandSub: 'text-gray-500 dark:text-gray-400',
   active:
