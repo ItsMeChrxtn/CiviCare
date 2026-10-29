@@ -5,27 +5,16 @@ import { NAV_BY_ROLE } from './dashboardNav';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 
-// Panel revision: the resident sidebar is light (green only as an accent); staff keep the green sidebar.
-const THEMES = {
-  green: {
-    aside: 'shell-sidebar',
-    brand: 'border-white/10 text-white',
-    brandSub: 'text-white/80',
-    active: 'bg-white text-primary-800 shadow-soft',
-    idle: 'text-white/85 hover:bg-white/10 hover:text-white',
-    group: 'text-accent-300/90 hover:text-accent-200',
-    footer: 'text-white/80',
-  },
-  light: {
-    aside: 'border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900',
-    brand: 'border-gray-100 text-primary-800 dark:border-gray-800 dark:text-primary-300',
-    brandSub: 'text-gray-500 dark:text-gray-400',
-    active:
-      'bg-primary-50/80 text-primary-800 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-primary-600 dark:bg-primary-500/10 dark:text-primary-300',
-    idle: 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white',
-    group: 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
-    footer: 'text-gray-500 dark:text-gray-400',
-  },
+// Panel revision: every portal uses a white sidebar, with green only as an accent.
+const THEME = {
+  aside: 'border-r border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900',
+  brand: 'border-gray-100 text-primary-800 dark:border-gray-800 dark:text-primary-300',
+  brandSub: 'text-gray-500 dark:text-gray-400',
+  active:
+    'bg-primary-50/80 text-primary-800 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-primary-600 dark:bg-primary-500/10 dark:text-primary-300',
+  idle: 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white',
+  group: 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300',
+  footer: 'text-gray-500 dark:text-gray-400',
 };
 
 const NavItem = ({ item, onClose, t, theme }) => (
@@ -72,7 +61,7 @@ const Sidebar = ({ open, onClose }) => {
   const { t } = usePreferences();
   const nav = NAV_BY_ROLE[user?.role] || { main: [] };
   const isResident = user?.role === 'resident';
-  const theme = THEMES[isResident ? 'light' : 'green'];
+  const theme = THEME;
 
   return (
     <>
@@ -86,7 +75,7 @@ const Sidebar = ({ open, onClose }) => {
           type="button"
           onClick={onClose}
           aria-label="Close menu"
-          className={`absolute right-2 top-4 rounded-lg p-2 lg:hidden ${isResident ? 'text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800' : 'text-white/80 hover:bg-white/10'}`}
+          className="absolute right-2 top-4 rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
         >
           <FiX className="h-5 w-5" />
         </button>

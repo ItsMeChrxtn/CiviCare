@@ -165,10 +165,6 @@ h1, h2, h3, .font-display {
   }
 
   /* Portal chrome, matching the landing page hero (green into teal). */
-  .shell-sidebar {
-    @apply bg-gradient-to-b from-primary-800 via-primary-800 to-primary-950;
-  }
-
   .shell-topbar {
     @apply bg-gradient-to-r from-primary-800 via-primary-700 to-teal-600;
   }
