@@ -7,6 +7,7 @@ const { uploadBuffer, deleteAsset } = require('../services/cloudinary.service');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
 const { writeLog } = require('../services/log.service');
 const { ROLES } = require('../config/constants');
+const { sendAccountApprovedEmail, sendAccountRejectedEmail } = require('../services/email.service');
 
 /**
  * Officials share Manage Users with admins but may only manage resident and official accounts:
@@ -191,6 +192,42 @@ const verifyResident = catchAsync(async (req, res) => {
   res.status(200).json(new ApiResponse(200, user, verified ? 'Resident verified' : 'Verification removed'));
 });
 
+// @route PATCH /api/users/:id/approval (official/admin approves or rejects a new registration)
+const reviewRegistration = catchAsync(async (req, res) => {
+  const approve = req.body.approve === true || req.body.approve === 'true';
+  const note = req.body.note?.trim();
+  if (!approve && !note) throw ApiError.badRequest('Please give a reason for rejecting the registration.');
+
+  const user = await User.findById(req.params.id);
+  if (!user) throw ApiError.notFound('User not found');
+  if (user.role !== ROLES.RESIDENT) throw ApiError.badRequest('Only resident registrations need approval.');
+
+  user.approvalStatus = approve ? 'approved' : 'rejected';
+  user.approvalNote = note;
+  user.reviewedBy = req.user._id;
+  user.reviewedAt = new Date();
+  if (approve) {
+    // The proof of residency was checked, so the resident counts as verified against the RBI.
+    user.isRbiVerified = true;
+    user.rbiVerifiedAt = new Date();
+  }
+  await user.save({ validateBeforeSave: false });
+
+  const send = approve
+    ? sendAccountApprovedEmail(user.email, user.firstName, `${process.env.CLIENT_URL}/login`)
+    : sendAccountRejectedEmail(user.email, user.firstName, note);
+  send.catch((err) => console.error('[Email] Account review email failed:', err.message));
+
+  await writeLog({
+    req,
+    action: approve ? 'USER_APPROVE' : 'USER_REJECT',
+    module: 'users',
+    description: `${approve ? 'Approved' : 'Rejected'} registration of ${user.email}${note ? ` (${note})` : ''}`,
+  });
+
+  res.status(200).json(new ApiResponse(200, user, approve ? 'Account approved. The resident was notified by email.' : 'Registration rejected.'));
+});
+
 // @route PATCH /api/users/:id/archive
 const archiveUser = catchAsync(async (req, res) => {
   if (String(req.params.id) === String(req.user._id)) {
@@ -256,6 +293,7 @@ const getUserStats = catchAsync(async (_req, res) => {
 
 module.exports = {
   verifyResident,
+  reviewRegistration,
   updateMe,
   uploadAvatar,
   uploadValidId,

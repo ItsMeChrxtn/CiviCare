@@ -65,7 +65,7 @@ const Donations = () => {
         </select>
         <select onChange={(e) => updateFilters({ status: e.target.value || undefined })} className="input-field w-44 capitalize" aria-label="Filter by status">
           <option value="">All Statuses</option>
-          {STATUS_FLOW.map((s) => (
+          {[...STATUS_FLOW, DONATION_STATUS.CANCELLED].map((s) => (
             <option key={s} value={s} className="capitalize">
               {s}
             </option>
@@ -167,22 +167,26 @@ const Donations = () => {
               </p>
             )}
 
-            <div className="space-y-2 border-t border-gray-100 pt-4 dark:border-gray-800">
-              <textarea
-                placeholder="Acknowledgement note (optional)"
-                value={note}
-                onChange={(e) => setNote(e.target.value)}
-                className="input-field"
-                rows={2}
-              />
-              <div className="flex flex-wrap gap-2">
-                {STATUS_FLOW.filter((s) => s !== viewing.status).map((s) => (
-                  <button key={s} onClick={() => updateStatus(s)} className="btn-secondary text-sm capitalize">
-                    Mark as {s}
-                  </button>
-                ))}
+            {viewing.status === DONATION_STATUS.CANCELLED ? (
+              <p className="border-t border-gray-100 pt-4 text-gray-500 dark:border-gray-800">The resident cancelled this pledge.</p>
+            ) : (
+              <div className="space-y-2 border-t border-gray-100 pt-4 dark:border-gray-800">
+                <textarea
+                  placeholder="Acknowledgement note (optional)"
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="input-field"
+                  rows={2}
+                />
+                <div className="flex flex-wrap gap-2">
+                  {STATUS_FLOW.filter((s) => s !== viewing.status).map((s) => (
+                    <button key={s} onClick={() => updateStatus(s)} className="btn-secondary text-sm capitalize">
+                      Mark as {s}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         )}
       </Modal>

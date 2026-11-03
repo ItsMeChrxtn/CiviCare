@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { FiChevronDown, FiMapPin, FiDroplet, FiWind, FiCloudRain, FiBell } from 'react-icons/fi';
+import { FiChevronDown, FiMapPin, FiDroplet, FiWind, FiCloudRain, FiBell, FiPhone } from 'react-icons/fi';
 import api from '../../utils/api';
 import useSetting from '../../hooks/useSetting';
 import useSocketEvent from '../../hooks/useSocketEvent';
@@ -9,7 +9,8 @@ import { usePreferences } from '../../contexts/PreferencesContext';
 import HazardMap, { HazardLegend } from '../../components/map/HazardMap';
 import HotlineIcon from '../../components/common/HotlineIcon';
 import { DEFAULT_MAP_CENTER } from '../../utils/constants';
-import { activeAlerts, isAlertActive, RISK_STYLES } from '../../utils/emergency';
+import AlertList from '../../components/emergency/AlertList';
+import { currentAlerts, RISK_STYLES } from '../../utils/emergency';
 
 // Safety checklists / preparedness guides tailored to Barangay Magdiwang's common hazards (floods, typhoons).
 const GUIDES = [
@@ -191,32 +192,56 @@ const EmergencyHub = () => {
 
   const risk = emergency?.floodRiskLevel || 'low';
   const riskStyle = RISK_STYLES[risk] || RISK_STYLES.low;
-  const alerts = emergency?.alerts || [];
-  const activeCount = activeAlerts(emergency).length;
+  // Panel revision: only current disasters affecting the community (no "N ACTIVE" counter).
+  const alerts = currentAlerts(emergency, weather);
 
+  // Panel revision: on phones the hub reads Emergency Alerts -> Emergency Map -> Emergency Hotline;
+  // on wide screens every panel is placed explicitly on the grid.
   return (
     <div className={inPortal ? '' : 'mx-auto max-w-7xl px-4 py-10 lg:px-8'}>
       {!inPortal && <h1 className="mb-6 text-center font-display text-3xl font-extrabold">{t('hub.title')}</h1>}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[15rem_1fr_1fr_11rem]">
-        <section className="rounded-xl bg-brand-green p-4 text-white shadow-card xl:row-span-1">
-          <h2 className="mb-3 text-center font-display text-sm font-bold uppercase text-red-200">{t('hub.hotlines')}</h2>
-          <ul className="space-y-2.5">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[15rem_1fr_1fr_17rem]">
+        <Panel className="order-1 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-4 xl:row-start-2">
+          <h2 className="mb-3 flex items-center gap-2 font-display font-bold">
+            <FiBell className="text-red-500" /> {t('hub.alerts')}
+          </h2>
+          <AlertList alerts={alerts} />
+        </Panel>
+
+        <section aria-label={t('hub.map')} className="order-2 md:col-span-2 xl:order-none xl:col-start-2 xl:row-start-2">
+          <HazardMap height="26rem" showLegend={false} center={center} />
+        </section>
+
+        <section className="order-3 rounded-xl bg-brand-green p-4 text-white shadow-card xl:order-none xl:col-start-1 xl:row-span-2 xl:row-start-1">
+          <h2 className="text-center font-display text-sm font-bold uppercase text-red-200">{t('hub.hotlines')}</h2>
+          <p className="mb-3 text-center text-[11px] text-white/70">{t('hub.tapToCall')}</p>
+          <ul className="space-y-2">
             {hotlines.map((h) => (
               <li key={h._id}>
-                <a href={`tel:${h.number.replace(/[^\d+]/g, '')}`} className="flex items-center gap-3 rounded-lg p-1 hover:bg-white/10">
+                <a
+                  href={`tel:${h.number.replace(/[^\d+]/g, '')}`}
+                  className="flex items-center gap-3 rounded-lg bg-white/5 p-2 transition hover:bg-white/15 active:bg-white/25"
+                  aria-label={`${t('hub.call')} ${h.name} ${h.number}`}
+                >
                   <HotlineIcon category={h.category} className="h-6 w-6 shrink-0" />
-                  <span className="min-w-0">
+                  <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-semibold">{h.name}</span>
                     <span className="block text-xs text-white/80">{h.number}</span>
                   </span>
+                  <FiPhone className="h-4 w-4 shrink-0 text-white/80" aria-hidden="true" />
                 </a>
               </li>
             ))}
+            <li>
+              <a href="tel:911" className="flex items-center gap-3 rounded-lg bg-red-600 p-2 font-semibold transition hover:bg-red-700">
+                <FiPhone className="h-5 w-5 shrink-0" /> 911 — {t('hub.national')}
+              </a>
+            </li>
           </ul>
         </section>
 
-        <div className="space-y-4">
+        <div className="order-4 space-y-4 xl:order-none xl:col-start-2 xl:row-start-1">
           <Panel>
             <p className="flex items-center gap-1 text-sm font-semibold text-red-600">
               <FiMapPin /> Noveleta, Cavite
@@ -270,7 +295,11 @@ const EmergencyHub = () => {
           </Panel>
         </div>
 
-        <Panel title={t('hub.prepCenter')} className="md:col-span-2 xl:col-span-1" titleClass="text-primary-800 dark:text-primary-300">
+        <Panel
+          title={t('hub.prepCenter')}
+          className="order-5 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-3 xl:row-start-1"
+          titleClass="text-primary-800 dark:text-primary-300"
+        >
           <div id="checklist" className="scroll-mt-24 divide-y divide-gray-100 dark:divide-gray-800">
             {GUIDES.map((g) => {
               const isOpen = openGuide === g.key;
@@ -318,40 +347,8 @@ const EmergencyHub = () => {
           </div>
         </Panel>
 
-        <Panel title={t('hub.legend')}>
+        <Panel title={t('hub.legend')} className="order-6 xl:order-none xl:col-start-4 xl:row-start-1">
           <HazardLegend />
-        </Panel>
-      </div>
-
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-[1fr_17rem]">
-        <section aria-label={t('hub.map')}>
-          <HazardMap height="26rem" showLegend={false} center={center} />
-        </section>
-
-        <Panel>
-          <h2 className="mb-3 flex items-center justify-between font-display font-bold">
-            <span className="flex items-center gap-2">
-              <FiBell className="text-red-500" /> {t('hub.alerts')}
-            </span>
-            {activeCount > 0 && <span className="badge bg-red-600 text-white">{t('hub.active', { count: activeCount })}</span>}
-          </h2>
-          <ul className="space-y-2">
-            {alerts.map((a) => {
-              const active = isAlertActive(a);
-              return (
-                <li key={a.key} className="flex items-center gap-3 rounded-lg bg-gray-50 p-2.5 dark:bg-gray-800/60">
-                  <span className={`flex h-8 w-8 items-center justify-center rounded-full ${active ? 'bg-orange-100 text-orange-600' : 'bg-blue-50 text-blue-500'}`}>
-                    <FiBell className="h-4 w-4" />
-                  </span>
-                  <span className="flex-1">
-                    <span className="block text-sm font-semibold">{t(`alert.${a.key}`, null, a.label)}</span>
-                    <span className={`block text-xs ${active ? 'font-semibold text-orange-600' : 'text-gray-500'}`}>{a.level}</span>
-                  </span>
-                  <span className={`h-2.5 w-2.5 rounded-full ${active ? 'bg-orange-500' : 'bg-blue-500'}`} />
-                </li>
-              );
-            })}
-          </ul>
         </Panel>
       </div>
     </div>

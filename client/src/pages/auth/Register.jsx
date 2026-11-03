@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -13,6 +13,8 @@ import {
   FiLogOut,
   FiMapPin,
   FiSmartphone,
+  FiUpload,
+  FiX,
 } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
@@ -23,12 +25,15 @@ import { CIVIL_STATUS, DEFAULT_MAP_CENTER, PUROKS } from '../../utils/constants'
 const STEPS = ['reg.stepPersonal', 'reg.stepAddress', 'reg.stepAccount'];
 const STEP_FIELDS = [
   ['firstName', 'lastName', 'middleName', 'gender', 'civilStatus', 'birthdate'],
-  ['street', 'purok', 'phone', 'residencySince'],
+  ['street', 'purok', 'phone', 'residencySince', 'proofType'],
   ['email', 'password', 'confirmPassword', 'agree'],
 ];
 // Radius around the barangay map center that counts as "inside Magdiwang" for the location check.
 const RESIDENCY_RADIUS_KM = 2;
 const GATE_KEY = 'civicare.registerGate';
+const MAX_PROOF_SIZE = 5 * 1024 * 1024; // matches the server's upload limit
+const PROOF_TYPES_ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
+const PROOF_KINDS = ['barangay_id', 'valid_id', 'utility_bill', 'residency_cert', 'lease'];
 
 const localToday = () => {
   const d = new Date();
@@ -97,6 +102,10 @@ const Register = () => {
   const [show, setShow] = useState(false);
   const [sinceBirth, setSinceBirth] = useState(false);
   const [geo, setGeo] = useState('idle'); // idle | checking | inside | outside | error
+  const [proof, setProof] = useState(null); // proof of residency photo (panel revision)
+  const [proofError, setProofError] = useState(false);
+  const proofPreview = useMemo(() => (proof ? URL.createObjectURL(proof) : ''), [proof]);
+  useEffect(() => () => proofPreview && URL.revokeObjectURL(proofPreview), [proofPreview]);
   const [gateOpen, setGateOpen] = useState(() => {
     try {
       return sessionStorage.getItem(GATE_KEY) !== 'ok';
@@ -145,18 +154,36 @@ const Register = () => {
     );
   };
 
-  const next = async () => {
-    if (await trigger(STEP_FIELDS[step])) setStep((s) => s + 1);
+  const pickProof = (file) => {
+    if (file && !PROOF_TYPES_ACCEPTED.includes(file.type)) return toast.error(t('reg.proofImageOnly'));
+    if (file && file.size > MAX_PROOF_SIZE) return toast.error(t('service.validIdTooBig'));
+    setProof(file || null);
+    setProofError(false);
   };
 
-  const onSubmit = async ({ confirmPassword, agree, street, purok, residencySince, ...values }) => {
+  const next = async () => {
+    const ok = await trigger(STEP_FIELDS[step]);
+    // Panel revision: proof of residency is required before leaving the address step.
+    if (step === 1 && !proof) {
+      setProofError(true);
+      return;
+    }
+    if (ok) setStep((s) => s + 1);
+  };
+
+  const onSubmit = async ({ confirmPassword, agree, residencySince, ...values }) => {
+    if (!proof) {
+      setStep(1);
+      setProofError(true);
+      return;
+    }
     try {
-      await registerUser({
-        ...values,
-        address: { street, purok },
-        residencySince: sinceBirth ? values.birthdate : residencySince,
-        residentSinceBirth: sinceBirth,
-      });
+      const form = new FormData();
+      Object.entries(values).forEach(([key, value]) => value !== undefined && value !== '' && form.append(key, value));
+      form.append('residencySince', sinceBirth ? values.birthdate : residencySince);
+      form.append('residentSinceBirth', String(sinceBirth));
+      form.append('proofOfResidency', proof);
+      await registerUser(form);
       toast.success('Registration received! Please check your email for the verification code.');
       navigate('/verify-email', { state: { email: values.email } });
     } catch (err) {
@@ -341,6 +368,48 @@ const Register = () => {
                 </button>
               </div>
               {!errors.residencySince && <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('reg.residencyHint')}</p>}
+            </Field>
+
+            {/* Panel revision: proof of residency (Barangay ID or other valid proof of residence) */}
+            <Field id="proofType" label={t('reg.proof')} error={errors.proofType}>
+              <select id="proofType" {...register('proofType', required)} className="input-field">
+                <option value="">{t('reg.proofTypePh')}</option>
+                {PROOF_KINDS.map((k) => (
+                  <option key={k} value={t(`reg.proofKind.${k}`)}>
+                    {t(`reg.proofKind.${k}`)}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">{t('reg.proofHint')}</p>
+              <div className="mt-2">
+                {proof ? (
+                  <div className="relative w-fit">
+                    <img src={proofPreview} alt={t('reg.proof')} className="max-h-40 rounded-lg border border-gray-200 object-contain dark:border-gray-700" />
+                    <button
+                      type="button"
+                      onClick={() => setProof(null)}
+                      className="absolute -right-2 -top-2 rounded-full bg-red-600 p-1 text-white shadow"
+                      aria-label={t('service.validIdRemove')}
+                    >
+                      <FiX className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className={`input-field flex cursor-pointer items-center gap-2 text-gray-500 ${proofError ? '!border-red-500' : ''}`}>
+                    <FiUpload className="shrink-0" /> <span className="truncate">{t('service.validIdPick')}</span>
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="sr-only"
+                      onChange={(e) => {
+                        pickProof(e.target.files[0]);
+                        e.target.value = '';
+                      }}
+                    />
+                  </label>
+                )}
+                {proofError && <p className="mt-1 text-xs text-red-500">{t('reg.proofMissing')}</p>}
+              </div>
             </Field>
           </>
         )}

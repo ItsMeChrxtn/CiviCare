@@ -2,7 +2,6 @@ import {
   FiHome,
   FiUser,
   FiAlertCircle,
-  FiBell,
   FiCalendar,
   FiFileText,
   FiMessageSquare,
@@ -27,6 +26,7 @@ import {
  * Sidebar navigation per portal. `labelKey` is translated at render time.
  * `main` mirrors the docu screens (Figures 6-19); `more` holds the extra modules.
  * Panel revision: the resident Assistant and Contact Us pages were removed (FAQs and contacts live on the landing page).
+ * Panel revision: Notifications and My Profile were removed from More; they stay in the top bar (bell and profile menu).
  */
 export const RESIDENT_NAV = {
   main: [
@@ -40,8 +40,6 @@ export const RESIDENT_NAV = {
   ],
   more: [
     { to: '/resident/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
-    { to: '/resident/notifications', labelKey: 'nav.notifications', icon: FiBell },
-    { to: '/resident/profile', labelKey: 'nav.profile', icon: FiUser },
   ],
 };
 
@@ -67,8 +65,6 @@ export const OFFICIAL_NAV = {
   more: [
     ...STAFF_MORE,
     { to: '/official/users', labelKey: 'nav.manageUsers', icon: FiUsers },
-    { to: '/official/notifications', labelKey: 'nav.notifications', icon: FiBell },
-    { to: '/official/profile', labelKey: 'nav.profile', icon: FiUser },
   ],
 };
 
@@ -85,8 +81,6 @@ export const ADMIN_NAV = {
     { to: '/admin/backup', labelKey: 'nav.backup', icon: FiDatabase },
     { to: '/admin/logs', labelKey: 'nav.logs', icon: FiClipboard },
     { to: '/admin/analytics', labelKey: 'nav.analytics', icon: FiActivity },
-    { to: '/admin/notifications', labelKey: 'nav.notifications', icon: FiBell },
-    { to: '/admin/profile', labelKey: 'nav.profile', icon: FiUser },
   ],
 };
 
@@ -96,7 +90,12 @@ export const NAV_BY_ROLE = { resident: RESIDENT_NAV, official: OFFICIAL_NAV, adm
 export const findNavItem = (role, pathname) => {
   const nav = NAV_BY_ROLE[role];
   if (!nav) return null;
-  const all = [...nav.main, ...(nav.more || []), ...(nav.system || [])];
+  // Pages reached from the top bar only (not listed in the sidebar) still get a title.
+  const topbarOnly = [
+    { to: `/${role}/notifications`, labelKey: 'nav.notifications' },
+    { to: `/${role}/profile`, labelKey: 'nav.profile' },
+  ];
+  const all = [...nav.main, ...(nav.more || []), ...(nav.system || []), ...topbarOnly];
   return all
     .filter((item) => pathname === item.to || pathname.startsWith(`${item.to}/`))
     .sort((a, b) => b.to.length - a.to.length)[0];

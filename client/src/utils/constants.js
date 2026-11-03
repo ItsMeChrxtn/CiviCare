@@ -75,7 +75,7 @@ export const DOCUMENT_STATUS = {
 
 // Donation pledges: types offered on the pledge form and their tracking states.
 export const DONATION_TYPES = ['cash', 'goods', 'food', 'medicine', 'clothes'];
-export const DONATION_STATUS = { PLEDGED: 'pledged', RECEIVED: 'received', DISTRIBUTED: 'distributed' };
+export const DONATION_STATUS = { PLEDGED: 'pledged', RECEIVED: 'received', DISTRIBUTED: 'distributed', CANCELLED: 'cancelled' };
 export const DONATION_TYPE_LABELS = { cash: 'Cash', goods: 'Goods', food: 'Food', medicine: 'Medicine', clothes: 'Clothes' };
 
 // Commonly donated items shown as a checklist in the pledge form; `type` is the donation type it is filed under.
@@ -106,6 +106,17 @@ export const EVENT_STATUS = { UPCOMING: 'upcoming', ONGOING: 'ongoing', COMPLETE
 
 // Barangay Magdiwang, Noveleta, Cavite (overridable via Admin > Settings > general.mapCenter).
 export const DEFAULT_MAP_CENTER = [14.4318, 120.8852];
+
+// Panel revision: maps show only Barangay Magdiwang (not the whole Philippines); same box the server
+// uses to accept incident pins (server/src/config/constants.js MAGDIWANG_BOUNDS).
+export const MAGDIWANG_BOUNDS = [
+  [DEFAULT_MAP_CENTER[0] - 0.012, DEFAULT_MAP_CENTER[1] - 0.012],
+  [DEFAULT_MAP_CENTER[0] + 0.012, DEFAULT_MAP_CENTER[1] + 0.012],
+];
+export const isInsideMagdiwang = ([lat, lng]) =>
+  lat >= MAGDIWANG_BOUNDS[0][0] && lat <= MAGDIWANG_BOUNDS[1][0] && lng >= MAGDIWANG_BOUNDS[0][1] && lng <= MAGDIWANG_BOUNDS[1][1];
+/** Spread onto every <MapContainer> so users cannot pan or zoom out of the barangay. */
+export const MAP_LIMITS = { maxBounds: MAGDIWANG_BOUNDS, maxBoundsViscosity: 1, minZoom: 15 };
 
 // Leaflet pin colors on the officials' map: red Pending, yellow Ongoing, green Resolved.
 export const INCIDENT_PIN_COLORS = { pending: '#dc2626', assigned: '#eab308', ongoing: '#eab308', resolved: '#16a34a' };

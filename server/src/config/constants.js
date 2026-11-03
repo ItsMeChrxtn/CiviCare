@@ -70,6 +70,7 @@ const DONATION_STATUS = Object.freeze({
   PLEDGED: 'pledged',
   RECEIVED: 'received',
   DISTRIBUTED: 'distributed',
+  CANCELLED: 'cancelled', // withdrawn by the resident before the barangay received it
 });
 
 const EVENT_STATUS = Object.freeze({
@@ -116,7 +117,28 @@ const PERMISSIONS = Object.freeze({
   BROADCAST_SMS: 'broadcast_sms',
 });
 
+// Barangay Magdiwang, Noveleta, Cavite: maps and incident pins are limited to this box (panel revision).
+const MAGDIWANG_CENTER = Object.freeze({ lat: 14.4318, lng: 120.8852 });
+const MAGDIWANG_BOUNDS = Object.freeze({
+  south: MAGDIWANG_CENTER.lat - 0.012,
+  north: MAGDIWANG_CENTER.lat + 0.012,
+  west: MAGDIWANG_CENTER.lng - 0.012,
+  east: MAGDIWANG_CENTER.lng + 0.012,
+});
+const isInsideMagdiwang = (lat, lng) =>
+  lat >= MAGDIWANG_BOUNDS.south && lat <= MAGDIWANG_BOUNDS.north && lng >= MAGDIWANG_BOUNDS.west && lng <= MAGDIWANG_BOUNDS.east;
+
+// Incident report validation (panel revision): reports of the same kind within this radius count
+// toward the same incident; 3 reports from different residents mark it validated.
+const INCIDENT_REPORT_RADIUS_M = 150;
+const INCIDENT_VALIDATION_THRESHOLD = 3;
+
 module.exports = {
+  MAGDIWANG_CENTER,
+  MAGDIWANG_BOUNDS,
+  isInsideMagdiwang,
+  INCIDENT_REPORT_RADIUS_M,
+  INCIDENT_VALIDATION_THRESHOLD,
   ROLES,
   INCIDENT_STATUS,
   INCIDENT_SEVERITY,

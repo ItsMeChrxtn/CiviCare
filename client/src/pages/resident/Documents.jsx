@@ -1,19 +1,23 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { format, differenceInYears } from 'date-fns';
 import toast from 'react-hot-toast';
 import { BsQrCode } from 'react-icons/bs';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
+import useSocketEvent from '../../hooks/useSocketEvent';
 import api from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import Badge from '../../components/common/Badge';
 import DataTable from '../../components/common/DataTable';
-import { FiSearch, FiUpload, FiX } from 'react-icons/fi';
+import { FiLock, FiSearch, FiUpload, FiX } from 'react-icons/fi';
 import { SERVICE_DOCUMENTS, CIVIL_STATUS, DOCUMENT_STATUS, documentLabel } from '../../utils/constants';
 
 const MAX_ID_SIZE = 5 * 1024 * 1024; // matches the server's upload limit
+const ACCEPTED_PHOTOS = ['image/jpeg', 'image/png', 'image/webp'];
+// Panel revision: purpose is picked from common examples instead of typed free-form.
+const PURPOSES = ['scholarship', 'employment', 'personal', 'school', 'financial', 'travel', 'other'];
 
 const fullAddress = (a) => [a?.street, a?.purok, a?.barangay && `Brgy. ${a.barangay}`, a?.city, a?.province].filter(Boolean).join(', ');
 
@@ -31,6 +35,7 @@ const Documents = () => {
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm({
     defaultValues: {
@@ -41,12 +46,28 @@ const Documents = () => {
       civilStatus: user?.civilStatus || '',
       address: fullAddress(user?.address),
       purpose: '',
+      purposeOther: '',
     },
   });
 
   const toggle = (value) => setSelected((s) => (s.includes(value) ? s.filter((v) => v !== value) : [...s, value]));
 
+  // Panel revision: no new request while an earlier one is still waiting to be picked up.
+  const [openRequests, setOpenRequests] = useState([]);
+  const loadOpenRequests = useCallback(() => {
+    api.get('/documents/open').then(({ data }) => setOpenRequests(data.data)).catch(() => setOpenRequests([]));
+  }, []);
+  useEffect(loadOpenRequests, [loadOpenRequests]);
+  useSocketEvent('notification:new', (n) => n?.type === 'document' && (loadOpenRequests(), refetch()));
+  const locked = openRequests.length > 0;
+  const purposeChoice = watch('purpose');
+
   const pickValidId = (file) => {
+    // Panel revision: photo attachments only (no PDF, Word or text files).
+    if (file && !ACCEPTED_PHOTOS.includes(file.type)) {
+      toast.error(t('service.photoOnly'));
+      return;
+    }
     if (file && file.size > MAX_ID_SIZE) {
       toast.error(t('service.validIdTooBig'));
       return;
@@ -54,29 +75,28 @@ const Documents = () => {
     setValidId(file || null);
   };
 
-  const onSubmit = async ({ purpose, ...details }) => {
+  const onSubmit = async ({ purpose, purposeOther, ...details }) => {
+    if (openRequests.length) return toast.error(t('service.pendingLock', { codes: openRequests.map((d) => d.referenceCode).join(', ') }));
     if (!selected.length) return toast.error(t('service.chooseOne'));
     if (!validId) return toast.error(t('service.validIdMissing'));
+    const purposeText = purpose === 'other' ? purposeOther.trim() : t(`service.purpose.${purpose}`, null, purpose);
     try {
-      // One request per ticked document so each can be approved and tracked on its own.
-      await Promise.all(
-        selected.map((type) => {
-          const form = new FormData();
-          form.append('type', type);
-          form.append('purpose', purpose);
-          form.append('details', JSON.stringify(details));
-          form.append('validId', validId);
-          return api.post('/documents', form, { headers: { 'Content-Type': 'multipart/form-data' } });
-        })
-      );
+      // Sent together; the server files one record per ticked document so each is tracked on its own.
+      const form = new FormData();
+      form.append('types', JSON.stringify(selected));
+      form.append('purpose', purposeText);
+      form.append('details', JSON.stringify(details));
+      form.append('validId', validId);
+      await api.post('/documents', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success(t('service.sent', { count: selected.length }), { duration: 6000 });
       setSelected([]);
       setValidId(null);
       setSubmitted(true);
-      reset({ ...details, purpose: '' });
+      reset({ ...details, purpose: '', purposeOther: '' });
       refetch();
+      loadOpenRequests();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to submit request');
+      toast.error(err.response?.data?.message || 'Failed to submit request', { duration: 6000 });
     }
   };
 
@@ -111,6 +131,12 @@ const Documents = () => {
 
   return (
     <div className="space-y-6">
+      {locked && (
+        <div role="status" className="flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
+          <FiLock className="mt-0.5 shrink-0" />
+          <span>{t('service.pendingLock', { codes: openRequests.map((d) => d.referenceCode).join(', ') })}</span>
+        </div>
+      )}
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={`grid grid-cols-1 gap-4 md:grid-cols-[13rem_1fr] ${submitted ? 'lg:grid-cols-[15rem_1fr_17rem]' : 'lg:grid-cols-[15rem_1fr]'}`}
@@ -121,7 +147,7 @@ const Documents = () => {
           <div className="space-y-3">
             {SERVICE_DOCUMENTS.map((d) => (
               <label key={d.value} className="flex cursor-pointer items-start gap-3 text-sm font-semibold">
-                <input type="checkbox" checked={selected.includes(d.value)} onChange={() => toggle(d.value)} className="mt-0.5 h-4 w-4 shrink-0 accent-white" />
+                <input type="checkbox" checked={selected.includes(d.value)} onChange={() => toggle(d.value)} disabled={locked} className="accent-white" />
                 {d.label}
               </label>
             ))}
@@ -139,7 +165,31 @@ const Documents = () => {
               {field('civilStatus', 'service.civilStatus', { select: true })}
             </div>
             {field('address', 'service.address')}
-            {field('purpose', 'service.purpose')}
+            <div>
+              <label htmlFor="purpose" className="mb-1 block text-sm font-medium">
+                {t('service.purpose')} <span className="text-red-500">*</span>
+              </label>
+              <select id="purpose" {...register('purpose', { required: true })} className="input-field">
+                <option value="">{t('service.purposePh')}</option>
+                {PURPOSES.map((p) => (
+                  <option key={p} value={p}>
+                    {t(`service.purpose.${p}`)}
+                  </option>
+                ))}
+              </select>
+              {errors.purpose && <p className="mt-1 text-xs text-red-500">{t('common.required')}</p>}
+              {purposeChoice === 'other' && (
+                <>
+                  <input
+                    {...register('purposeOther', { validate: (v) => purposeChoice !== 'other' || v.trim().length > 2 })}
+                    placeholder={t('service.purposeOtherPh')}
+                    aria-label={t('service.purposeOtherPh')}
+                    className="input-field mt-2"
+                  />
+                  {errors.purposeOther && <p className="mt-1 text-xs text-red-500">{t('common.required')}</p>}
+                </>
+              )}
+            </div>
             <div>
               <p className="mb-1 block text-sm font-medium">
                 {t('service.validId')} <span className="text-red-500">*</span>
@@ -174,7 +224,7 @@ const Documents = () => {
             </div>
           </div>
           <div className="mt-5 flex justify-center gap-4">
-            <button type="submit" disabled={isSubmitting} className="btn-primary min-w-[8rem]">
+            <button type="submit" disabled={isSubmitting || locked} className="btn-primary min-w-[8rem]">
               {isSubmitting ? t('common.loading') : t('common.submit')}
             </button>
             <button

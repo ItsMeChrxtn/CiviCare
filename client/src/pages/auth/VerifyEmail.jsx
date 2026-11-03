@@ -3,7 +3,8 @@ import { useForm } from 'react-hook-form';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
-import { FiMail } from 'react-icons/fi';
+import { FiMail, FiClock, FiCheck } from 'react-icons/fi';
+import { usePreferences } from '../../contexts/PreferencesContext';
 import api from '../../utils/api';
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -19,10 +20,17 @@ const VerifyEmail = () => {
   } = useForm({ defaultValues: { email: location.state?.email || '', code: '' } });
   const [cooldown, setCooldown] = useState(0);
   const [isResending, setIsResending] = useState(false);
+  const [underReview, setUnderReview] = useState(false);
+  const { t } = usePreferences();
 
   const onSubmit = async ({ email, code }) => {
     try {
-      await api.post('/auth/verify-email', { email, code });
+      const { data } = await api.post('/auth/verify-email', { email, code });
+      // Panel revision: new accounts wait for an official to verify their proof of residency.
+      if (data.data?.approvalStatus === 'pending') {
+        setUnderReview(true);
+        return;
+      }
       toast.success('Email verified! You may now log in.');
       navigate('/login');
     } catch (err) {
@@ -54,6 +62,34 @@ const VerifyEmail = () => {
       setIsResending(false);
     }
   };
+
+  if (underReview) {
+    return (
+      <div className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-16">
+        <div className="absolute inset-0 -z-10 bg-radial-fade" />
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="card w-full max-w-md p-8 text-center shadow-card-hover" role="status">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+            <FiClock className="h-8 w-8" />
+          </div>
+          <h1 className="mt-4 font-display text-2xl font-extrabold tracking-tight">{t('reg.reviewTitle')}</h1>
+          <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">{t('reg.reviewBody')}</p>
+          <ol className="mt-5 space-y-2 text-left text-sm">
+            {['reg.reviewStep1', 'reg.reviewStep2', 'reg.reviewStep3'].map((key, i) => (
+              <li key={key} className="flex items-start gap-2">
+                <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white ${i === 0 ? 'bg-emerald-500' : 'bg-gray-300 dark:bg-gray-600'}`}>
+                  {i === 0 ? <FiCheck /> : i + 1}
+                </span>
+                {t(key)}
+              </li>
+            ))}
+          </ol>
+          <Link to="/" className="btn-primary mt-6 w-full">
+            {t('reg.reviewBack')}
+          </Link>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-16">

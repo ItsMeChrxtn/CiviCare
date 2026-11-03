@@ -35,6 +35,7 @@ const useWeather = ([lat, lng]) => {
           wind: Math.round(c.wind_speed_10m),
           windDir: COMPASS[Math.round(c.wind_direction_10m / 45) % 8],
           rain: c.precipitation,
+          code: c.weather_code,
           label,
           icon,
         });

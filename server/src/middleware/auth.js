@@ -3,6 +3,25 @@ const catchAsync = require('../utils/catchAsync');
 const ApiError = require('../utils/ApiError');
 const User = require('../models/User');
 
+/**
+ * Panel revision: self-registered residents cannot use the system until an official approves
+ * their proof of residency. The error carries a code so the client can show the review screen.
+ */
+const assertApproved = (user) => {
+  if (user.approvalStatus === 'pending') {
+    throw new ApiError(403, 'Your account is under review. We will email you once it has been verified and is ready for login.', [
+      { code: 'ACCOUNT_UNDER_REVIEW' },
+    ]);
+  }
+  if (user.approvalStatus === 'rejected') {
+    throw new ApiError(
+      403,
+      `Your registration was not approved${user.approvalNote ? `: ${user.approvalNote}` : ''}. Please visit the Barangay Hall for assistance.`,
+      [{ code: 'ACCOUNT_REJECTED' }]
+    );
+  }
+};
+
 /** Verifies the Bearer access token and attaches the authenticated user to req.user. */
 const protect = catchAsync(async (req, _res, next) => {
   const authHeader = req.headers.authorization;
@@ -22,6 +41,7 @@ const protect = catchAsync(async (req, _res, next) => {
   const user = await User.findById(decoded.id);
   if (!user) throw ApiError.unauthorized('The user belonging to this token no longer exists.');
   if (!user.isActive || user.isArchived) throw ApiError.forbidden('Your account has been deactivated.');
+  assertApproved(user);
 
   if (user.changedPasswordAfter(decoded.iat)) {
     throw ApiError.unauthorized('Password was recently changed. Please log in again.');
@@ -40,11 +60,11 @@ const optionalAuth = catchAsync(async (req, _res, next) => {
   try {
     const decoded = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
     const user = await User.findById(decoded.id);
-    if (user && user.isActive && !user.isArchived) req.user = user;
+    if (user && user.isActive && !user.isArchived && user.approvalStatus === 'approved') req.user = user;
   } catch {
     // ignore invalid token for optional auth
   }
   next();
 });
 
-module.exports = { protect, optionalAuth };
+module.exports = { protect, optionalAuth, assertApproved };

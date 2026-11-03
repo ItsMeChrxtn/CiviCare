@@ -12,6 +12,7 @@ router.get('/verify/:referenceCode', documentController.verifyDocument); // publ
 router.use(protect);
 
 router.get('/stats/overview', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.getDocumentStats);
+router.get('/open', restrictTo(ROLES.RESIDENT), documentController.getOpenRequests);
 router.post('/', restrictTo(ROLES.RESIDENT), upload.single('validId'), documentController.createDocumentRequest);
 router.get('/', documentController.getAllDocuments);
 router.get('/:id', documentController.getDocument);

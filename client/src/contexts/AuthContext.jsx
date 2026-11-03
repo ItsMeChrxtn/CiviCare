@@ -47,7 +47,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (payload) => {
-    const { data } = await api.post('/auth/register', payload);
+    const isForm = payload instanceof FormData;
+    const { data } = await api.post('/auth/register', payload, isForm ? { headers: { 'Content-Type': 'multipart/form-data' } } : undefined);
     return data;
   };
 

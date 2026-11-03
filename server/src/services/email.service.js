@@ -64,6 +64,33 @@ const sendPasswordResetEmail = (to, name, resetUrl) =>
     ),
   });
 
+// Panel revision: residents are emailed once an official has verified their account.
+const sendAccountApprovedEmail = (to, name, loginUrl) =>
+  sendEmail({
+    to,
+    subject: 'Your CiviCare account has been verified',
+    html: baseWrapper(
+      'Your account is ready',
+      `<p>Hi ${name},</p>
+       <p>Good news! The Barangay Magdiwang officials have verified your proof of residency and approved your CiviCare account.</p>
+       <p>You can now log in and use the resident services.</p>
+       <p><a href="${loginUrl}" style="background:#0f766e;color:#fff;padding:10px 20px;border-radius:8px;text-decoration:none;">Log In to CiviCare</a></p>`
+    ),
+  });
+
+const sendAccountRejectedEmail = (to, name, reason) =>
+  sendEmail({
+    to,
+    subject: 'Your CiviCare registration was not approved',
+    html: baseWrapper(
+      'Registration not approved',
+      `<p>Hi ${name},</p>
+       <p>We could not verify your proof of residency, so your CiviCare account was not approved.</p>
+       ${reason ? `<p><b>Reason:</b> ${String(reason).replace(/[<>&]/g, '')}</p>` : ''}
+       <p>Please visit the Barangay Hall of Magdiwang with a valid proof of residence for assistance.</p>`
+    ),
+  });
+
 const sendNotificationEmail = (to, title, message) =>
   sendEmail({
     to,
@@ -71,4 +98,11 @@ const sendNotificationEmail = (to, title, message) =>
     html: baseWrapper(title, `<p>${message}</p>`),
   });
 
-module.exports = { sendEmail, sendVerificationEmail, sendPasswordResetEmail, sendNotificationEmail };
+module.exports = {
+  sendEmail,
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+  sendAccountApprovedEmail,
+  sendAccountRejectedEmail,
+  sendNotificationEmail,
+};

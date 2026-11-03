@@ -6,6 +6,7 @@ import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import api from '../../utils/api';
 import Badge from '../../components/common/Badge';
+import ReportCredibility from '../../components/incidents/ReportCredibility';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Pagination from '../../components/common/Pagination';
 import IncidentMap from '../../components/map/IncidentMap';
@@ -146,7 +147,12 @@ const Incidents = () => {
                   {rows.map((r) => (
                     <tr key={r._id} className="hover:bg-primary-50/40 dark:hover:bg-primary-500/[0.04]">
                       <td className="px-5 py-4 font-mono text-xs">{r.referenceCode}</td>
-                      <td className="px-5 py-4 font-bold">{categoryLabel(r.category)}</td>
+                      <td className="px-5 py-4">
+                        <span className="block font-bold">{categoryLabel(r.category)}</span>
+                        <span className="mt-1 block">
+                          <ReportCredibility incident={r} />
+                        </span>
+                      </td>
                       <td className="max-w-[12rem] px-5 py-4 text-gray-600 dark:text-gray-300">
                         {r.location?.address || `${r.location.coordinates[1].toFixed(4)}, ${r.location.coordinates[0].toFixed(4)}`}
                       </td>

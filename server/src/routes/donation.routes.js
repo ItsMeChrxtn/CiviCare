@@ -13,6 +13,7 @@ router.get('/stats/overview', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationC
 router.post('/', restrictTo(ROLES.RESIDENT), upload.single('proofImage'), donationController.createDonation);
 router.get('/', donationController.getAllDonations);
 router.get('/:id', donationController.getDonation);
+router.patch('/:id/cancel', restrictTo(ROLES.RESIDENT), donationController.cancelDonation);
 router.patch('/:id/status', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationController.updateDonationStatus);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationController.archiveDonation);
 router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationController.restoreDonation);

@@ -69,6 +69,17 @@ const userSchema = new mongoose.Schema(
     // Confirmed against the barangay's Records of Barangay Inhabitants (RBI) by an official.
     isRbiVerified: { type: Boolean, default: false },
     rbiVerifiedAt: { type: Date },
+    // Panel revision: self-registered residents wait for an official to review their proof of
+    // residency before they can log in. Accounts created before this rule count as approved.
+    approvalStatus: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'approved' },
+    proofOfResidency: {
+      url: { type: String, default: '' },
+      publicId: { type: String, default: '' },
+      docType: { type: String, trim: true, default: '' }, // e.g. Barangay ID, utility bill
+    },
+    approvalNote: { type: String, trim: true },
+    reviewedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    reviewedAt: { type: Date },
     isActive: { type: Boolean, default: true },
     isArchived: { type: Boolean, default: false },
     archivedAt: { type: Date },

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiEye, FiEyeOff, FiClock } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import AuthShell from '../../components/layout/AuthShell';
@@ -26,6 +26,7 @@ const Login = () => {
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: { email: remembered, remember: Boolean(remembered) } });
   const [showPassword, setShowPassword] = useState(false);
+  const [review, setReview] = useState(null); // account under review / rejected notice
   const { login } = useAuth();
   const { t } = usePreferences();
   const navigate = useNavigate();
@@ -43,12 +44,31 @@ const Login = () => {
       toast.success(`Welcome back, ${user.firstName}!`);
       navigate(location.state?.from?.pathname || roleHome(user.role), { replace: true });
     } catch (err) {
+      const code = err.response?.data?.errors?.[0]?.code;
+      if (code === 'ACCOUNT_UNDER_REVIEW' || code === 'ACCOUNT_REJECTED') {
+        setReview({ code, message: err.response.data.message });
+        return;
+      }
       toast.error(err.response?.data?.message || 'Login failed');
     }
   };
 
   return (
     <AuthShell>
+      {review && (
+        <div
+          role="alert"
+          className={`mb-4 flex items-start gap-2 rounded-xl px-4 py-3 text-sm ${
+            review.code === 'ACCOUNT_UNDER_REVIEW' ? 'bg-amber-100 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200' : 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-200'
+          }`}
+        >
+          <FiClock className="mt-0.5 shrink-0" />
+          <span>
+            <b className="block">{review.code === 'ACCOUNT_UNDER_REVIEW' ? t('reg.reviewTitle') : t('reg.rejectedTitle')}</b>
+            {review.message}
+          </span>
+        </div>
+      )}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
           <label htmlFor="email" className="mb-1 block text-sm font-medium">

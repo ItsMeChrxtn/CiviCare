@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
-import { DEFAULT_MAP_CENTER } from '../../utils/constants';
+import { DEFAULT_MAP_CENTER, MAP_LIMITS, isInsideMagdiwang } from '../../utils/constants';
 
 const markerIcon = L.divIcon({
   className: '',
@@ -10,10 +10,13 @@ const markerIcon = L.divIcon({
   iconAnchor: [13, 26],
 });
 
-const ClickHandler = ({ onPick }) => {
+// Panel revision: pins can only be dropped inside Barangay Magdiwang.
+const ClickHandler = ({ onPick, onOutside }) => {
   useMapEvents({
     click(e) {
-      onPick([e.latlng.lat, e.latlng.lng]);
+      const point = [e.latlng.lat, e.latlng.lng];
+      if (isInsideMagdiwang(point)) onPick(point);
+      else onOutside?.();
     },
   });
   return null;
@@ -29,14 +32,14 @@ const FollowValue = ({ value }) => {
 };
 
 /** Controlled click-to-pin map used by the incident report screen. `value` is [lat, lng] or null. */
-const LocationPicker = ({ value, onChange, center = DEFAULT_MAP_CENTER, height = '18rem', zoom = 16 }) => (
+const LocationPicker = ({ value, onChange, onOutside, center = DEFAULT_MAP_CENTER, height = '18rem', zoom = 16 }) => (
   <div style={{ height }} className="relative z-0 w-full">
-    <MapContainer center={value || center} zoom={zoom} style={{ height: '100%', width: '100%' }}>
+    <MapContainer center={value || center} zoom={zoom} {...MAP_LIMITS} style={{ height: '100%', width: '100%' }}>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      <ClickHandler onPick={onChange} />
+      <ClickHandler onPick={onChange} onOutside={onOutside} />
       <FollowValue value={value} />
       {value && <Marker position={value} icon={markerIcon} />}
     </MapContainer>

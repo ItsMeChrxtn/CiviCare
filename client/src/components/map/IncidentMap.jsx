@@ -5,7 +5,7 @@ import { formatDistanceToNow } from 'date-fns';
 import api from '../../utils/api';
 import useSetting from '../../hooks/useSetting';
 import useSocketEvent from '../../hooks/useSocketEvent';
-import { DEFAULT_MAP_CENTER, INCIDENT_PIN_COLORS, categoryLabel } from '../../utils/constants';
+import { DEFAULT_MAP_CENTER, MAP_LIMITS, INCIDENT_PIN_COLORS, categoryLabel } from '../../utils/constants';
 
 const LEGEND = [
   ['pending', 'Pending'],
@@ -30,7 +30,7 @@ const IncidentMap = ({ height = '22rem' }) => {
   return (
     <div className="overflow-hidden rounded-xl border border-gray-100 dark:border-gray-800">
       <div style={{ height }} className="relative z-0">
-        <MapContainer center={general?.mapCenter || DEFAULT_MAP_CENTER} zoom={16} style={{ height: '100%', width: '100%' }}>
+        <MapContainer center={general?.mapCenter || DEFAULT_MAP_CENTER} zoom={16} {...MAP_LIMITS} style={{ height: '100%', width: '100%' }}>
           <TileLayer attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           {incidents.map((i) => {
             const [lng, lat] = i.location.coordinates;

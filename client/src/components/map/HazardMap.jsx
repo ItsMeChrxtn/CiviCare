@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Polyline, Polygon, Popup, Tooltip, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import api from '../../utils/api';
-import { DEFAULT_MAP_CENTER } from '../../utils/constants';
+import { DEFAULT_MAP_CENTER, MAP_LIMITS } from '../../utils/constants';
 import { usePreferences } from '../../contexts/PreferencesContext';
 
 // Interactive Evacuation Map layers. Flood zones, fire hazard, danger zones and road closures
@@ -93,7 +93,7 @@ const HazardMap = ({ height = '28rem', showLegend = true, center = DEFAULT_MAP_C
       )}
 
       <div style={{ height }} className="relative z-0">
-        <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
+        <MapContainer center={center} zoom={zoom} {...MAP_LIMITS} style={{ height: '100%', width: '100%' }} scrollWheelZoom>
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

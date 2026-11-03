@@ -4,8 +4,11 @@ const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
 const User = require('../models/User');
 const PendingRegistration = require('../models/PendingRegistration');
-const { ROLES } = require('../config/constants');
+const { ROLES, NOTIFICATION_TYPE } = require('../config/constants');
 const { issueAuthTokens, generateAccessToken, generateResetToken } = require('../utils/generateTokens');
+const { uploadBuffer } = require('../services/cloudinary.service');
+const { notifyRole } = require('../services/notification.service');
+const { assertApproved } = require('../middleware/auth');
 const { generateCode } = require('../services/qrcode.service');
 const { generateOtp } = require('../utils/otp');
 const { sendVerificationEmail, sendPasswordResetEmail } = require('../services/email.service');
@@ -20,20 +23,29 @@ const PENDING_TTL_MS = 15 * 60 * 1000; // unverified signup record self-deletes 
 // @route POST /api/auth/register
 const register = catchAsync(async (req, res) => {
   const { middleName, email, password, phone, birthdate, gender, civilStatus, residencySince } = req.body;
-  const residentSinceBirth = Boolean(req.body.residentSinceBirth);
+  // Sent as multipart form data (proof of residency upload), so booleans arrive as strings.
+  const residentSinceBirth = [true, 'true'].includes(req.body.residentSinceBirth);
   // The registration screen collects a single "Full Name"; older clients still send the split fields.
   const split = req.body.fullName ? splitFullName(req.body.fullName) : {};
   const firstName = req.body.firstName || split.firstName;
   const lastName = req.body.lastName || split.lastName;
   const suffix = req.body.suffix || split.suffix;
-  const address = { barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite', ...(req.body.address || {}) };
+  const extraAddress = req.body.address && typeof req.body.address === 'object' ? req.body.address : {};
+  const address = { barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite', ...extraAddress };
   if (req.body.purok) address.purok = req.body.purok;
+  if (req.body.street) address.street = req.body.street;
+
+  // Panel revision: proof of residency (Barangay ID or other valid proof) is required.
+  if (!req.file) throw ApiError.badRequest('Please upload your proof of residency (Barangay ID or other valid proof of residence).');
 
   const existing = await User.findOne({ email });
   if (existing) throw ApiError.conflict('An account with this email already exists.');
 
   // Replace any earlier unverified attempt for this email with a fresh one.
   await PendingRegistration.findOneAndDelete({ email });
+
+  const uploadedProof = await uploadBuffer(req.file.buffer, 'proof-of-residency');
+  const proofOfResidency = { ...uploadedProof, docType: req.body.proofType?.trim() || '' };
 
   const otpCode = generateOtp();
   const now = Date.now();
@@ -52,6 +64,7 @@ const register = catchAsync(async (req, res) => {
     residencySince: residentSinceBirth ? birthdate : residencySince,
     residentSinceBirth,
     address,
+    proofOfResidency,
     otpCode,
     otpExpiresAt: new Date(now + OTP_TTL_MS),
     expiresAt: new Date(now + PENDING_TTL_MS),
@@ -105,13 +118,35 @@ const verifyEmail = catchAsync(async (req, res) => {
     role: ROLES.RESIDENT,
     qrCode: generateCode(),
     isVerified: true,
+    // Panel revision: the account waits for an official to check the proof of residency.
+    approvalStatus: 'pending',
+    proofOfResidency: pending.proofOfResidency,
   });
 
   await PendingRegistration.deleteOne({ _id: pending._id });
 
-  await writeLog({ req, action: 'REGISTER', module: 'auth', description: `Email verified, account created: ${email}` });
+  const officials = await User.find({ role: { $in: [ROLES.OFFICIAL, ROLES.ADMIN] }, isArchived: false, isActive: true }).select('_id');
+  await notifyRole({
+    recipients: officials.map((o) => o._id),
+    role: ROLES.OFFICIAL,
+    type: NOTIFICATION_TYPE.SYSTEM,
+    title: 'New account for review',
+    message: `${user.fullName} registered and is waiting for residency verification.`,
+    link: '/official/residents?approval=pending',
+    relatedId: user._id,
+  });
 
-  res.status(200).json(new ApiResponse(200, { id: user._id, email: user.email }, 'Email verified successfully. You may now log in.'));
+  await writeLog({ req, action: 'REGISTER', module: 'auth', description: `Email verified, account awaiting review: ${email}` });
+
+  res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { id: user._id, email: user.email, approvalStatus: user.approvalStatus },
+        'Email verified. Your account is under review. We will email you once it is approved.'
+      )
+    );
 });
 
 // @route POST /api/auth/resend-verification
@@ -144,6 +179,7 @@ const login = catchAsync(async (req, res) => {
 
   if (!user.isActive || user.isArchived) throw ApiError.forbidden('Your account has been deactivated.');
   if (!user.isVerified) throw ApiError.forbidden('Please verify your email before logging in.');
+  assertApproved(user);
 
   user.lastLoginAt = new Date();
   await user.save({ validateBeforeSave: false });
@@ -168,6 +204,7 @@ const refreshToken = catchAsync(async (req, res) => {
 
   const user = await User.findById(decoded.id);
   if (!user || !user.isActive || user.isArchived) throw ApiError.unauthorized('Invalid session.');
+  assertApproved(user);
 
   const accessToken = generateAccessToken(user);
   res.status(200).json(new ApiResponse(200, { accessToken, user }, 'Token refreshed'));

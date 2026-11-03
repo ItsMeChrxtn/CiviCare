@@ -41,6 +41,12 @@ const pendingRegistrationSchema = new mongoose.Schema(
     residencySince: { type: Date },
     residentSinceBirth: { type: Boolean, default: false },
     address: addressSchema,
+    // Barangay ID or other proof of residence, reviewed by an official after the email is verified.
+    proofOfResidency: {
+      url: { type: String, required: true },
+      publicId: { type: String, default: '' },
+      docType: { type: String, trim: true, default: '' },
+    },
 
     otpCode: { type: String, required: true },
     otpExpiresAt: { type: Date, required: true },

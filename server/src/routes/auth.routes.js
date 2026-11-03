@@ -3,6 +3,7 @@ const authController = require('../controllers/auth.controller');
 const { protect } = require('../middleware/auth');
 const { authLimiter } = require('../middleware/rateLimiter');
 const validate = require('../middleware/validate');
+const upload = require('../middleware/upload');
 const {
   registerValidator,
   loginValidator,
@@ -15,7 +16,7 @@ const {
 
 const router = express.Router();
 
-router.post('/register', authLimiter, registerValidator, validate, authController.register);
+router.post('/register', authLimiter, upload.single('proofOfResidency'), registerValidator, validate, authController.register);
 router.post('/verify-email', authLimiter, verifyOtpValidator, validate, authController.verifyEmail);
 router.post(
   '/resend-verification',

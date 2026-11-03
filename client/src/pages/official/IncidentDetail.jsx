@@ -7,6 +7,7 @@ import api from '../../utils/api';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import PageLoader from '../../components/common/PageLoader';
 import Badge from '../../components/common/Badge';
+import ReportCredibility from '../../components/incidents/ReportCredibility';
 import TicketTracker from '../../components/incidents/TicketTracker';
 import StaticPinMap from '../../components/map/StaticPinMap';
 import { INCIDENT_PIN_COLORS, categoryLabel } from '../../utils/constants';
@@ -146,6 +147,11 @@ const IncidentDetail = () => {
 
           <div className="mt-5 rounded-xl bg-primary-50/60 p-4 dark:bg-primary-500/5">
             <TicketTracker status={incident.status} />
+          </div>
+
+          <div className="mt-4 rounded-xl border border-gray-100 p-4 dark:border-gray-800">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Report validation & verification</p>
+            <ReportCredibility incident={incident} detailed />
           </div>
 
           {incident.description && <p className="mt-4 text-sm leading-relaxed text-gray-600 dark:text-gray-300">{incident.description}</p>}

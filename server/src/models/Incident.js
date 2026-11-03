@@ -29,6 +29,18 @@ const incidentSchema = new mongoose.Schema(
       },
     ],
 
+    // Report validation (panel revision): how many residents reported the same kind of incident
+    // nearby; validated once INCIDENT_VALIDATION_THRESHOLD distinct residents have reported it.
+    reportCount: { type: Number, default: 1 },
+    isValidated: { type: Boolean, default: false },
+
+    // Report verification algorithm: credibility score (0-100) and the checks that lowered it.
+    verification: {
+      score: { type: Number, default: 100 },
+      status: { type: String, enum: ['likely_valid', 'needs_review', 'suspicious'], default: 'likely_valid' },
+      flags: [{ type: String }],
+    },
+
     assignedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, // barangay official/responder
     assignedAt: { type: Date },
 

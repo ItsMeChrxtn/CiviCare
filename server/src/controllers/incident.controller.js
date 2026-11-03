@@ -10,8 +10,9 @@ const { notifyUser, notifyRole } = require('../services/notification.service');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
 const { deliverSms } = require('../services/sms.service');
 const { writeLog } = require('../services/log.service');
+const { findOwnActiveReportNearby, findCorroboratingReports, scoreReport } = require('../services/incidentVerification.service');
 const { emitToRole } = require('../config/socket');
-const { INCIDENT_STATUS, NOTIFICATION_TYPE, ROLES } = require('../config/constants');
+const { INCIDENT_STATUS, NOTIFICATION_TYPE, ROLES, INCIDENT_VALIDATION_THRESHOLD } = require('../config/constants');
 
 const CATEGORY_LABELS = {
   fire: 'Fire Hazard',
@@ -41,6 +42,9 @@ const emitIncidentChange = (event, incident) => {
     severity: incident.severity,
     status: incident.status,
     location: incident.location,
+    reportCount: incident.reportCount,
+    isValidated: incident.isValidated,
+    verification: incident.verification,
     createdAt: incident.createdAt,
   };
   emitToRole(ROLES.OFFICIAL, event, payload);
@@ -52,10 +56,26 @@ const createIncident = catchAsync(async (req, res) => {
   const { category, severity, lat, lng, address } = req.body;
   const title = req.body.title?.trim() || CATEGORY_LABELS[category] || 'Incident report';
   const description = req.body.description?.trim() || '';
+  const coordinates = [Number(lng), Number(lat)];
 
-  const images = req.files?.length
-    ? await Promise.all(req.files.map((file) => uploadBuffer(file.buffer, 'incidents')))
-    : [];
+  // Panel revision: a photo of the incident is required.
+  if (!req.files?.length) throw ApiError.badRequest('Please attach a photo of the incident.');
+
+  // Panel revision: one report per resident within the same reporting area.
+  const ownNearby = await findOwnActiveReportNearby(req.user._id, coordinates);
+  if (ownNearby) {
+    throw ApiError.conflict(
+      `You already reported an incident in this area (${ownNearby.referenceCode}). Please wait until it is resolved before reporting again here.`
+    );
+  }
+
+  const corroborating = await findCorroboratingReports(req.user._id, category, coordinates);
+  const reporters = new Set(corroborating.map((i) => String(i.reportedBy)));
+  const reportCount = reporters.size + 1;
+  const isValidated = reportCount >= INCIDENT_VALIDATION_THRESHOLD;
+  const verification = await scoreReport({ userId: req.user._id, category, description, corroborations: reporters.size });
+
+  const images = await Promise.all(req.files.map((file) => uploadBuffer(file.buffer, 'incidents')));
 
   const referenceCode = await nextReferenceCode(Incident, 'INC');
 
@@ -66,10 +86,18 @@ const createIncident = catchAsync(async (req, res) => {
     description,
     category,
     severity,
-    location: { type: 'Point', coordinates: [Number(lng), Number(lat)], address },
+    location: { type: 'Point', coordinates, address },
     images,
+    reportCount,
+    isValidated,
+    verification,
     statusHistory: [{ status: INCIDENT_STATUS.PENDING, updatedBy: req.user._id }],
   });
+
+  // Earlier reports of the same incident share the new count (validated at 3 residents).
+  if (corroborating.length) {
+    await Incident.updateMany({ _id: { $in: corroborating.map((i) => i._id) } }, { $set: { reportCount, isValidated } });
+  }
 
   const officials = await User.find({ role: { $in: [ROLES.OFFICIAL, ROLES.ADMIN] }, isArchived: false, isActive: true }).select(
     '_id phone role'
@@ -114,7 +142,7 @@ const getAllIncidents = catchAsync(async (req, res) => {
 
   const features = new ApiFeatures(
     Incident.find(baseFilter)
-      .select(isResident ? '-internalNotes' : '-__v')
+      .select(isResident ? '-internalNotes -verification' : '-__v')
       .populate('reportedBy', 'firstName lastName email avatar residentId')
       .populate('assignedTo', 'firstName lastName'),
     req.query
@@ -148,7 +176,9 @@ const getIncidentsForMap = catchAsync(async (req, res) => {
     ? { isArchived: false, $or: [{ status: { $ne: INCIDENT_STATUS.RESOLVED } }, { resolvedAt: { $gte: recent } }] }
     : { isArchived: false, status: { $ne: INCIDENT_STATUS.RESOLVED } };
 
-  const incidents = await Incident.find(filter).select('title category severity status location referenceCode createdAt');
+  const incidents = await Incident.find(filter).select(
+    `title category severity status location referenceCode createdAt reportCount isValidated${isStaff ? ' verification' : ''}`
+  );
   res.status(200).json(new ApiResponse(200, incidents));
 });
 
@@ -159,7 +189,7 @@ const getIncident = catchAsync(async (req, res) => {
     .populate('reportedBy', 'firstName lastName email phone avatar residentId')
     .populate('assignedTo', 'firstName lastName position phone')
     .populate('statusHistory.updatedBy', 'firstName lastName');
-  query = isResident ? query.select('-internalNotes') : query.populate('internalNotes.author', 'firstName lastName');
+  query = isResident ? query.select('-internalNotes -verification') : query.populate('internalNotes.author', 'firstName lastName');
   const incident = await query;
 
   if (!incident) throw ApiError.notFound('Incident not found');

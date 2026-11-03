@@ -87,10 +87,11 @@ const getDonation = catchAsync(async (req, res) => {
 // @route PATCH /api/donations/:id/status (official acknowledges / updates status)
 const updateDonationStatus = catchAsync(async (req, res) => {
   const { status, acknowledgementNote } = req.body;
-  if (!Object.values(DONATION_STATUS).includes(status)) throw ApiError.badRequest('Invalid status');
+  if (!Object.values(DONATION_STATUS).includes(status) || status === DONATION_STATUS.CANCELLED) throw ApiError.badRequest('Invalid status');
 
   const donation = await Donation.findById(req.params.id);
   if (!donation) throw ApiError.notFound('Donation not found');
+  if (donation.status === DONATION_STATUS.CANCELLED) throw ApiError.badRequest('This pledge was cancelled by the resident.');
 
   donation.status = status;
   if (status === DONATION_STATUS.RECEIVED) {
@@ -112,6 +113,35 @@ const updateDonationStatus = catchAsync(async (req, res) => {
   await writeLog({ req, action: 'DONATION_STATUS', module: 'donations', description: `${donation.referenceCode} marked ${status}` });
 
   res.status(200).json(new ApiResponse(200, donation, 'Donation status updated'));
+});
+
+// @route PATCH /api/donations/:id/cancel (resident cancels their own pledge before it is received)
+const cancelDonation = catchAsync(async (req, res) => {
+  const donation = await Donation.findById(req.params.id);
+  if (!donation) throw ApiError.notFound('Donation not found');
+  if (String(donation.donor) !== String(req.user._id)) throw ApiError.forbidden('You can only cancel your own pledges.');
+  if (donation.status !== DONATION_STATUS.PLEDGED) {
+    throw ApiError.badRequest('Only pledges that have not yet been received by the barangay can be cancelled.');
+  }
+
+  donation.status = DONATION_STATUS.CANCELLED;
+  donation.acknowledgementNote = req.body.reason?.trim() || donation.acknowledgementNote;
+  await donation.save();
+
+  const staff = await require('../models/User').find({ role: { $in: [ROLES.OFFICIAL, ROLES.ADMIN] }, isArchived: false }).select('_id');
+  await notifyRole({
+    recipients: staff.map((o) => o._id),
+    role: ROLES.OFFICIAL,
+    type: NOTIFICATION_TYPE.DONATION,
+    title: 'Donation pledge cancelled',
+    message: `${req.user.fullName} cancelled pledge ${donation.referenceCode}.`,
+    link: '/official/donations',
+    relatedId: donation._id,
+  });
+
+  await writeLog({ req, action: 'DONATION_CANCEL', module: 'donations', description: `Cancelled pledge ${donation.referenceCode}` });
+
+  res.status(200).json(new ApiResponse(200, donation, 'Donation pledge cancelled'));
 });
 
 // @route GET /api/donations/stats/overview
@@ -155,6 +185,7 @@ module.exports = {
   getAllDonations,
   getDonation,
   updateDonationStatus,
+  cancelDonation,
   getDonationStats,
   archiveDonation,
   restoreDonation,

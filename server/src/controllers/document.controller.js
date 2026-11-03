@@ -49,47 +49,94 @@ const parseDetails = (details) => {
   }
 };
 
-// @route POST /api/documents (resident requests a document)
+// Panel revision: a resident may have only one open request at a time; a new one is allowed once the
+// previous document has been picked up (claimed) or the request was rejected.
+const OPEN_REQUEST_STATUSES = [DOCUMENT_STATUS.PENDING, DOCUMENT_STATUS.PROCESSING, DOCUMENT_STATUS.APPROVED, DOCUMENT_STATUS.READY];
+const findOpenRequests = (userId) =>
+  Document.find({ requestedBy: userId, isArchived: false, status: { $in: OPEN_REQUEST_STATUSES } }).select('referenceCode type status createdAt');
+
+const parseTypes = (body) => {
+  const raw = body.types ?? body.type;
+  if (Array.isArray(raw)) return raw;
+  if (typeof raw === 'string' && raw.trim().startsWith('[')) {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      throw ApiError.badRequest('Invalid document list.');
+    }
+  }
+  return raw ? [raw] : [];
+};
+
+// @route GET /api/documents/open (resident: requests still waiting to be picked up)
+const getOpenRequests = catchAsync(async (req, res) => {
+  res.status(200).json(new ApiResponse(200, await findOpenRequests(req.user._id)));
+});
+
+// @route POST /api/documents (resident requests one or more documents in a single submission)
 const createDocumentRequest = catchAsync(async (req, res) => {
-  const { type, purpose, priority } = req.body;
-  if (!REQUESTABLE_DOCUMENT_TYPES.includes(type)) {
+  const { purpose, priority } = req.body;
+  const types = [...new Set(parseTypes(req.body))];
+  if (!types.length) throw ApiError.badRequest('Please choose at least one document to request.');
+  if (types.some((type) => !REQUESTABLE_DOCUMENT_TYPES.includes(type))) {
     throw ApiError.badRequest('Only Barangay Clearance and Certificate of Indigency can be requested.');
   }
   if (!purpose?.trim()) throw ApiError.badRequest('Purpose of request is required.');
 
+  const open = await findOpenRequests(req.user._id);
+  if (open.length) {
+    throw ApiError.conflict(
+      `You still have a pending request (${open.map((d) => d.referenceCode).join(', ')}). You can submit a new request once your document has been picked up.`
+    );
+  }
+
   const details = parseDetails(req.body.details);
 
-  // Valid ID with a Magdiwang address, so officials can verify residency before processing.
+  // Valid ID with a Magdiwang address, so officials can verify residency before processing (photos only).
   if (!req.file) throw ApiError.badRequest('Please upload a photo of your Barangay ID or any valid ID with your Magdiwang address.');
   const validId = await uploadBuffer(req.file.buffer, 'valid-ids');
 
-  const referenceCode = await nextReferenceCode(Document, 'DOC');
-
-  const document = await Document.create({
-    referenceCode,
-    requestedBy: req.user._id,
-    type,
-    purpose,
-    details,
-    validId,
-    priority: priority === 'urgent' ? 'urgent' : 'normal',
-    fee: 0, // documents are issued free of charge
-  });
+  // One record per document so each can be approved and tracked on its own.
+  const documents = [];
+  for (const type of types) {
+    const referenceCode = await nextReferenceCode(Document, 'DOC');
+    documents.push(
+      await Document.create({
+        referenceCode,
+        requestedBy: req.user._id,
+        type,
+        purpose: purpose.trim(),
+        details,
+        validId,
+        priority: priority === 'urgent' ? 'urgent' : 'normal',
+        fee: 0, // documents are issued free of charge
+      })
+    );
+  }
 
   const officials = await User.find({ role: ROLES.OFFICIAL, isArchived: false }).select('_id');
-  await notifyRole({
-    recipients: officials.map((o) => o._id),
-    role: ROLES.OFFICIAL,
-    type: NOTIFICATION_TYPE.DOCUMENT,
-    title: 'New service request',
-    message: `${req.user.fullName} requested a ${typeLabel(type)}.`,
-    link: '/official/documents',
-    relatedId: document._id,
+  await Promise.all(
+    documents.map((document) =>
+      notifyRole({
+        recipients: officials.map((o) => o._id),
+        role: ROLES.OFFICIAL,
+        type: NOTIFICATION_TYPE.DOCUMENT,
+        title: 'New service request',
+        message: `${req.user.fullName} requested a ${typeLabel(document.type)}.`,
+        link: '/official/documents',
+        relatedId: document._id,
+      })
+    )
+  );
+
+  await writeLog({
+    req,
+    action: 'DOCUMENT_REQUEST',
+    module: 'documents',
+    description: `Requested ${documents.map((d) => `${d.referenceCode} (${d.type})`).join(', ')}`,
   });
 
-  await writeLog({ req, action: 'DOCUMENT_REQUEST', module: 'documents', description: `Requested ${referenceCode} (${type})` });
-
-  res.status(201).json(new ApiResponse(201, document, 'Service request submitted successfully'));
+  res.status(201).json(new ApiResponse(201, documents, 'Service request submitted successfully'));
 });
 
 // @route GET /api/documents
@@ -367,6 +414,7 @@ const restoreDocumentRequest = catchAsync(async (req, res) => {
 
 module.exports = {
   createDocumentRequest,
+  getOpenRequests,
   getAllDocuments,
   getDocument,
   markProcessing,

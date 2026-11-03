@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { format, differenceInDays } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiSearch, FiEye, FiTrash2, FiDownload, FiUserCheck, FiSlash, FiCheckCircle } from 'react-icons/fi';
+import { FiSearch, FiEye, FiTrash2, FiDownload, FiUserCheck, FiSlash, FiCheckCircle, FiXCircle } from 'react-icons/fi';
+import { useSearchParams } from 'react-router-dom';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import { downloadFile } from '../../utils/download';
@@ -26,20 +27,41 @@ const FILTERS = {
   suspended: { isActive: 'false' },
   unverified: { isRbiVerified: 'false' },
   verified: { isRbiVerified: 'true' },
+  pending: { approvalStatus: 'pending' },
+  rejected: { approvalStatus: 'rejected' },
 };
 
 const initials = (u) => `${u.firstName?.[0] || ''}${u.lastName?.[0] || ''}`.toUpperCase();
 
 /** Resident Management (docu Figure 16). */
 const Residents = () => {
-  const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/users', { role: 'resident' });
-  const [filter, setFilter] = useState('all');
+  // Notification links open the list on "Awaiting approval" (?approval=pending).
+  const [searchParams] = useSearchParams();
+  const initialFilter = searchParams.get('approval') === 'pending' ? 'pending' : 'all';
+  const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/users', { role: 'resident', ...FILTERS[initialFilter] });
+  const [filter, setFilter] = useState(initialFilter);
   const [viewing, setViewing] = useState(null);
   const [confirming, setConfirming] = useState(null);
+  const [rejecting, setRejecting] = useState(null);
+  const [rejectNote, setRejectNote] = useState('');
 
   const applyFilter = (key) => {
     setFilter(key);
-    updateFilters({ isActive: undefined, isRbiVerified: undefined, ...FILTERS[key] });
+    updateFilters({ isActive: undefined, isRbiVerified: undefined, approvalStatus: undefined, ...FILTERS[key] });
+  };
+
+  // Panel revision: officials verify the proof of residency, then approve (resident gets an email) or reject.
+  const approve = async (r) => {
+    const updated = await run(() => api.patch(`/users/${r._id}/approval`, { approve: true }), 'Account approved — the resident was emailed');
+    if (updated && viewing?._id === r._id) setViewing(updated);
+  };
+
+  const reject = async () => {
+    if (!rejectNote.trim()) return toast.error('Please give a reason');
+    const updated = await run(() => api.patch(`/users/${rejecting._id}/approval`, { approve: false, note: rejectNote }), 'Registration rejected');
+    if (updated && viewing?._id === rejecting._id) setViewing(updated);
+    setRejecting(null);
+    setRejectNote('');
   };
 
   const run = async (request, success) => {
@@ -84,6 +106,8 @@ const Residents = () => {
         <div className="flex gap-2">
           <select value={filter} onChange={(e) => applyFilter(e.target.value)} className="input-field w-auto !py-2" aria-label="Filter by status">
             <option value="all">All Status</option>
+            <option value="pending">Awaiting approval</option>
+            <option value="rejected">Rejected registrations</option>
             <option value="active">Active</option>
             <option value="suspended">Suspended</option>
             <option value="verified">RBI verified</option>
@@ -161,11 +185,22 @@ const Residents = () => {
                     )}
                   </td>
                   <td className="px-4 py-3">
-                    <Badge status={accountStatus(r)} />
+                    {r.approvalStatus === 'pending' ? (
+                      <Badge status="pending">Under review</Badge>
+                    ) : r.approvalStatus === 'rejected' ? (
+                      <Badge status="rejected">Rejected</Badge>
+                    ) : (
+                      <Badge status={accountStatus(r)} />
+                    )}
                   </td>
                   <td className="px-4 py-3 text-xs">{format(new Date(r.createdAt), 'MMM dd, yyyy')}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 text-gray-500">
+                      {r.approvalStatus === 'pending' && (
+                        <button onClick={() => setViewing(r)} className="mr-1 rounded-lg bg-amber-500 px-2 py-1 text-xs font-semibold text-white hover:bg-amber-600">
+                          Review
+                        </button>
+                      )}
                       <button onClick={() => setViewing(r)} className="rounded-lg p-1.5 hover:bg-gray-100 dark:hover:bg-gray-800" title="View" aria-label="View">
                         <FiEye />
                       </button>
@@ -235,6 +270,30 @@ const Residents = () => {
                 </div>
               ))}
             </dl>
+            {viewing.proofOfResidency?.url && (
+              <div>
+                <p className="mb-1 text-xs text-gray-400">Proof of residency{viewing.proofOfResidency.docType ? ` — ${viewing.proofOfResidency.docType}` : ''}</p>
+                <a href={viewing.proofOfResidency.url} target="_blank" rel="noreferrer">
+                  <img src={viewing.proofOfResidency.url} alt="Proof of residency" className="max-h-64 rounded-lg border border-gray-200" />
+                </a>
+              </div>
+            )}
+            {viewing.approvalStatus === 'rejected' && viewing.approvalNote && (
+              <p className="rounded-lg bg-red-50 p-3 text-red-700 dark:bg-red-500/10 dark:text-red-300">Rejected: {viewing.approvalNote}</p>
+            )}
+            {viewing.approvalStatus !== 'approved' && (
+              <div className="flex flex-wrap gap-2 rounded-xl bg-amber-50 p-3 dark:bg-amber-500/10">
+                <p className="w-full text-xs text-amber-800 dark:text-amber-200">
+                  Check that the proof of residency matches the resident's name and a Magdiwang address before approving. The resident is emailed either way.
+                </p>
+                <button onClick={() => approve(viewing)} className="btn-primary">
+                  <FiCheckCircle /> Approve account
+                </button>
+                <button onClick={() => setRejecting(viewing)} className="btn-danger">
+                  <FiXCircle /> Reject
+                </button>
+              </div>
+            )}
             {viewing.validIdImage?.url && (
               <div>
                 <p className="mb-1 text-xs text-gray-400">Uploaded valid ID</p>
@@ -253,6 +312,28 @@ const Residents = () => {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal isOpen={!!rejecting} onClose={() => setRejecting(null)} title="Reject registration" size="sm">
+        <p className="mb-3 text-sm text-gray-500">
+          Tell {rejecting?.firstName} why the registration was not approved. This reason is included in the email.
+        </p>
+        <textarea
+          rows={3}
+          value={rejectNote}
+          onChange={(e) => setRejectNote(e.target.value)}
+          placeholder="e.g. The uploaded ID does not show a Magdiwang address."
+          className="input-field"
+          aria-label="Reason for rejection"
+        />
+        <div className="mt-4 flex justify-end gap-3">
+          <button onClick={() => setRejecting(null)} className="btn-secondary">
+            Cancel
+          </button>
+          <button onClick={reject} className="btn-danger">
+            Reject registration
+          </button>
+        </div>
       </Modal>
 
       <ConfirmDialog

@@ -26,6 +26,15 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Panel revision: every visible checkbox is the same size and never shrinks next to long labels. */
+input[type='checkbox']:not(.sr-only) {
+  width: 1.125rem;
+  height: 1.125rem;
+  flex-shrink: 0;
+  margin-top: 0.125rem;
+  cursor: pointer;
+}
+
 /* Accessibility mode: larger text. Tailwind sizes are rem-based, so the whole UI scales. */
 html.a11y-large {
   font-size: 118.75%;

@@ -21,6 +21,7 @@ router.post('/', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.createU
 router.get('/:id', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.getUser);
 router.patch('/:id', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.updateUser);
 router.patch('/:id/verify', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.verifyResident);
+router.patch('/:id/approval', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.reviewRegistration);
 router.patch('/:id/toggle-active', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.toggleActive);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.archiveUser);
 router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.restoreUser);

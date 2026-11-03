@@ -1,5 +1,5 @@
 import { MapContainer, TileLayer, CircleMarker, Polyline, Polygon, useMapEvents } from 'react-leaflet';
-import { DEFAULT_MAP_CENTER } from '../../utils/constants';
+import { DEFAULT_MAP_CENTER, MAP_LIMITS } from '../../utils/constants';
 
 const ClickHandler = ({ onAdd }) => {
   useMapEvents({ click: (e) => onAdd([e.latlng.lat, e.latlng.lng]) });
@@ -29,7 +29,7 @@ const ShapePicker = ({ kind, points, onChange, center = DEFAULT_MAP_CENTER, colo
         </span>
       </div>
       <div style={{ height: '18rem' }} className="relative z-0">
-        <MapContainer center={points[0] || center} zoom={16} style={{ height: '100%', width: '100%' }}>
+        <MapContainer center={points[0] || center} zoom={16} {...MAP_LIMITS} style={{ height: '100%', width: '100%' }}>
           <TileLayer attribution="&copy; OpenStreetMap contributors" url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
           <ClickHandler onAdd={add} />
           {kind === 'LineString' && points.length > 1 && <Polyline positions={points} pathOptions={{ color, weight: 5 }} />}
