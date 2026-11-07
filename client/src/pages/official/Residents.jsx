@@ -13,6 +13,8 @@ import Pagination from '../../components/common/Pagination';
 import { TableSkeleton } from '../../components/common/Skeleton';
 
 const INACTIVE_AFTER_DAYS = 90;
+// Panel revision: Status and Actions columns are centered.
+const CENTERED = ['Status', 'Actions'];
 
 // Suspended = deactivated by an admin; Inactive = no login for 90 days; otherwise Active.
 const accountStatus = (u) => {
@@ -103,8 +105,8 @@ const Residents = () => {
           <h2 className="font-display text-2xl font-bold">Resident Management</h2>
           <p className="text-sm text-gray-500">{meta.total ?? '—'} registered residents</p>
         </div>
-        <div className="flex gap-2">
-          <select value={filter} onChange={(e) => applyFilter(e.target.value)} className="input-field w-auto !py-2" aria-label="Filter by status">
+        <div className="flex max-w-full flex-wrap gap-2">
+          <select value={filter} onChange={(e) => applyFilter(e.target.value)} className="input-field w-auto max-w-full !py-2" aria-label="Filter by status">
             <option value="all">All Status</option>
             <option value="pending">Awaiting approval</option>
             <option value="rejected">Rejected registrations</option>
@@ -145,7 +147,7 @@ const Residents = () => {
             <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/60">
               <tr>
                 {['Resident', 'ID', 'Purok', 'Role', 'RBI', 'Status', 'Registered', 'Actions'].map((h) => (
-                  <th key={h} className="px-4 py-3 font-semibold">
+                  <th key={h} className={`px-4 py-3 font-semibold ${CENTERED.includes(h) ? 'text-center' : ''}`}>
                     {h}
                   </th>
                 ))}
@@ -184,7 +186,7 @@ const Residents = () => {
                       <span className="text-xs text-gray-400">Pending</span>
                     )}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-center">
                     {r.approvalStatus === 'pending' ? (
                       <Badge status="pending">Under review</Badge>
                     ) : r.approvalStatus === 'rejected' ? (
@@ -195,7 +197,7 @@ const Residents = () => {
                   </td>
                   <td className="px-4 py-3 text-xs">{format(new Date(r.createdAt), 'MMM dd, yyyy')}</td>
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-1 text-gray-500">
+                    <div className="flex items-center justify-center gap-1 text-gray-500">
                       {r.approvalStatus === 'pending' && (
                         <button onClick={() => setViewing(r)} className="mr-1 rounded-lg bg-amber-500 px-2 py-1 text-xs font-semibold text-white hover:bg-amber-600">
                           Review

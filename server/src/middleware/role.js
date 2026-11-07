@@ -12,6 +12,13 @@ const restrictTo =
     next();
   };
 
+/** Super admin only (an admin account flagged isSuperAdmin). */
+const requireSuperAdmin = (req, _res, next) => {
+  if (!req.user) return next(ApiError.unauthorized());
+  if (!req.user.isSuperAdmin) return next(ApiError.forbidden('Only the super admin can perform this action.'));
+  next();
+};
+
 /**
  * Fine-grained permission check for custom roles created via Role/Permission
  * collections. Admins always pass. Falls back gracefully if the user's role
@@ -28,4 +35,4 @@ const requirePermission = (permissionKey) => async (req, _res, next) => {
   next();
 };
 
-module.exports = { restrictTo, requirePermission };
+module.exports = { restrictTo, requirePermission, requireSuperAdmin };

@@ -5,6 +5,7 @@ import { FiDownload, FiUpload, FiDatabase, FiAlertTriangle, FiClock } from 'reac
 import api from '../../utils/api';
 import { downloadFile } from '../../utils/download';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
+import { useAuth } from '../../contexts/AuthContext';
 
 /** Automated daily snapshots kept on the server (latest 7), plus an on-demand run. */
 const AutoBackups = () => {
@@ -69,6 +70,7 @@ const AutoBackups = () => {
 };
 
 const Backup = () => {
+  const { user } = useAuth();
   const [file, setFile] = useState(null);
   const [confirming, setConfirming] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -136,10 +138,16 @@ const Backup = () => {
           <FiAlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           Restoring will overwrite existing data for any collection present in the uploaded file. This action cannot be undone.
         </div>
-        <input type="file" accept="application/json" onChange={(e) => setFile(e.target.files[0])} className="input-field mb-4" />
-        <button onClick={() => setConfirming(true)} disabled={!file} className="btn-danger">
-          <FiUpload /> Restore Backup
-        </button>
+        {user?.isSuperAdmin ? (
+          <>
+            <input type="file" accept="application/json" onChange={(e) => setFile(e.target.files[0])} className="input-field mb-4" />
+            <button onClick={() => setConfirming(true)} disabled={!file} className="btn-danger">
+              <FiUpload /> Restore Backup
+            </button>
+          </>
+        ) : (
+          <p className="text-sm text-gray-500 dark:text-gray-400">Only the super admin can restore a backup.</p>
+        )}
       </div>
 
       <AutoBackups />

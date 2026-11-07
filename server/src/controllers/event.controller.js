@@ -129,11 +129,6 @@ const joinEvent = catchAsync(async (req, res) => {
   if (!event) throw ApiError.notFound('Event not found');
   if (event.status === EVENT_STATUS.CANCELLED) throw ApiError.badRequest('This event has been cancelled.');
 
-  if (event.capacity > 0) {
-    const count = await EventRegistration.countDocuments({ event: event._id });
-    if (count >= event.capacity) throw ApiError.badRequest('This event has reached full capacity.');
-  }
-
   const existing = await EventRegistration.findOne({ event: event._id, resident: req.user._id });
   if (existing) throw ApiError.conflict('You are already registered for this event.');
 

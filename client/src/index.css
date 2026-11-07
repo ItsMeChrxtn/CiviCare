@@ -173,12 +173,12 @@ h1, h2, h3, .font-display {
     @apply text-sm text-gray-500 dark:text-gray-400;
   }
 
-  /* Portal chrome, matching the landing page hero (green into teal). */
+  /* Portal chrome: solid CiviCare green, shared by the top bar and the sidebar brand corner. */
   .shell-topbar {
-    @apply bg-gradient-to-r from-primary-800 via-primary-700 to-teal-600;
+    @apply bg-primary-800;
   }
 
   .hero-panel {
-    @apply relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary-800 via-primary-700 to-teal-600 text-white shadow-card;
+    @apply relative overflow-hidden rounded-2xl bg-primary-800 text-white shadow-card;
   }
 }

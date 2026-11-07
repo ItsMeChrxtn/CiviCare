@@ -32,7 +32,7 @@ const EventsList = () => {
                     <img src={e.coverImage.url} alt={e.title} className="h-40 w-full object-cover transition duration-300 group-hover:scale-105" />
                   </div>
                 ) : (
-                  <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 text-primary-300 dark:from-primary-500/10 dark:to-primary-500/5 dark:text-primary-500/40">
+                  <div className="flex h-40 w-full items-center justify-center bg-primary-50 text-primary-300 dark:bg-primary-500/10 dark:text-primary-500/40">
                     <FiCalendar className="h-8 w-8" />
                   </div>
                 )}

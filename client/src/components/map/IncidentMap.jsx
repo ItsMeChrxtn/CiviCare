@@ -45,7 +45,7 @@ const IncidentMap = ({ height = '22rem' }) => {
                   <p className="font-mono text-[10px] text-gray-500">{i.referenceCode}</p>
                   <p className="font-semibold">{categoryLabel(i.category)}</p>
                   <p className="text-xs capitalize">
-                    {i.status === 'assigned' ? 'ongoing' : i.status} · {i.severity === 'moderate' ? 'medium' : i.severity} priority
+                    {i.status === 'assigned' ? 'ongoing' : i.status} · {i.severity ? `${i.severity === 'moderate' ? 'medium' : i.severity} priority` : 'priority not assessed'}
                   </p>
                   <p className="text-xs text-gray-500">{formatDistanceToNow(new Date(i.createdAt), { addSuffix: true })}</p>
                   <Link to={`/official/incidents/${i._id}`} className="text-xs font-semibold">

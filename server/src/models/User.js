@@ -59,6 +59,9 @@ const userSchema = new mongoose.Schema(
       default: ROLES.RESIDENT,
     },
     position: { type: String, trim: true }, // e.g. "Barangay Captain", "SK Chairman" (officials only)
+    // Super admin: an admin with full control who alone can add/manage admin accounts and
+    // restore archived residents and announcements. Never settable through the API.
+    isSuperAdmin: { type: Boolean, default: false },
 
     qrCode: { type: String, unique: true, sparse: true }, // unique id used for event attendance / verification
 

@@ -12,7 +12,7 @@ const { deliverSms } = require('../services/sms.service');
 const { writeLog } = require('../services/log.service');
 const { findOwnActiveReportNearby, findCorroboratingReports, scoreReport } = require('../services/incidentVerification.service');
 const { emitToRole } = require('../config/socket');
-const { INCIDENT_STATUS, NOTIFICATION_TYPE, ROLES, INCIDENT_VALIDATION_THRESHOLD } = require('../config/constants');
+const { INCIDENT_STATUS, INCIDENT_SEVERITY, NOTIFICATION_TYPE, ROLES, INCIDENT_VALIDATION_THRESHOLD } = require('../config/constants');
 
 const CATEGORY_LABELS = {
   fire: 'Fire Hazard',
@@ -53,7 +53,7 @@ const emitIncidentChange = (event, incident) => {
 
 // @route POST /api/incidents (resident)
 const createIncident = catchAsync(async (req, res) => {
-  const { category, severity, lat, lng, address } = req.body;
+  const { category, lat, lng, address } = req.body;
   const title = req.body.title?.trim() || CATEGORY_LABELS[category] || 'Incident report';
   const description = req.body.description?.trim() || '';
   const coordinates = [Number(lng), Number(lat)];
@@ -85,7 +85,6 @@ const createIncident = catchAsync(async (req, res) => {
     title,
     description,
     category,
-    severity,
     location: { type: 'Point', coordinates, address },
     images,
     reportCount,
@@ -107,7 +106,7 @@ const createIncident = catchAsync(async (req, res) => {
     role: ROLES.OFFICIAL,
     type: NOTIFICATION_TYPE.INCIDENT,
     title: 'New incident reported',
-    message: `${req.user.fullName} reported: ${title} (${severity})`,
+    message: `${req.user.fullName} reported: ${title}`,
     link: `/official/incidents/${incident._id}`,
     relatedId: incident._id,
   });
@@ -124,7 +123,7 @@ const createIncident = catchAsync(async (req, res) => {
     numbers: officials.map((o) => o.phone),
     purpose: 'incident_alert',
     sentBy: req.user._id,
-    message: `[CiviCare ALERT] New ${severity.toUpperCase()} priority report ${referenceCode}: ${title}${
+    message: `[CiviCare ALERT] New report ${referenceCode}: ${title}${
       address ? ` at ${address}` : ''
     }. Check the officials dashboard.`,
   });
@@ -265,6 +264,22 @@ const assignIncident = catchAsync(async (req, res) => {
 });
 
 // @route PATCH /api/incidents/:id/status (official)
+const updateIncidentSeverity = catchAsync(async (req, res) => {
+  const { severity } = req.body;
+  if (!Object.values(INCIDENT_SEVERITY).includes(severity)) throw ApiError.badRequest('Invalid priority');
+
+  const incident = await Incident.findById(req.params.id);
+  if (!incident) throw ApiError.notFound('Incident not found');
+
+  incident.severity = severity;
+  await incident.save();
+  emitIncidentChange('incident:updated', incident);
+
+  await writeLog({ req, action: 'INCIDENT_PRIORITY', module: 'incidents', description: `${incident.referenceCode} assessed as ${severity}` });
+
+  res.status(200).json(new ApiResponse(200, incident, 'Priority updated'));
+});
+
 const updateIncidentStatus = catchAsync(async (req, res) => {
   const { status, note } = req.body;
   const allowed = [INCIDENT_STATUS.PENDING, INCIDENT_STATUS.ONGOING, INCIDENT_STATUS.RESOLVED];
@@ -338,7 +353,7 @@ const getIncidentStats = catchAsync(async (_req, res) => {
   const [byStatus, byCategory, bySeverity, total] = await Promise.all([
     Incident.aggregate([{ $match: { isArchived: false } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
     Incident.aggregate([{ $match: { isArchived: false } }, { $group: { _id: '$category', count: { $sum: 1 } } }]),
-    Incident.aggregate([{ $match: { isArchived: false } }, { $group: { _id: '$severity', count: { $sum: 1 } } }]),
+    Incident.aggregate([{ $match: { isArchived: false, severity: { $exists: true, $ne: null } } }, { $group: { _id: '$severity', count: { $sum: 1 } } }]),
     Incident.countDocuments({ isArchived: false }),
   ]);
   res.status(200).json(new ApiResponse(200, { total, byStatus, byCategory, bySeverity }));
@@ -351,6 +366,7 @@ module.exports = {
   getIncident,
   assignIncident,
   updateIncidentStatus,
+  updateIncidentSeverity,
   addInternalNote,
   archiveIncident,
   restoreIncident,

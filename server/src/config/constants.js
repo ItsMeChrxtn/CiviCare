@@ -73,6 +73,17 @@ const DONATION_STATUS = Object.freeze({
   CANCELLED: 'cancelled', // withdrawn by the resident before the barangay received it
 });
 
+const DONATION_DELIVERY = Object.freeze({
+  DROPOFF: 'dropoff', // resident brings it to the Barangay Hall
+  PICKUP: 'pickup', // barangay staff collect it from the registered address
+});
+
+const DONATION_CONDITION = Object.freeze({
+  NEW: 'new',
+  GENTLY_USED: 'gently_used',
+  USED: 'used',
+});
+
 const EVENT_STATUS = Object.freeze({
   UPCOMING: 'upcoming',
   ONGOING: 'ongoing',
@@ -148,6 +159,8 @@ module.exports = {
   DOCUMENT_STATUS,
   DONATION_TYPE,
   DONATION_STATUS,
+  DONATION_DELIVERY,
+  DONATION_CONDITION,
   EVENT_STATUS,
   HAZARD_LAYER,
   NOTIFICATION_TYPE,

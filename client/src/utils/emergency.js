@@ -32,4 +32,9 @@ export const weatherAlerts = (weather) => {
   return list;
 };
 
-export const currentAlerts = (emergency, weather) => [...activeAlerts(emergency), ...weatherAlerts(weather)];
+// Panel revision: the Emergency Alerts panel exists only while the admin has set an emergency;
+// live weather alerts ride along but never open it on their own.
+export const currentAlerts = (emergency, weather) => {
+  const set = activeAlerts(emergency);
+  return set.length ? [...set, ...weatherAlerts(weather)] : [];
+};

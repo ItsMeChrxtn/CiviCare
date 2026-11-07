@@ -28,7 +28,7 @@ const Events = () => {
   }, []);
 
   const openCreate = () => {
-    reset({ title: '', description: '', category: 'community', location: '', startDate: '', endDate: '', capacity: 0 });
+    reset({ title: '', description: '', category: 'community', location: '', startDate: '', endDate: '' });
     setModalItem({});
   };
   const openEdit = (item) => {
@@ -39,7 +39,6 @@ const Events = () => {
       location: item.location,
       startDate: toInputDate(item.startDate),
       endDate: toInputDate(item.endDate),
-      capacity: item.capacity,
     });
     setModalItem(item);
   };
@@ -125,8 +124,7 @@ const Events = () => {
               header: 'Participants',
               accessor: (r) => (
                 <span className="badge bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400">
-                  {r.participantCount ?? 0}
-                  {r.capacity ? ` / ${r.capacity}` : ''} Participants
+                  {r.participantCount ?? 0} Participants
                 </span>
               ),
             },
@@ -217,15 +215,9 @@ const Events = () => {
               <input type="datetime-local" {...register('endDate', { required: true })} className="input-field" />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-sm font-medium">Capacity (0 = unlimited)</label>
-              <input type="number" min="0" {...register('capacity')} className="input-field" />
-            </div>
-            <div>
-              <label className="mb-1 block text-sm font-medium">Cover Image</label>
-              <input type="file" accept="image/*" onChange={(e) => setCoverImage(e.target.files[0])} className="input-field" />
-            </div>
+          <div>
+            <label className="mb-1 block text-sm font-medium">Cover Image</label>
+            <input type="file" accept="image/*" onChange={(e) => setCoverImage(e.target.files[0])} className="input-field" />
           </div>
           <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
             {isSubmitting ? 'Saving...' : modalItem?._id ? 'Update Event' : 'Create Event'}

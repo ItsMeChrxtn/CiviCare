@@ -60,7 +60,7 @@ const Field = ({ id, label, error, optional, children }) => (
 const ResidentGate = ({ onContinue, onLeave, t }) => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm">
     <div role="dialog" aria-modal="true" aria-labelledby="gate-title" className="w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-gray-900">
-      <div className="bg-gradient-to-br from-[#1f3a5f] to-[#2c4a6e] px-6 pb-6 pt-8 text-center text-white">
+      <div className="bg-primary-800 px-6 pb-6 pt-8 text-center text-white">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full border border-white/20 bg-white/10 text-4xl text-amber-400">
           <FiHome />
         </div>

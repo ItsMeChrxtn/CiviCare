@@ -202,14 +202,16 @@ const EmergencyHub = () => {
       {!inPortal && <h1 className="mb-6 text-center font-display text-3xl font-extrabold">{t('hub.title')}</h1>}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[15rem_1fr_1fr_17rem]">
-        <Panel className="order-1 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-4 xl:row-start-2">
-          <h2 className="mb-3 flex items-center gap-2 font-display font-bold">
-            <FiBell className="text-red-500" /> {t('hub.alerts')}
-          </h2>
-          <AlertList alerts={alerts} />
-        </Panel>
+        {alerts.length > 0 && (
+          <Panel className="order-1 md:col-span-2 xl:order-none xl:col-span-1 xl:col-start-4 xl:row-start-2">
+            <h2 className="mb-3 flex items-center gap-2 font-display font-bold">
+              <FiBell className="text-red-500" /> {t('hub.alerts')}
+            </h2>
+            <AlertList alerts={alerts} />
+          </Panel>
+        )}
 
-        <section aria-label={t('hub.map')} className="order-2 md:col-span-2 xl:order-none xl:col-start-2 xl:row-start-2">
+        <section aria-label={t('hub.map')} className={`order-2 md:col-span-2 xl:order-none xl:col-start-2 xl:row-start-2 ${alerts.length > 0 ? 'xl:col-span-2' : 'xl:col-span-3'}`}>
           <HazardMap height="26rem" showLegend={false} center={center} />
         </section>
 

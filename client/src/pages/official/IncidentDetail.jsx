@@ -10,7 +10,7 @@ import Badge from '../../components/common/Badge';
 import ReportCredibility from '../../components/incidents/ReportCredibility';
 import TicketTracker from '../../components/incidents/TicketTracker';
 import StaticPinMap from '../../components/map/StaticPinMap';
-import { INCIDENT_PIN_COLORS, categoryLabel } from '../../utils/constants';
+import { INCIDENT_PIN_COLORS, PRIORITY_OPTIONS, categoryLabel } from '../../utils/constants';
 
 const STATUS_OPTIONS = ['pending', 'ongoing', 'resolved'];
 
@@ -98,6 +98,19 @@ const IncidentDetail = () => {
     }
   };
 
+  const handlePriority = async (severity) => {
+    setBusy(true);
+    try {
+      await api.patch(`/incidents/${id}/severity`, { severity });
+      toast.success('Priority updated');
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to update priority');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const handleStatusUpdate = async () => {
     if (!statusForm.status) return toast.error('Select a status first');
     setBusy(true);
@@ -139,8 +152,23 @@ const IncidentDetail = () => {
                 )}
               </p>
             </div>
-            <div className="flex gap-2">
-              <Badge status={incident.severity} />
+            <div className="flex flex-wrap items-center gap-2">
+              <select
+                value={incident.severity || ''}
+                onChange={(e) => handlePriority(e.target.value)}
+                disabled={busy}
+                aria-label="Priority (set by the responder)"
+                className="input-field w-auto !py-1 text-xs"
+              >
+                <option value="" disabled>
+                  Set priority
+                </option>
+                {PRIORITY_OPTIONS.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {p.label} priority
+                  </option>
+                ))}
+              </select>
               <Badge status={incident.status} />
             </div>
           </div>

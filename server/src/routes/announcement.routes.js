@@ -1,7 +1,7 @@
 const express = require('express');
 const announcementController = require('../controllers/announcement.controller');
 const { protect, optionalAuth } = require('../middleware/auth');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const upload = require('../middleware/upload');
 const { ROLES } = require('../config/constants');
 
@@ -14,6 +14,7 @@ router.use(protect, restrictTo(ROLES.ADMIN, ROLES.OFFICIAL));
 router.post('/', upload.single('coverImage'), announcementController.createAnnouncement);
 router.patch('/:id', upload.single('coverImage'), announcementController.updateAnnouncement);
 router.patch('/:id/archive', announcementController.archiveAnnouncement);
-router.patch('/:id/restore', announcementController.restoreAnnouncement);
+// Panel revision: only the super admin can unarchive announcements.
+router.patch('/:id/restore', requireSuperAdmin, announcementController.restoreAnnouncement);
 
 module.exports = router;

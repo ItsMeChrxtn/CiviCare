@@ -59,13 +59,19 @@ const Topbar = ({ onMenuClick }) => {
   const navItem = findNavItem(user?.role, pathname);
   const alerts = activeAlerts(emergency);
   const isResident = user?.role === 'resident';
-  const idLabel = isResident ? t('shell.residentId') : user?.role === 'admin' ? t('shell.adminId') : t('shell.officialId');
+  const idLabel = isResident
+    ? t('shell.residentId')
+    : user?.isSuperAdmin
+      ? t('shell.superAdminId')
+      : user?.role === 'admin'
+        ? t('shell.adminId')
+        : t('shell.officialId');
   const hubPath = isResident ? '/resident/emergency-hub' : '/official/broadcast';
 
   return (
     <header
       ref={ref}
-      className="shell-topbar sticky top-0 z-20 flex items-center gap-2 px-2 py-2 text-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.25)] sm:px-3 sm:py-2.5 lg:px-6"
+      className="shell-topbar sticky top-0 z-20 flex h-16 items-center gap-2 px-2 text-white shadow-[0_2px_12px_-4px_rgba(0,0,0,0.25)] sm:px-3 lg:px-6"
     >
       <button onClick={onMenuClick} className={`${iconBtn} lg:hidden`} aria-label="Open menu">
         <FiMenu className="h-5 w-5" />
@@ -143,6 +149,7 @@ const Topbar = ({ onMenuClick }) => {
           </Dropdown>
         </div>
 
+        {(!isResident || alerts.length > 0) && (
         <div className="relative">
           <button onClick={() => toggle('alerts')} className={iconBtn} aria-label={t('shell.alerts')} title={t('shell.alerts')}>
             <FiAlertTriangle className="h-5 w-5" />
@@ -166,6 +173,7 @@ const Topbar = ({ onMenuClick }) => {
             </Link>
           </Dropdown>
         </div>
+        )}
 
         <div className="relative">
           <button onClick={() => toggle('notifs')} className={iconBtn} aria-label={t('nav.notifications')}>

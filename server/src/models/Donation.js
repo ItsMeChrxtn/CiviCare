@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { DONATION_TYPE, DONATION_STATUS } = require('../config/constants');
+const { DONATION_TYPE, DONATION_STATUS, DONATION_DELIVERY, DONATION_CONDITION } = require('../config/constants');
 
 const donationSchema = new mongoose.Schema(
   {
@@ -10,6 +10,13 @@ const donationSchema = new mongoose.Schema(
     description: { type: String, trim: true }, // e.g. "20 sacks of rice"
     quantity: { type: String, trim: true }, // free text, e.g. "20 sacks" or amount label
     amount: { type: Number, default: 0 }, // used when type = cash
+    itemCondition: { type: String, enum: Object.values(DONATION_CONDITION) }, // not used for cash
+
+    // Panel revision: how the resident hands the donation over. Older pledges have none of these.
+    deliveryMethod: { type: String, enum: Object.values(DONATION_DELIVERY) },
+    targetDate: { type: Date },
+    contactNumber: { type: String, trim: true },
+    pickupAddress: { type: String, trim: true },
 
     proofImage: {
       url: { type: String, default: '' },

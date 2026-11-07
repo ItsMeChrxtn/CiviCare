@@ -28,7 +28,7 @@ const AnnouncementsList = () => {
                     <img src={a.coverImage.url} alt={a.title} className="h-40 w-full object-cover transition duration-300 group-hover:scale-105" />
                   </div>
                 ) : (
-                  <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 text-primary-300 dark:from-primary-500/10 dark:to-primary-500/5 dark:text-primary-500/40">
+                  <div className="flex h-40 w-full items-center justify-center bg-primary-50 text-primary-300 dark:bg-primary-500/10 dark:text-primary-500/40">
                     <FiEye className="h-8 w-8" />
                   </div>
                 )}
@@ -40,7 +40,7 @@ const AnnouncementsList = () => {
                   <h3 className="mb-1 line-clamp-2 font-display font-bold tracking-tight">{a.title}</h3>
                   <p className="line-clamp-2 text-sm text-gray-500 dark:text-gray-400">{a.content}</p>
                   <div className="mt-3 flex items-center justify-between text-xs text-gray-400 dark:text-gray-500">
-                    <span>{format(new Date(a.createdAt), 'MMM d, yyyy')}</span>
+                    <span>Posted {format(new Date(a.createdAt), 'MMM d, yyyy')}</span>
                     <span className="flex items-center gap-1"><FiEye /> {a.views}</span>
                   </div>
                 </div>

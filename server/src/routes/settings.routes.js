@@ -1,7 +1,7 @@
 const express = require('express');
 const settingsController = require('../controllers/settings.controller');
 const { protect, optionalAuth } = require('../middleware/auth');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const { ROLES } = require('../config/constants');
 const upload = require('../middleware/upload');
 
@@ -18,7 +18,8 @@ router.get('/', settingsController.getAllSettings);
 router.post('/upload', upload.single('image'), settingsController.uploadImage);
 router.put('/:key', settingsController.updateSetting);
 router.get('/backup/export', settingsController.exportBackup);
-router.post('/backup/restore', settingsController.restoreBackup);
+// Panel revision: a restore can bring back archived residents and announcements, so it is super admin only.
+router.post('/backup/restore', requireSuperAdmin, settingsController.restoreBackup);
 router.get('/backup/auto', settingsController.getAutoBackups);
 router.post('/backup/auto', settingsController.runBackupNow);
 router.get('/backup/auto/:name', settingsController.downloadAutoBackup);

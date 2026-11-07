@@ -30,7 +30,7 @@ import {
  */
 export const RESIDENT_NAV = {
   main: [
-    { to: '/resident', labelKey: 'nav.dashboard', icon: FiHome, end: true },
+    { to: '/resident', labelKey: 'nav.overview', icon: FiHome, end: true },
     { to: '/resident/announcements', labelKey: 'nav.announcements', icon: FiVolume2 },
     { to: '/resident/incidents', labelKey: 'nav.incidentReporting', icon: FiAlertCircle },
     { to: '/resident/documents', labelKey: 'nav.serviceRequest', icon: FiFileText },
@@ -61,7 +61,7 @@ const STAFF_MORE = [
 ];
 
 export const OFFICIAL_NAV = {
-  main: [{ to: '/official', labelKey: 'nav.overview', icon: FiHome, end: true }, ...STAFF_MAIN],
+  main: [{ to: '/official', labelKey: 'nav.dashboard', icon: FiHome, end: true }, ...STAFF_MAIN],
   more: [
     ...STAFF_MORE,
     { to: '/official/users', labelKey: 'nav.manageUsers', icon: FiUsers },
@@ -69,7 +69,7 @@ export const OFFICIAL_NAV = {
 };
 
 export const ADMIN_NAV = {
-  main: [{ to: '/admin', labelKey: 'nav.overview', icon: FiHome, end: true }, ...STAFF_MAIN],
+  main: [{ to: '/admin', labelKey: 'nav.dashboard', icon: FiHome, end: true }, ...STAFF_MAIN],
   more: STAFF_MORE,
   system: [
     { to: '/admin/status', labelKey: 'nav.status', icon: FiBarChart2 },

@@ -43,23 +43,17 @@ export default {
       backdropBlur: {
         xs: '2px',
       },
-      backgroundImage: {
-        'grid-slate': 'linear-gradient(to right, rgba(148,163,184,0.08) 1px, transparent 1px), linear-gradient(to bottom, rgba(148,163,184,0.08) 1px, transparent 1px)',
-        'radial-fade': 'radial-gradient(circle at top, rgb(var(--primary-500) / 0.14), transparent 60%)',
-      },
       keyframes: {
         fadeIn: { from: { opacity: 0 }, to: { opacity: 1 } },
         slideUp: { from: { opacity: 0, transform: 'translateY(12px)' }, to: { opacity: 1, transform: 'translateY(0)' } },
         scaleIn: { from: { opacity: 0, transform: 'scale(0.96)' }, to: { opacity: 1, transform: 'scale(1)' } },
         float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-8px)' } },
-        shimmer: { '0%': { backgroundPosition: '-200% 0' }, '100%': { backgroundPosition: '200% 0' } },
       },
       animation: {
         fadeIn: 'fadeIn 0.5s ease-out both',
         slideUp: 'slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both',
         scaleIn: 'scaleIn 0.3s cubic-bezier(0.16,1,0.3,1) both',
         float: 'float 6s ease-in-out infinite',
-        shimmer: 'shimmer 2.5s linear infinite',
       },
     },
   },

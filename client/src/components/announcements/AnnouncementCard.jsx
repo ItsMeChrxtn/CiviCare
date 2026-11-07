@@ -1,4 +1,4 @@
-import { formatDistanceToNow } from 'date-fns';
+import { format, formatDistanceToNow } from 'date-fns';
 import { FiClock, FiMapPin } from 'react-icons/fi';
 import { usePreferences } from '../../contexts/PreferencesContext';
 
@@ -18,7 +18,7 @@ const AnnouncementCard = ({ item, large = false }) => {
           {item.isPinned && <FiMapPin className="h-3.5 w-3.5 text-primary-600" aria-label="Pinned" />}
         </div>
         <p className="flex items-center gap-1 text-[11px] text-gray-400">
-          <FiClock className="h-3 w-3" /> {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+          <FiClock className="h-3 w-3" /> {t('dash.posted', { date: format(new Date(item.createdAt), 'MMM d, yyyy') })} · {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
         </p>
         <p className={`mt-2 whitespace-pre-line text-gray-800 dark:text-gray-200 ${large ? 'text-base' : 'text-[13px]'}`}>
           <span aria-hidden="true">{CATEGORY_EMOJI[item.category] || '📢'} </span>

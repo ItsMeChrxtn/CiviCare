@@ -27,7 +27,6 @@ const eventSchema = new mongoose.Schema(
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
 
-    capacity: { type: Number, default: 0 }, // 0 = unlimited
     status: { type: String, enum: Object.values(EVENT_STATUS), default: EVENT_STATUS.UPCOMING },
 
     organizedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },

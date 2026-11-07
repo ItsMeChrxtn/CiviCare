@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/user.controller');
 const { protect } = require('../middleware/auth');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const upload = require('../middleware/upload');
 const { ROLES } = require('../config/constants');
 
@@ -24,7 +24,8 @@ router.patch('/:id/verify', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userControl
 router.patch('/:id/approval', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.reviewRegistration);
 router.patch('/:id/toggle-active', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.toggleActive);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.archiveUser);
-router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), userController.restoreUser);
+// Panel revision: only the super admin can unarchive residents/users.
+router.patch('/:id/restore', requireSuperAdmin, userController.restoreUser);
 router.delete('/:id', restrictTo(ROLES.ADMIN), userController.deleteUser);
 
 module.exports = router;

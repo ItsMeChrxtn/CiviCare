@@ -39,7 +39,7 @@ const AnnouncementDetail = () => {
       <span className="badge bg-primary-50 text-primary-700 dark:bg-primary-500/10 dark:text-primary-400 capitalize">{announcement.category}</span>
       <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight">{announcement.title}</h1>
       <p className="mt-2 text-sm text-gray-400 dark:text-gray-500">
-        {format(new Date(announcement.createdAt), 'MMMM d, yyyy')} • Posted by {announcement.postedBy?.firstName} {announcement.postedBy?.lastName}
+        Posted {format(new Date(announcement.createdAt), 'MMMM d, yyyy')} by {announcement.postedBy?.firstName} {announcement.postedBy?.lastName}
       </p>
       <div className="prose prose-gray dark:prose-invert mt-6 max-w-none whitespace-pre-line text-gray-600 dark:text-gray-300">
         {announcement.content}

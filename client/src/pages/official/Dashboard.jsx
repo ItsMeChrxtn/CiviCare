@@ -95,7 +95,7 @@ const OfficialDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <form onSubmit={publish} className="flex flex-col rounded-2xl bg-gradient-to-br from-primary-800 to-teal-600 p-3 shadow-card">
+        <form onSubmit={publish} className="flex flex-col rounded-2xl bg-primary-800 p-3 shadow-card">
           <h2 className="py-2 text-center font-display text-xl font-bold text-white">Announcement</h2>
           <div className="flex flex-1 flex-col rounded-lg bg-[#fbf8ec] p-4 dark:bg-gray-900">
             <input
@@ -145,7 +145,7 @@ const OfficialDashboard = () => {
           </div>
         </form>
 
-        <section className="rounded-2xl bg-gradient-to-br from-primary-800 to-teal-600 p-3 shadow-card">
+        <section className="rounded-2xl bg-primary-800 p-3 shadow-card">
           <div className="rounded-lg bg-white p-4 dark:bg-gray-900">
             <div className="mb-2 flex items-center justify-between">
               <h2 className="font-display font-bold">Recent Incidents</h2>
@@ -164,7 +164,7 @@ const OfficialDashboard = () => {
                     <Link to={`/official/incidents/${i._id}`} className="flex items-center justify-between gap-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                       <div className="min-w-0">
                         <p className="flex items-center gap-2 text-[11px] text-gray-400">
-                          {i.referenceCode} <Badge status={i.severity} />
+                          {i.referenceCode} <Badge status={i.severity || 'not_assessed'} />
                         </p>
                         <p className="font-semibold">{categoryLabel(i.category)}</p>
                         <p className="truncate text-xs text-gray-500">

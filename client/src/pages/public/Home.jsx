@@ -97,16 +97,14 @@ const Home = () => {
 
   return (
     <div>
-      {/* Hero: Barangay Hall photo set by the admin (Settings > General), green gradient until one is uploaded */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary-800 via-primary-700 to-teal-600 text-white">
+      {/* Hero: Barangay Hall photo set by the admin (Settings > General), solid green until one is uploaded */}
+      <section className="relative overflow-hidden bg-primary-800 text-white">
         {heroImage && (
           <>
             <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-950/85 via-primary-900/70 to-black/50" />
+            <div className="absolute inset-0 bg-primary-950/75" />
           </>
         )}
-        <div className="absolute inset-0 bg-grid-slate bg-[length:32px_32px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_0%,black,transparent)]" />
-        <div className="absolute right-0 top-0 h-96 w-96 animate-float rounded-full bg-primary-300/20 blur-3xl" />
 
         <div className="relative mx-auto max-w-7xl px-4 pb-20 pt-14 lg:px-8 lg:pb-24 lg:pt-20">
           <motion.div initial="hidden" animate="visible" variants={fadeUp} className="max-w-2xl">
@@ -132,17 +130,19 @@ const Home = () => {
 
       {/* Emergency Hub on the landing page, no login required (panel revision). Phones: Alerts -> Map -> Hotline. */}
       <section id="emergency" className="relative z-10 mx-auto -mt-12 max-w-7xl scroll-mt-20 px-4 lg:px-8">
-        <div className="grid grid-cols-1 gap-4 rounded-2xl bg-white p-4 shadow-card-hover ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10 sm:p-5 lg:grid-cols-[1fr_auto_1.3fr]">
-          <div>
-            <h2 className="mb-3 flex items-center gap-2 font-display font-bold">
-              <FiBell className="text-red-500" /> Emergency Alerts
-            </h2>
-            <AlertList alerts={alerts} />
-          </div>
+        <div className={`grid grid-cols-1 gap-4 rounded-2xl bg-white p-4 shadow-card-hover ring-1 ring-gray-900/5 dark:bg-gray-900 dark:ring-white/10 sm:p-5 ${alerts.length > 0 ? 'lg:grid-cols-[1fr_auto_1.3fr]' : 'lg:grid-cols-[auto_1fr]'}`}>
+          {alerts.length > 0 && (
+            <div>
+              <h2 className="mb-3 flex items-center gap-2 font-display font-bold">
+                <FiBell className="text-red-500" /> Emergency Alerts
+              </h2>
+              <AlertList alerts={alerts} />
+            </div>
+          )}
 
           <Link
             to="/emergency-hub"
-            className="flex items-center justify-center gap-3 rounded-xl bg-gradient-to-br from-primary-700 to-teal-600 p-4 text-white transition hover:brightness-110 lg:w-48 lg:flex-col lg:text-center"
+            className="flex items-center justify-center gap-3 rounded-xl bg-primary-700 p-4 text-white transition hover:brightness-110 lg:w-48 lg:flex-col lg:text-center"
           >
             <FiMap className="h-8 w-8 shrink-0" />
             <span>
@@ -214,7 +214,7 @@ const Home = () => {
               <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">{f.desc}</p>
             </motion.div>
           ))}
-          <div className="card mb-4 break-inside-avoid space-y-3 bg-gradient-to-br from-primary-700 to-teal-600 p-5 text-white">
+          <div className="card mb-4 break-inside-avoid space-y-3 bg-primary-700 p-5 text-white">
             {STATS.map((s) => (
               <div key={s.label} className="flex items-center gap-3">
                 <s.icon className="h-5 w-5 shrink-0 text-white/80" />
@@ -232,7 +232,7 @@ const Home = () => {
         <ol className="mt-8 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((step, i) => (
             <li key={step.title} className="card flex items-start gap-3 p-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-b from-primary-500 to-primary-600 text-white">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary-600 text-white">
                 <step.icon className="h-4 w-4" />
               </span>
               <span>
@@ -291,7 +291,7 @@ const Home = () => {
 
       {/* CTA */}
       <section className="mx-auto max-w-7xl px-4 pb-14 lg:px-8">
-        <div className="glass-card relative flex flex-col items-center justify-between gap-4 overflow-hidden bg-gradient-to-r from-primary-700 to-teal-600 p-8 text-center text-white sm:flex-row sm:text-left">
+        <div className="glass-card relative flex flex-col items-center justify-between gap-4 overflow-hidden bg-primary-700 p-8 text-center text-white sm:flex-row sm:text-left">
           <div className="relative">
             <h3 className="font-display text-2xl font-bold tracking-tight">Ready to get involved?</h3>
             <p className="mt-1 text-white/80">Create your free CiviCare account today.</p>

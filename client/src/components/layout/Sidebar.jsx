@@ -7,9 +7,11 @@ import { usePreferences } from '../../contexts/PreferencesContext';
 
 // Panel revision: every portal uses an off-white (#f5f4ef) sidebar, with green only as an accent.
 const THEME = {
-  aside: 'border-r border-gray-200 bg-[#f5f4ef] dark:border-gray-800 dark:bg-gray-900',
-  brand: 'border-gray-100 text-primary-800 dark:border-gray-800 dark:text-primary-300',
-  brandSub: 'text-gray-500 dark:text-gray-400',
+  aside: 'bg-[#f5f4ef] dark:bg-gray-900',
+  // Panel revision: the upper-left corner is part of the green top bar.
+  brand: 'shell-topbar text-white',
+  brandSub: 'text-white/75',
+  body: 'border-r border-gray-200 dark:border-gray-800',
   active:
     'bg-primary-50/80 text-primary-800 before:absolute before:inset-y-2 before:left-0 before:w-1 before:rounded-r-full before:bg-primary-600 dark:bg-primary-500/10 dark:text-primary-300',
   idle: 'text-gray-600 hover:bg-gray-100/80 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-800 dark:hover:text-white',
@@ -75,11 +77,11 @@ const Sidebar = ({ open, onClose }) => {
           type="button"
           onClick={onClose}
           aria-label="Close menu"
-          className="absolute right-2 top-4 rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 lg:hidden"
+          className="absolute right-2 top-3 z-10 rounded-lg p-2 text-white hover:bg-white/15 lg:hidden"
         >
           <FiX className="h-5 w-5" />
         </button>
-        <Link to={`/${user?.role}`} className={`flex items-center gap-2.5 border-b px-4 py-4 pr-12 lg:pr-4 ${theme.brand}`} onClick={onClose}>
+        <Link to={`/${user?.role}`} className={`flex h-16 shrink-0 items-center gap-2.5 px-4 pr-12 lg:pr-4 ${theme.brand}`} onClick={onClose}>
           <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white ring-2 ring-amber-300">
             <img src="/magdiwang-logo.jpeg" alt="Barangay Magdiwang seal" className="h-full w-full object-cover" />
           </span>
@@ -88,7 +90,7 @@ const Sidebar = ({ open, onClose }) => {
               CIVICARE
               {!isResident && (
                 <span className="ml-1.5 rounded-md bg-accent-400 px-1.5 py-0.5 align-middle text-[10px] font-bold uppercase tracking-wider text-primary-950">
-                  {user?.role === 'admin' ? 'Admin' : 'Official'}
+                  {user?.isSuperAdmin ? 'Super Admin' : user?.role === 'admin' ? 'Admin' : 'Official'}
                 </span>
               )}
             </span>
@@ -96,6 +98,7 @@ const Sidebar = ({ open, onClose }) => {
           </span>
         </Link>
 
+        <div className={`flex flex-1 flex-col ${theme.body}`}>
         <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Main">
           {nav.main.map((item) => (
             <NavItem key={item.to} item={item} onClose={onClose} t={t} theme={theme} />
@@ -106,6 +109,7 @@ const Sidebar = ({ open, onClose }) => {
 
         <div className="space-y-3 px-3 pb-4">
           <p className={`whitespace-pre-line px-1 text-[10px] font-medium leading-snug ${theme.footer}`}>{t('shell.footer')}</p>
+        </div>
         </div>
       </aside>
     </>

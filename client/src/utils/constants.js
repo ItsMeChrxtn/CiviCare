@@ -5,11 +5,12 @@ export const INCIDENT_STATUS = { PENDING: 'pending', ONGOING: 'ongoing', RESOLVE
 export const INCIDENT_STATUS_FLOW = ['pending', 'ongoing', 'resolved'];
 export const INCIDENT_SEVERITY = { LOW: 'low', MODERATE: 'moderate', HIGH: 'high', CRITICAL: 'critical' };
 
-// Priority buttons on the report screen map onto the stored severity values.
+// Panel revision: the responder sets the priority after reading the report; residents no longer choose one.
 export const PRIORITY_OPTIONS = [
-  { value: 'low', labelKey: 'priority.low', color: 'text-lime-400' },
-  { value: 'moderate', labelKey: 'priority.medium', color: 'text-orange-400' },
-  { value: 'high', labelKey: 'priority.high', color: 'text-red-500' },
+  { value: 'low', label: 'Low' },
+  { value: 'moderate', label: 'Medium' },
+  { value: 'high', label: 'High' },
+  { value: 'critical', label: 'Critical' },
 ];
 
 export const INCIDENT_CATEGORY = [
@@ -78,25 +79,20 @@ export const DONATION_TYPES = ['cash', 'goods', 'food', 'medicine', 'clothes'];
 export const DONATION_STATUS = { PLEDGED: 'pledged', RECEIVED: 'received', DISTRIBUTED: 'distributed', CANCELLED: 'cancelled' };
 export const DONATION_TYPE_LABELS = { cash: 'Cash', goods: 'Goods', food: 'Food', medicine: 'Medicine', clothes: 'Clothes' };
 
-// Commonly donated items shown as a checklist in the pledge form; `type` is the donation type it is filed under.
-export const DONATION_PRESETS = [
-  { key: 'rice', type: 'food', label: 'Rice', labelTl: 'Bigas' },
-  { key: 'canned', type: 'food', label: 'Canned Goods', labelTl: 'De-lata' },
-  { key: 'noodles', type: 'food', label: 'Instant Noodles', labelTl: 'Instant Noodles' },
-  { key: 'water', type: 'food', label: 'Bottled Water', labelTl: 'Bote ng Tubig' },
-  { key: 'medicine', type: 'medicine', label: 'Medicines', labelTl: 'Gamot' },
-  { key: 'firstaid', type: 'medicine', label: 'First Aid Kit', labelTl: 'First Aid Kit' },
-  { key: 'hygiene', type: 'goods', label: 'Hygiene Kits', labelTl: 'Hygiene Kit' },
-  { key: 'school', type: 'goods', label: 'School Supplies', labelTl: 'Gamit sa Paaralan' },
-  { key: 'clothes', type: 'clothes', label: 'Clothes', labelTl: 'Damit' },
-  { key: 'blankets', type: 'clothes', label: 'Blankets / Sleeping Mats', labelTl: 'Kumot / Banig' },
-];
+export const DONATION_CONDITIONS = ['new', 'gently_used', 'used'];
+export const DONATION_CONDITION_LABELS = { new: 'Brand New / Unopened', gently_used: 'Gently Used', used: 'Used - Good Condition' };
+export const DONATION_DELIVERY_LABELS = { dropoff: 'Drop-off at Barangay Hall', pickup: 'Home Pickup' };
 
 /** What was donated, e.g. "Medicine — 10 boxes paracetamol" or "Cash — ₱500". */
 export const donationDetails = (d) => {
   const what = d.type === 'cash' ? `₱${Number(d.amount || 0).toLocaleString()}` : d.quantity || '';
   return [DONATION_TYPE_LABELS[d.type] || d.type, what].filter(Boolean).join(' — ');
 };
+
+export const donationHandover = (d) =>
+  d.deliveryMethod
+    ? `${DONATION_DELIVERY_LABELS[d.deliveryMethod]}${d.targetDate ? ` · ${new Date(d.targetDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}` : ''}`
+    : '—';
 
 export const CIVIL_STATUS = ['single', 'married', 'widowed', 'separated', 'divorced'];
 export const PUROKS = ['Purok 1', 'Purok 2', 'Purok 3', 'Purok 4', 'Purok 5', 'Purok 6'];

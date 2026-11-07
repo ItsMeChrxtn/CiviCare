@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useParams, Link, Navigate, useLocation } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
-import { FiArrowLeft, FiMapPin, FiCalendar, FiUsers, FiDownload } from 'react-icons/fi';
+import { FiArrowLeft, FiMapPin, FiCalendar, FiDownload } from 'react-icons/fi';
 import api from '../../utils/api';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
@@ -86,7 +86,6 @@ const EventDetail = () => {
       <div className="mt-4 flex flex-wrap gap-6 text-sm text-gray-500 dark:text-gray-400">
         <span className="flex items-center gap-2"><FiCalendar className="text-primary-500" /> {format(new Date(event.startDate), 'MMM d, yyyy, h:mm a')} - {format(new Date(event.endDate), 'h:mm a')}</span>
         <span className="flex items-center gap-2"><FiMapPin className="text-primary-500" /> {event.location}</span>
-        {event.capacity > 0 && <span className="flex items-center gap-2"><FiUsers className="text-primary-500" /> {t('map.capacity')}: {event.capacity}</span>}
       </div>
 
       <p className="mt-6 whitespace-pre-line text-gray-600 dark:text-gray-300">{event.description}</p>

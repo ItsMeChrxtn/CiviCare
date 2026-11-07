@@ -68,9 +68,9 @@ const CHATBOT_TREE = [
         label: 'Reporting steps',
         labelTl: 'Mga hakbang',
         response:
-          '1) Open Incident Reporting. 2) Tap "Use your location" or tap the map where it happened. 3) Pick the type (Fire, Electrical, Road Accident, Rescue, Others). 4) Choose the priority. 5) Press REPORT NOW. You will get an SMS with your ticket number.',
+          '1) Open Incident Reporting. 2) Tap "Use your location" or tap the map where it happened. 3) Pick the type (Fire, Electrical, Road Accident, Rescue, Others). 4) Describe what happened and attach a photo. 5) Press REPORT NOW. You will get an SMS with your ticket number.',
         responseTl:
-          '1) Buksan ang Incident Reporting. 2) Pindutin ang "Use your location" o i-tap sa mapa kung saan ito nangyari. 3) Piliin ang uri (Sunog, Kuryente, Aksidente sa Kalsada, Rescue, Iba pa). 4) Piliin ang priority. 5) Pindutin ang REPORT NOW. Makakatanggap ka ng SMS na may ticket number.',
+          '1) Buksan ang Incident Reporting. 2) Pindutin ang "Use your location" o i-tap sa mapa kung saan ito nangyari. 3) Piliin ang uri (Sunog, Kuryente, Aksidente sa Kalsada, Rescue, Iba pa). 4) Ilarawan ang nangyari at maglakip ng litrato. 5) Pindutin ang REPORT NOW. Makakatanggap ka ng SMS na may ticket number.',
       },
       {
         label: 'Ticket status meaning',
@@ -140,9 +140,9 @@ const CHATBOT_TREE = [
     label: 'Donation',
     labelTl: 'Donasyon',
     response:
-      'Open Donations and press "New Pledge". Choose the type (cash, goods, food, medicine, clothes), enter the quantity, and optionally the beneficiary and a photo. You can track your pledge from Pledged to Received to Distributed.',
+      'Open Donations and choose how to hand over your donation: drop-off at the Barangay Hall or home pickup. Set the target date and your contact number, then fill in the category, estimated quantity, and item condition. You can track your pledge from Pledged to Received to Distributed.',
     responseTl:
-      'Buksan ang Donations at pindutin ang "New Pledge". Piliin ang uri (pera, gamit, pagkain, gamot, damit), ilagay ang dami, at kung gusto ang beneficiary at litrato. Masusubaybayan mo ang iyong pledge mula Pledged, Received, hanggang Distributed.',
+      'Buksan ang Donations at piliin kung paano ibibigay ang donasyon: dalhin sa Barangay Hall o home pickup. Itakda ang target na petsa at contact number, saka ilagay ang kategorya, tinatayang dami, at kondisyon ng gamit. Masusubaybayan mo ang iyong pledge mula Pledged, Received, hanggang Distributed.',
   },
 ];
 

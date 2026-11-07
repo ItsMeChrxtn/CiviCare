@@ -122,6 +122,25 @@ const updateAssistantTopics = async () => {
   console.log('[Bootstrap] Assistant / FAQ topics updated with Tagalog translations.');
 };
 
+// Panel revision: the oldest admin account becomes the super admin if none exists yet.
+const ensureSuperAdmin = async () => {
+  if (await User.exists({ isSuperAdmin: true })) return;
+  const oldest = await User.findOne({ role: 'admin', isArchived: false }).sort('createdAt');
+  if (!oldest) return;
+  oldest.isSuperAdmin = true;
+  await oldest.save({ validateBeforeSave: false });
+  console.log(`[Bootstrap] ${oldest.email} is now the super admin`);
+};
+
+// Panel revision: the Assistant's steps for incident reports and donations follow the new forms.
+const refreshAssistantSteps = async () => {
+  const Chatbot = require('../models/Chatbot');
+  const { CHATBOT_TREE } = require('../seeders/chatbotTree');
+  const flat = (nodes) => nodes.flatMap((n) => [n, ...flat(n.children || [])]);
+  const nodes = flat(CHATBOT_TREE).filter((n) => ['Reporting steps', 'Donation'].includes(n.label));
+  await Promise.all(nodes.map(({ label, response, responseTl }) => Chatbot.updateOne({ label }, { response, responseTl })));
+};
+
 const runStartupTasks = async () => {
   try {
     await backfillResidentIds();
@@ -129,6 +148,8 @@ const runStartupTasks = async () => {
     await migrateFaqsToAssistant();
     await runOnce('2026-10-panel-map', recenterMapAndPinEvacuationCenter);
     await runOnce('2026-10-panel-assistant', updateAssistantTopics);
+    await runOnce('2026-11-panel-assistant', refreshAssistantSteps);
+    await ensureSuperAdmin();
   } catch (err) {
     console.error('[Bootstrap] Startup task failed:', err.message);
   }

@@ -9,7 +9,8 @@ const incidentSchema = new mongoose.Schema(
     title: { type: String, required: true, trim: true },
     description: { type: String, trim: true, default: '' },
     category: { type: String, enum: Object.values(INCIDENT_CATEGORY), required: true },
-    severity: { type: String, enum: Object.values(INCIDENT_SEVERITY), required: true },
+    // Panel revision: residents no longer pick a priority; the responder sets this after reading the report.
+    severity: { type: String, enum: Object.values(INCIDENT_SEVERITY) },
     status: { type: String, enum: Object.values(INCIDENT_STATUS), default: INCIDENT_STATUS.PENDING },
 
     location: {

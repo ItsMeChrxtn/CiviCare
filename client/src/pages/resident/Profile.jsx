@@ -70,7 +70,7 @@ const Profile = () => {
                 <FiUser className="h-12 w-12" />
               </div>
             )}
-            <label className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-gradient-to-b from-primary-500 to-primary-600 text-white shadow-soft ring-2 ring-white transition hover:shadow-glow dark:ring-gray-900">
+            <label className="absolute bottom-0 right-0 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-primary-600 text-white shadow-soft ring-2 ring-white transition hover:shadow-glow dark:ring-gray-900">
               <FiCamera className="h-4 w-4" />
               <input type="file" accept="image/*" className="hidden" onChange={handleAvatarChange} disabled={avatarUploading} />
             </label>

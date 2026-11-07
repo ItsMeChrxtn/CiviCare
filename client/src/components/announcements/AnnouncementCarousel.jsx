@@ -70,7 +70,7 @@ const AnnouncementCarousel = () => {
             {a.coverImage?.url ? (
               <img src={a.coverImage.url} alt="" loading="lazy" className="h-40 w-full object-cover" />
             ) : (
-              <div className="flex h-40 w-full items-center justify-center bg-gradient-to-br from-primary-600 to-teal-600 text-5xl">
+              <div className="flex h-40 w-full items-center justify-center bg-primary-600 text-5xl">
                 <span aria-hidden="true">{CATEGORY_EMOJI[a.category] || '📢'}</span>
               </div>
             )}
@@ -81,7 +81,7 @@ const AnnouncementCarousel = () => {
               </p>
               <h3 className="mt-1 line-clamp-2 font-display font-bold group-hover:text-primary-700 dark:group-hover:text-primary-400">{a.title}</h3>
               <p className="mt-1 line-clamp-3 text-sm text-gray-500 dark:text-gray-400">{a.content.replace(/#[\p{L}\p{N}_]+/gu, '').trim()}</p>
-              <p className="mt-auto pt-3 text-xs text-gray-400">{format(new Date(a.createdAt), 'MMM d, yyyy')}</p>
+              <p className="mt-auto pt-3 text-xs text-gray-400">Posted {format(new Date(a.createdAt), 'MMM d, yyyy')}</p>
             </div>
           </Link>
         ))}

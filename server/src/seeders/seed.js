@@ -105,6 +105,7 @@ const seedUsers = async () => {
       email: adminEmail,
       password: await hash(adminPassword),
       role: ROLES.ADMIN,
+      isSuperAdmin: true, // the seeded system administrator is the super admin
       isVerified: true,
       qrCode: generateCode(),
       address: { barangay: 'Magdiwang', city: 'Noveleta', province: 'Cavite' },
@@ -236,7 +237,6 @@ const seedAnnouncementsAndEvents = async (officialId) => {
       location: 'Barangay Magdiwang Covered Court',
       startDate,
       endDate,
-      capacity: 200,
       organizedBy: officialId,
     },
     { upsert: true }

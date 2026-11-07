@@ -22,7 +22,6 @@ const ResetPassword = () => {
   return (
     <div className="relative flex min-h-[85vh] flex-col items-center justify-center overflow-hidden px-4 py-16">
       <div className="absolute inset-0 -z-10 bg-radial-fade" />
-      <div className="absolute inset-0 -z-10 bg-grid-slate bg-[length:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_30%,black,transparent)]" />
 
       <Link to="/" className="mb-6 flex items-center gap-2.5 font-display font-extrabold text-primary-700 dark:text-primary-400">
         <img src="/favicon.svg" alt="CiviCare" className="h-9 w-9" />

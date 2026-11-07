@@ -4,23 +4,41 @@ const ApiResponse = require('../utils/ApiResponse');
 const ApiFeatures = require('../utils/ApiFeatures');
 const Donation = require('../models/Donation');
 const { nextReferenceCode } = require('../utils/referenceCode');
-const { uploadBuffer } = require('../services/cloudinary.service');
 const { notifyRole, notifyUser } = require('../services/notification.service');
 const { archiveDocument, restoreDocument } = require('../services/archive.service');
 const { writeLog } = require('../services/log.service');
-const { NOTIFICATION_TYPE, ROLES, DONATION_STATUS, DONATION_TYPE } = require('../config/constants');
+const { NOTIFICATION_TYPE, ROLES, DONATION_STATUS, DONATION_TYPE, DONATION_DELIVERY, DONATION_CONDITION } = require('../config/constants');
 
 const DONOR_FIELDS = 'firstName lastName email phone residentId address avatar';
 
+const manilaToday = () => new Date(Date.now() + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+/** Checks the hand-over step of the pledge form and returns the fields to store. */
+const parseHandover = ({ deliveryMethod, targetDate, contactNumber, pickupAddress }) => {
+  if (!Object.values(DONATION_DELIVERY).includes(deliveryMethod)) throw ApiError.badRequest('Please choose how you will hand over your donation.');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(targetDate || '') || Number.isNaN(Date.parse(targetDate))) throw ApiError.badRequest('Please choose a target date.');
+  if (targetDate < manilaToday()) throw ApiError.badRequest('The target date cannot be in the past.');
+  const day = new Date(targetDate).getUTCDay();
+  if (day === 0 || day === 6) throw ApiError.badRequest('Please choose a weekday (Monday to Friday).');
+  const phone = String(contactNumber || '').replace(/[\s-]/g, '');
+  if (!/^(09|\+639)\d{9}$/.test(phone)) throw ApiError.badRequest('Please enter a valid mobile number.');
+  const isPickup = deliveryMethod === DONATION_DELIVERY.PICKUP;
+  if (isPickup && !pickupAddress?.trim()) throw ApiError.badRequest('Please add your address in My Profile before requesting a pickup.');
+  return { deliveryMethod, targetDate, contactNumber: phone, pickupAddress: isPickup ? pickupAddress.trim() : undefined };
+};
+
 // @route POST /api/donations (resident pledges a donation)
 const createDonation = catchAsync(async (req, res) => {
-  const { type, description, quantity, amount, beneficiary } = req.body;
+  const { type, description, quantity, amount, itemCondition } = req.body;
   if (!Object.values(DONATION_TYPE).includes(type)) throw ApiError.badRequest('Please choose a donation type.');
   if (type === DONATION_TYPE.CASH ? !(Number(amount) > 0) : !quantity?.trim()) {
     throw ApiError.badRequest(type === DONATION_TYPE.CASH ? 'Please enter the amount.' : 'Please enter the quantity / description.');
   }
 
-  const proofImage = req.file ? await uploadBuffer(req.file.buffer, 'donations') : undefined;
+  const isCash = type === DONATION_TYPE.CASH;
+  if (!isCash && !Object.values(DONATION_CONDITION).includes(itemCondition)) throw ApiError.badRequest('Please choose the item condition.');
+  const handover = parseHandover(req.body);
+
   const referenceCode = await nextReferenceCode(Donation, 'DON');
 
   const donation = await Donation.create({
@@ -29,9 +47,9 @@ const createDonation = catchAsync(async (req, res) => {
     type,
     description,
     quantity,
-    amount: type === DONATION_TYPE.CASH ? Number(amount) : 0,
-    beneficiary,
-    proofImage,
+    amount: isCash ? Number(amount) : 0,
+    itemCondition: isCash ? undefined : itemCondition,
+    ...handover,
   });
 
   const staff = await require('../models/User').find({ role: { $in: [ROLES.OFFICIAL, ROLES.ADMIN] }, isArchived: false }).select('_id');
@@ -40,7 +58,7 @@ const createDonation = catchAsync(async (req, res) => {
     role: ROLES.OFFICIAL,
     type: NOTIFICATION_TYPE.DONATION,
     title: 'New donation pledged',
-    message: `${req.user.fullName} pledged a ${type} donation.`,
+    message: `${req.user.fullName} pledged a ${type} donation (${handover.deliveryMethod === DONATION_DELIVERY.PICKUP ? 'home pickup' : 'drop-off'}).`,
     link: '/official/donations',
     relatedId: donation._id,
   });

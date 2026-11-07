@@ -6,6 +6,7 @@ import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import DataTable from '../../components/common/DataTable';
 import Badge from '../../components/common/Badge';
+import { useAuth } from '../../contexts/AuthContext';
 
 const MODULES = ['user', 'incident', 'announcement', 'event', 'donation', 'document', 'hazard', 'feedback'];
 
@@ -20,7 +21,12 @@ const RESTORE_ENDPOINT = {
   donation: (id) => `/donations/${id}/restore`,
 };
 
+// Panel revision: unarchiving residents/users and announcements is reserved for the super admin.
+const SUPER_ADMIN_ONLY = ['user', 'announcement'];
+
 const Archive = () => {
+  const { user } = useAuth();
+  const canRestore = (module) => !SUPER_ADMIN_ONLY.includes(module) || Boolean(user?.isSuperAdmin);
   const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/logs/archives');
   const [busyId, setBusyId] = useState(null);
 
@@ -71,7 +77,12 @@ const Archive = () => {
             {
               header: 'Actions',
               accessor: (r) =>
-                r.action === 'archived' && (
+                r.action === 'archived' &&
+                (!canRestore(r.module) ? (
+                  <span className="text-xs text-gray-400" title="Only the super admin can restore residents and announcements">
+                    Super admin only
+                  </span>
+                ) : (
                   <button
                     onClick={() => handleRestore(r)}
                     disabled={busyId === r._id}
@@ -79,7 +90,7 @@ const Archive = () => {
                   >
                     <FiRotateCcw className="h-3.5 w-3.5" /> Restore
                   </button>
-                ),
+                )),
             },
           ]}
           rows={rows}

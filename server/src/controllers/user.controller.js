@@ -10,15 +10,19 @@ const { ROLES } = require('../config/constants');
 const { sendAccountApprovedEmail, sendAccountRejectedEmail } = require('../services/email.service');
 
 /**
- * Officials share Manage Users with admins but may only manage resident and official accounts:
- * they cannot create, edit, suspend or archive an admin, or promote anyone to admin.
+ * Panel revision: only the super admin can add admins or manage admin accounts. Admins and officials
+ * manage resident and official accounts; nobody else can change the super admin's account.
  */
 const assertCanManage = async (req, targetId) => {
-  if (req.user.role === ROLES.ADMIN) return;
-  if (req.body?.role === ROLES.ADMIN) throw ApiError.forbidden('Only an admin can assign the admin role.');
+  if (req.body) delete req.body.isSuperAdmin; // never settable through the API
+  const isSuper = Boolean(req.user.isSuperAdmin);
+  if (req.body?.role === ROLES.ADMIN && !isSuper) throw ApiError.forbidden('Only the super admin can add or assign admin accounts.');
   if (!targetId) return;
-  const target = await User.findById(targetId).select('role');
-  if (target?.role === ROLES.ADMIN) throw ApiError.forbidden('Only an admin can manage admin accounts.');
+  const target = await User.findById(targetId).select('role isSuperAdmin');
+  if (target?.isSuperAdmin && String(target._id) !== String(req.user._id)) {
+    throw ApiError.forbidden('The super admin account cannot be changed by other users.');
+  }
+  if (target?.role === ROLES.ADMIN && !isSuper) throw ApiError.forbidden('Only the super admin can manage admin accounts.');
 };
 
 const SELF_UPDATABLE_FIELDS = [
@@ -262,6 +266,7 @@ const deleteUser = catchAsync(async (req, res) => {
   if (String(req.params.id) === String(req.user._id)) {
     throw ApiError.badRequest('You cannot delete your own account.');
   }
+  await assertCanManage(req, req.params.id);
 
   const user = await User.findByIdAndDelete(req.params.id);
   if (!user) throw ApiError.notFound('User not found');

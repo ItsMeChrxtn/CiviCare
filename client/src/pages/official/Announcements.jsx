@@ -93,7 +93,7 @@ const Announcements = () => {
             { header: 'Title', accessor: (r) => <span className="flex items-center gap-1.5 font-medium text-gray-800 dark:text-gray-100">{r.isPinned && <BsPinAngleFill className="text-amber-500" />}{r.title}</span> },
             { header: 'Category', accessor: (r) => <span className="capitalize text-gray-500 dark:text-gray-400">{r.category}</span> },
             { header: 'Views', accessor: (r) => r.views },
-            { header: 'Date', accessor: (r) => format(new Date(r.createdAt), 'MMM d, yyyy') },
+            { header: 'Date Posted', accessor: (r) => format(new Date(r.createdAt), 'MMM d, yyyy') },
             {
               header: 'Actions',
               accessor: (r) => (

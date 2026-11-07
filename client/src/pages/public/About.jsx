@@ -52,7 +52,6 @@ const About = () => {
   return (
     <div className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10 bg-radial-fade" />
-      <div className="absolute inset-0 -z-10 bg-grid-slate bg-[length:32px_32px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,black,transparent)]" />
 
       <div className="mx-auto max-w-6xl space-y-16 px-4 py-14 lg:px-8">
         {/* About Magdiwang (editable in Admin > Settings > General) */}

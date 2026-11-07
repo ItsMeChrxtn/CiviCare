@@ -160,7 +160,7 @@ const Incidents = () => {
                         {r.reportedBy?.firstName} {r.reportedBy?.lastName}
                       </td>
                       <td className="px-5 py-4">
-                        <Badge status={r.severity} />
+                        <Badge status={r.severity || 'not_assessed'} />
                       </td>
                       <td className="px-5 py-4">
                         <Badge status={r.status} />

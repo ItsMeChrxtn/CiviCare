@@ -15,7 +15,7 @@ import TicketTracker from '../../components/incidents/TicketTracker';
 import Pagination from '../../components/common/Pagination';
 import { TableSkeleton } from '../../components/common/Skeleton';
 import Modal from '../../components/common/Modal';
-import { PRIORITY_OPTIONS, categoryLabel, isInsideMagdiwang } from '../../utils/constants';
+import { categoryLabel, isInsideMagdiwang } from '../../utils/constants';
 
 // The four quick buttons on the report screen; "Others" opens the remaining categories.
 // Panel revision: small, white-only icons.
@@ -33,7 +33,6 @@ const Incidents = () => {
   const { rows, meta, params, setPage, isLoading, refetch } = usePaginatedFetch('/incidents', { limit: 5 });
   const [location, setLocation] = useState(null);
   const [category, setCategory] = useState('');
-  const [severity, setSeverity] = useState('low');
   const [showOthers, setShowOthers] = useState(false);
   const [details, setDetails] = useState({ description: '', address: '' });
   const [image, setImage] = useState(null);
@@ -83,7 +82,6 @@ const Incidents = () => {
     try {
       const form = new FormData();
       form.append('category', category);
-      form.append('severity', severity);
       form.append('lat', location[0]);
       form.append('lng', location[1]);
       form.append('description', details.description.trim());
@@ -93,7 +91,6 @@ const Incidents = () => {
       const { data } = await api.post('/incidents', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success(t('incident.sent', { code: data.data.referenceCode }), { duration: 6000 });
       setCategory('');
-      setSeverity('low');
       setLocation(null);
       setDetails({ description: '', address: '' });
       setImage(null);
@@ -208,24 +205,6 @@ const Incidents = () => {
                 </ul>
               )}
             </div>
-
-            <fieldset className="mt-4 rounded-xl bg-primary-900 px-5 py-3 text-white">
-              <legend className="sr-only">{t('incident.priority')}</legend>
-              <p className="mb-1 text-center font-display font-bold">{t('incident.priority')}</p>
-              {PRIORITY_OPTIONS.map((p) => (
-                <label key={p.value} className="flex cursor-pointer items-center gap-3 py-0.5">
-                  <input
-                    type="radio"
-                    name="priority"
-                    value={p.value}
-                    checked={severity === p.value}
-                    onChange={() => setSeverity(p.value)}
-                    className="h-5 w-5 accent-white"
-                  />
-                  <span className={`font-display text-lg font-extrabold ${p.color}`}>{t(p.labelKey)}</span>
-                </label>
-              ))}
-            </fieldset>
           </div>
         </div>
 
@@ -295,7 +274,6 @@ const Incidents = () => {
         <dl className="space-y-2 text-sm">
           {[
             [t('incident.type'), category && t(`cat.${category}`)],
-            [t('incident.priority'), t(PRIORITY_OPTIONS.find((p) => p.value === severity)?.labelKey || 'priority.low')],
             [t('incident.pinned'), location && `${location[0].toFixed(5)}, ${location[1].toFixed(5)}`],
             [t('incident.details'), details.description],
           ].map(([k, v]) => (
@@ -331,7 +309,7 @@ const Incidents = () => {
                     <p className="font-mono text-xs text-gray-400">{r.referenceCode}</p>
                     <p className="font-semibold">{categoryLabel(r.category)}</p>
                     <p className="text-xs text-gray-400">
-                      {format(new Date(r.createdAt), 'MMM d, yyyy h:mm a')} · {t('incident.priority')}: {t(`status.${r.severity}`)}
+                      {format(new Date(r.createdAt), 'MMM d, yyyy h:mm a')}
                     </p>
                   </div>
                   <TicketTracker status={r.status} compact />

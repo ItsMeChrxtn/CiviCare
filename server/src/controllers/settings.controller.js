@@ -32,10 +32,21 @@ const DEFAULTS = {
     floodRiskLevel: 'moderate', // low | moderate | high | critical
     alerts: [
       { key: 'flood', label: 'Flood Alert', level: 'Low', active: true },
-      { key: 'typhoon', label: 'Typhoon Advisory', level: 'Signal No. 1', active: true },
+      { key: 'typhoon', label: 'Typhoon Advisory', level: 'No Signal', active: true },
       { key: 'fire', label: 'Fire Risk', level: 'Low', active: true },
       { key: 'public_safety', label: 'Public Safety', level: 'Normal', active: true },
     ],
+  },
+  // Current Priority Drive card on the resident Donations page; `collected` is updated by the admin.
+  donationDrive: {
+    active: true,
+    name: 'Typhoon Relief Support',
+    subtitle: 'Typhoon Assistance Magdiwang',
+    description:
+      'We are currently prioritizing ready-to-eat canned goods, drinking water, hygiene kits, and clean infant clothing for affected households.',
+    goalTarget: 500,
+    collected: 0,
+    unit: 'Relief Packs',
   },
   sms: { enabled: true, senderName: process.env.SEMAPHORE_SENDER_NAME || 'CiviCare' },
   email: { enabled: true, fromName: 'CiviCare Barangay System' },

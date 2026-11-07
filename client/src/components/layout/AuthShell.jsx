@@ -12,11 +12,7 @@ const AuthShell = ({ children, showTabs = true }) => {
     }`;
 
   return (
-    <div className="relative isolate flex min-h-screen flex-col overflow-hidden bg-brand-sand dark:bg-gray-950 lg:flex-row">
-      {/* Panel revision: the official CiviCare logo replaces the Barangay Magdiwang seal on Login/Register */}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 flex items-center justify-center">
-        <img src="/civicare-logo.svg" alt="" className="h-[100vmin] w-[100vmin] max-w-none object-contain opacity-[0.06] dark:opacity-[0.05]" />
-      </div>
+    <div className="relative flex min-h-screen flex-col bg-brand-sand dark:bg-gray-950 lg:flex-row">
       {/* Panel revision: explicit way back to the landing page */}
       <Link
         to="/"
@@ -32,7 +28,11 @@ const AuthShell = ({ children, showTabs = true }) => {
       </button>
       <div className="relative flex flex-col items-center justify-center px-6 pb-10 pt-20 lg:w-1/2 lg:py-10">
         <Link to="/" className="flex flex-col items-center">
-          <img src="/civicare-logo.svg" alt="CiviCare" className="h-32 w-auto sm:h-44" />
+          {/* Panel revision: the Barangay Magdiwang seal sits beside the CiviCare logo on a plain background */}
+          <span className="flex items-center gap-4 sm:gap-6">
+            <img src="/civicare-logo.svg" alt="CiviCare" className="h-24 w-auto sm:h-36" />
+            <img src="/magdiwang-logo.jpeg" alt="Barangay Magdiwang seal" className="h-24 w-24 rounded-full object-cover sm:h-36 sm:w-36" />
+          </span>
           <span className="mt-2 font-display text-5xl font-extrabold tracking-tight sm:text-6xl">
             <span className="text-[#1e3f99]">Civi</span>
             <span className="text-[#2f9a3a]">Care</span>
@@ -42,10 +42,9 @@ const AuthShell = ({ children, showTabs = true }) => {
           </span>
           <span className="mt-2 text-sm font-semibold text-gray-700 dark:text-gray-300">Barangay Magdiwang, Noveleta, Cavite</span>
         </Link>
-        <p className="mt-10 text-sm text-gray-600 dark:text-gray-400 lg:absolute lg:bottom-6 lg:left-8 lg:mt-0">© 2026 CIVICARE</p>
       </div>
 
-      <div className="flex flex-1 items-start justify-center px-4 pb-10 lg:items-center lg:py-10">
+      <div className="flex flex-1 items-start justify-center px-4 pb-6 lg:items-center lg:py-10">
         <div className="w-full max-w-md">
           {showTabs && (
             <div className="flex gap-1">
@@ -60,6 +59,9 @@ const AuthShell = ({ children, showTabs = true }) => {
           <div className={`bg-[#fffdf5] p-6 shadow-card dark:bg-gray-900 sm:p-8 ${showTabs ? 'rounded-b-2xl' : 'rounded-2xl'}`}>{children}</div>
         </div>
       </div>
+
+      {/* Panel revision: phones show the credits below the form; wide screens keep them bottom-left */}
+      <p className="pb-6 text-center text-sm text-gray-600 dark:text-gray-400 lg:absolute lg:bottom-6 lg:left-8 lg:pb-0">© 2026 CIVICARE</p>
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { FiHome } from 'react-icons/fi';
 const NotFound = () => (
   <div className="relative flex min-h-[70vh] flex-col items-center justify-center overflow-hidden px-4 text-center">
     <div className="absolute inset-0 -z-10 bg-radial-fade" />
-    <div className="absolute inset-0 -z-10 bg-grid-slate bg-[length:32px_32px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_40%,black,transparent)]" />
 
     <div className="animate-scaleIn">
       <p className="font-display text-8xl font-extrabold tracking-tight text-primary-600 dark:text-primary-400">404</p>

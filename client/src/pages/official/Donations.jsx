@@ -8,7 +8,7 @@ import { downloadFile } from '../../utils/download';
 import DataTable from '../../components/common/DataTable';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
-import { DONATION_STATUS, DONATION_TYPES, DONATION_TYPE_LABELS, donationDetails } from '../../utils/constants';
+import { DONATION_CONDITION_LABELS, DONATION_DELIVERY_LABELS, DONATION_STATUS, DONATION_TYPES, DONATION_TYPE_LABELS, donationDetails, donationHandover } from '../../utils/constants';
 
 const STATUS_FLOW = [DONATION_STATUS.PLEDGED, DONATION_STATUS.RECEIVED, DONATION_STATUS.DISTRIBUTED];
 
@@ -95,7 +95,7 @@ const Donations = () => {
               ),
             },
             { header: 'Donated', accessor: (r) => donationDetails(r) },
-            { header: 'Beneficiary', accessor: (r) => r.beneficiary || '—' },
+            { header: 'Hand-over', accessor: (r) => donationHandover(r) },
             { header: 'Status', accessor: (r) => <Badge status={r.status} /> },
             { header: 'Date', accessor: (r) => format(new Date(r.createdAt), 'MMM d, yyyy') },
             {
@@ -135,10 +135,38 @@ const Donations = () => {
                 <dt className="text-xs text-gray-400">Donated</dt>
                 <dd className="font-medium">{donationDetails(viewing)}</dd>
               </div>
+              {viewing.beneficiary && (
+                <div>
+                  <dt className="text-xs text-gray-400">Intended beneficiary</dt>
+                  <dd className="font-medium">{viewing.beneficiary}</dd>
+                </div>
+              )}
               <div>
-                <dt className="text-xs text-gray-400">Intended beneficiary</dt>
-                <dd className="font-medium">{viewing.beneficiary || '—'}</dd>
+                <dt className="text-xs text-gray-400">Hand-over</dt>
+                <dd className="font-medium">{DONATION_DELIVERY_LABELS[viewing.deliveryMethod] || '—'}</dd>
               </div>
+              <div>
+                <dt className="text-xs text-gray-400">Target date</dt>
+                <dd className="font-medium">{viewing.targetDate ? format(new Date(viewing.targetDate), 'MMM d, yyyy') : '—'}</dd>
+              </div>
+              {viewing.contactNumber && (
+                <div>
+                  <dt className="text-xs text-gray-400">Donor contact number</dt>
+                  <dd className="font-medium">{viewing.contactNumber}</dd>
+                </div>
+              )}
+              {viewing.pickupAddress && (
+                <div>
+                  <dt className="text-xs text-gray-400">Pickup address</dt>
+                  <dd className="font-medium">{viewing.pickupAddress}</dd>
+                </div>
+              )}
+              {viewing.itemCondition && (
+                <div>
+                  <dt className="text-xs text-gray-400">Item condition</dt>
+                  <dd className="font-medium">{DONATION_CONDITION_LABELS[viewing.itemCondition]}</dd>
+                </div>
+              )}
               <div>
                 <dt className="text-xs text-gray-400">Pledged on</dt>
                 <dd className="font-medium">{format(new Date(viewing.createdAt), 'MMM d, yyyy h:mm a')}</dd>

@@ -39,7 +39,6 @@ const IncidentDetail = () => {
             <p className="text-xs text-gray-400">{format(new Date(incident.createdAt), 'MMMM d, yyyy h:mm a')}</p>
           </div>
           <div className="flex gap-2">
-            <Badge status={incident.severity} />
             <Badge status={incident.status} />
           </div>
         </div>

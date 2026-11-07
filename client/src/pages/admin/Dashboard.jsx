@@ -28,8 +28,6 @@ const AdminDashboard = () => {
   return (
     <div>
       <section className="hero-panel mb-6 p-6 sm:p-8">
-        <div className="absolute inset-0 bg-grid-slate bg-[length:28px_28px] opacity-40 [mask-image:radial-gradient(ellipse_80%_100%_at_100%_0%,black,transparent)]" />
-        <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-accent-400/20 blur-3xl" />
         <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <span className="badge border border-white/20 bg-white/10 text-white backdrop-blur-sm">

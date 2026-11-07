@@ -1,15 +1,15 @@
 import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { FiSettings, FiMessageSquare, FiMail, FiTag, FiUsers, FiImage } from 'react-icons/fi';
+import { FiSettings, FiMessageSquare, FiMail, FiTag, FiUsers, FiImage, FiGift } from 'react-icons/fi';
 import api from '../../utils/api';
 import { SERVICE_DOCUMENTS } from '../../utils/constants';
 import PageLoader from '../../components/common/PageLoader';
 import { invalidateSetting } from '../../hooks/useSetting';
 import OfficialsEditor, { uploadImage } from './OfficialsEditor';
 
-const TABS = ['general', 'officials', 'sms', 'email', 'categories'];
-const TAB_ICONS = { general: FiSettings, officials: FiUsers, sms: FiMessageSquare, email: FiMail, categories: FiTag };
+const TABS = ['general', 'officials', 'donationDrive', 'sms', 'email', 'categories'];
+const TAB_ICONS = { general: FiSettings, officials: FiUsers, donationDrive: FiGift, sms: FiMessageSquare, email: FiMail, categories: FiTag };
 
 const Settings = () => {
   const [tab, setTab] = useState('general');
@@ -72,7 +72,7 @@ const Settings = () => {
                 tab === t ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'
               }`}
             >
-              <Icon className="h-4 w-4" /> {t}
+              <Icon className="h-4 w-4" /> {t === 'donationDrive' ? 'Donation Drive' : t}
             </button>
           );
         })}
@@ -151,6 +151,42 @@ const Settings = () => {
               <div>
                 <label className="mb-1 block text-sm font-medium">Map center longitude</label>
                 <input type="number" step="any" {...register('mapCenter.1', { valueAsNumber: true })} className="input-field" />
+              </div>
+            </div>
+          </>
+        )}
+
+        {tab === 'donationDrive' && (
+          <>
+            <label className="flex items-center gap-2 text-sm font-medium">
+              <input type="checkbox" {...register('active')} className="accent-primary-600" /> Show this drive on the resident Donations page
+            </label>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Drive Name</label>
+                <input {...register('name')} className="input-field" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Subtitle</label>
+                <input {...register('subtitle')} className="input-field" />
+              </div>
+            </div>
+            <div>
+              <label className="mb-1 block text-sm font-medium">Description</label>
+              <textarea rows={3} {...register('description')} className="input-field" />
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium">Goal Target</label>
+                <input type="number" min="0" {...register('goalTarget', { valueAsNumber: true })} className="input-field" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Collected</label>
+                <input type="number" min="0" {...register('collected', { valueAsNumber: true })} className="input-field" />
+              </div>
+              <div>
+                <label className="mb-1 block text-sm font-medium">Unit</label>
+                <input {...register('unit')} className="input-field" />
               </div>
             </div>
           </>

@@ -19,9 +19,9 @@ const ROLE_BADGE_CLASSES = {
 
 const Users = () => {
   const { user: currentUser } = useAuth();
-  const isAdmin = currentUser?.role === 'admin';
-  // Officials manage resident and official accounts; admin accounts stay admin-only.
-  const canManage = (r) => r._id !== currentUser?._id && (isAdmin || r.role !== 'admin');
+  // Panel revision: only the super admin adds or manages admin accounts; nobody else touches the super admin.
+  const isSuperAdmin = Boolean(currentUser?.isSuperAdmin);
+  const canManage = (r) => r._id !== currentUser?._id && !r.isSuperAdmin && (isSuperAdmin || r.role !== 'admin');
   const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/users');
   const [isOpen, setIsOpen] = useState(false);
   const [confirming, setConfirming] = useState(null);
@@ -64,7 +64,7 @@ const Users = () => {
     <div>
       <div className="page-header mb-3">
         <h1 className="page-title">Manage Users</h1>
-        <p className="page-subtitle">{isAdmin ? 'Create and manage resident, official, and admin accounts.' : 'Create and manage resident and official accounts.'}</p>
+        <p className="page-subtitle">{isSuperAdmin ? 'Super admin: create and manage resident, official, and admin accounts.' : 'Create and manage resident and official accounts. Only the super admin can add admins.'}</p>
       </div>
 
       <div className="card mb-4 flex flex-wrap items-center gap-3 p-4">
@@ -88,7 +88,15 @@ const Users = () => {
           columns={[
             { header: 'Name', accessor: (r) => <span className="font-medium">{r.firstName} {r.lastName}{r._id === currentUser?._id && <span className="ml-1 text-xs font-normal text-gray-400">(You)</span>}</span> },
             { header: 'Email', accessor: (r) => r.email },
-            { header: 'Role', accessor: (r) => <span className={`badge capitalize ${ROLE_BADGE_CLASSES[r.role] || 'bg-gray-100 text-gray-700 dark:bg-gray-500/10 dark:text-gray-400'}`}>{r.role}</span> },
+            {
+              header: 'Role',
+              accessor: (r) =>
+                r.isSuperAdmin ? (
+                  <span className="badge bg-amber-100 text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">★ Super Admin</span>
+                ) : (
+                  <span className={`badge capitalize ${ROLE_BADGE_CLASSES[r.role] || 'bg-gray-100 text-gray-700 dark:bg-gray-500/10 dark:text-gray-400'}`}>{r.role}</span>
+                ),
+            },
             { header: 'Verified', accessor: (r) => <Badge status={r.isVerified ? 'approved' : 'pending'}>{r.isVerified ? 'Verified' : 'Unverified'}</Badge> },
             {
               header: 'Active',
@@ -115,7 +123,7 @@ const Users = () => {
         />
       </div>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={isAdmin ? 'Create Official / Admin Account' : 'Create Account'}>
+      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={isSuperAdmin ? 'Create Official / Admin Account' : 'Create Account'}>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -141,8 +149,8 @@ const Users = () => {
               <label className="mb-1 block text-sm font-medium">Role</label>
               <select {...register('role', { required: true })} className="input-field capitalize">
                 <option value="official">Official</option>
-                {!isAdmin && <option value="resident">Resident</option>}
-                {isAdmin && <option value="admin">Admin</option>}
+                <option value="resident">Resident</option>
+                {isSuperAdmin && <option value="admin">Admin</option>}
               </select>
             </div>
             <div>
