@@ -128,10 +128,6 @@ const Donations = () => {
                 <dd className="font-medium">{[viewing.donor?.phone, viewing.donor?.email].filter(Boolean).join(' · ') || '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs text-gray-400">Purok</dt>
-                <dd className="font-medium">{viewing.donor?.address?.purok || '—'}</dd>
-              </div>
-              <div>
                 <dt className="text-xs text-gray-400">Donated</dt>
                 <dd className="font-medium">{donationDetails(viewing)}</dd>
               </div>

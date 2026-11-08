@@ -5,14 +5,6 @@ export const INCIDENT_STATUS = { PENDING: 'pending', ONGOING: 'ongoing', RESOLVE
 export const INCIDENT_STATUS_FLOW = ['pending', 'ongoing', 'resolved'];
 export const INCIDENT_SEVERITY = { LOW: 'low', MODERATE: 'moderate', HIGH: 'high', CRITICAL: 'critical' };
 
-// Panel revision: the responder sets the priority after reading the report; residents no longer choose one.
-export const PRIORITY_OPTIONS = [
-  { value: 'low', label: 'Low' },
-  { value: 'moderate', label: 'Medium' },
-  { value: 'high', label: 'High' },
-  { value: 'critical', label: 'Critical' },
-];
-
 export const INCIDENT_CATEGORY = [
   'fire',
   'electrical',

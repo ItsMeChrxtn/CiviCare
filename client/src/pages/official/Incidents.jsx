@@ -129,7 +129,7 @@ const Incidents = () => {
               <table className="w-full text-left text-sm">
                 <thead className="text-xs uppercase tracking-wide text-gray-500">
                   <tr>
-                    {['Incident ID', 'Type', 'Location', 'Reported by', 'Priority', 'Status', 'Actions'].map((h) => (
+                    {['Incident ID', 'Type', 'Location', 'Reported by', 'Status', 'Actions'].map((h) => (
                       <th key={h} className="px-5 py-3 font-semibold">
                         {h}
                       </th>
@@ -139,7 +139,7 @@ const Incidents = () => {
                 <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                   {rows.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-5 py-10 text-center text-gray-400">
+                      <td colSpan={6}className="px-5 py-10 text-center text-gray-400">
                         No incidents found.
                       </td>
                     </tr>
@@ -158,9 +158,6 @@ const Incidents = () => {
                       </td>
                       <td className="px-5 py-4">
                         {r.reportedBy?.firstName} {r.reportedBy?.lastName}
-                      </td>
-                      <td className="px-5 py-4">
-                        <Badge status={r.severity || 'not_assessed'} />
                       </td>
                       <td className="px-5 py-4">
                         <Badge status={r.status} />

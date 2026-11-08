@@ -8,7 +8,6 @@ import useSetting, { invalidateSetting } from '../../hooks/useSetting';
 import TrendLineChart from '../../components/charts/TrendLineChart';
 import Badge from '../../components/common/Badge';
 import { CardSkeleton } from '../../components/common/Skeleton';
-import { PUROKS } from '../../utils/constants';
 import { RISK_STYLES } from '../../utils/emergency';
 
 const CHANNELS = [
@@ -30,7 +29,7 @@ const SMS_SEGMENT = 160;
 /** Emergency SMS (docu Figure 19, SMS Integration): broadcast via Semaphore, alert levels, usage and history. */
 const Broadcast = () => {
   const { register, handleSubmit, reset, setValue, watch, formState: { errors, isSubmitting } } = useForm({
-    defaultValues: { channel: 'both', purok: '' },
+    defaultValues: { channel: 'both' },
   });
   const [usage, setUsage] = useState(null);
   const [emergency] = useSetting('emergency');
@@ -58,13 +57,13 @@ const Broadcast = () => {
   }, [usage]);
 
   const onSubmit = async (values) => {
-    if (!window.confirm(`Send "${values.title}" to ${values.purok || 'ALL residents'} via ${values.channel.toUpperCase()}?`)) return;
+    if (!window.confirm(`Send "${values.title}" to ALL residents via ${values.channel.toUpperCase()}?`)) return;
     try {
-      const { data } = await api.post('/broadcast', { ...values, purok: values.purok || undefined });
+      const { data } = await api.post('/broadcast', values);
       const r = data.data;
       const smsInfo = r.smsResult?.skipped ? 'SMS skipped (gateway not configured or disabled)' : r.smsResult?.error ? `SMS failed: ${r.smsResult.error}` : `${r.smsCount} SMS queued`;
       toast.success(`Sent. ${r.notifiedCount} in-app · ${smsInfo}`, { duration: 7000 });
-      reset({ title: '', message: '', channel: values.channel, purok: values.purok });
+      reset({ title: '', message: '', channel: values.channel });
       loadUsage();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to send broadcast');
@@ -125,7 +124,7 @@ const Broadcast = () => {
               </p>
               {errors.message && <p className="text-xs text-red-500">Message is required</p>}
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div>
               <div>
                 <label htmlFor="channel" className="mb-1 block text-sm font-medium">Channel</label>
                 <select id="channel" {...register('channel')} className="input-field">
@@ -136,17 +135,7 @@ const Broadcast = () => {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="purok" className="mb-1 block text-sm font-medium">Recipients</label>
-                <select id="purok" {...register('purok')} className="input-field">
-                  <option value="">All residents</option>
-                  {PUROKS.map((p) => (
-                    <option key={p} value={p}>
-                      {p} only
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <p className="mt-1 text-xs text-gray-500">Sent to all registered residents.</p>
             </div>
             <button type="submit" disabled={isSubmitting} className="btn-danger w-full">
               <FiSend /> {isSubmitting ? 'Sending...' : 'Send Broadcast'}

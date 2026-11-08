@@ -38,14 +38,14 @@ const IncidentMap = ({ height = '22rem' }) => {
               <CircleMarker
                 key={i._id}
                 center={[lat, lng]}
-                radius={i.severity === 'high' || i.severity === 'critical' ? 11 : 8}
+                radius={9}
                 pathOptions={{ color: '#fff', weight: 2, fillColor: INCIDENT_PIN_COLORS[i.status] || '#6b7280', fillOpacity: 0.95 }}
               >
                 <Popup>
                   <p className="font-mono text-[10px] text-gray-500">{i.referenceCode}</p>
                   <p className="font-semibold">{categoryLabel(i.category)}</p>
                   <p className="text-xs capitalize">
-                    {i.status === 'assigned' ? 'ongoing' : i.status} · {i.severity ? `${i.severity === 'moderate' ? 'medium' : i.severity} priority` : 'priority not assessed'}
+                    {i.status === 'assigned' ? 'ongoing' : i.status}
                   </p>
                   <p className="text-xs text-gray-500">{formatDistanceToNow(new Date(i.createdAt), { addSuffix: true })}</p>
                   <Link to={`/official/incidents/${i._id}`} className="text-xs font-semibold">

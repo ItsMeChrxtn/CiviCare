@@ -88,7 +88,7 @@ const OfficialDashboard = () => {
         <HeroStat
           value={overview?.activeIncidents}
           label="Active Incidents"
-          sub={`As of ${overview?.purokCount ?? '—'} puroks`}
+          sub="Pending and ongoing"
           icon={FiAlertTriangle}
         />
         <HeroStat value={overview?.serviceRequestsThisMonth} label="Service Request" sub="This month" icon={FiCalendar} />
@@ -97,7 +97,7 @@ const OfficialDashboard = () => {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <form onSubmit={publish} className="flex flex-col rounded-2xl bg-primary-800 p-3 shadow-card">
           <h2 className="py-2 text-center font-display text-xl font-bold text-white">Announcement</h2>
-          <div className="flex flex-1 flex-col rounded-lg bg-[#fbf8ec] p-4 dark:bg-gray-900">
+          <div className="flex flex-1 flex-col rounded-lg bg-white p-4 dark:bg-gray-900">
             <input
               value={post.title}
               onChange={(e) => setPost((p) => ({ ...p, title: e.target.value }))}
@@ -163,9 +163,7 @@ const OfficialDashboard = () => {
                   <li key={i._id}>
                     <Link to={`/official/incidents/${i._id}`} className="flex items-center justify-between gap-3 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50">
                       <div className="min-w-0">
-                        <p className="flex items-center gap-2 text-[11px] text-gray-400">
-                          {i.referenceCode} <Badge status={i.severity || 'not_assessed'} />
-                        </p>
+                        <p className="text-[11px] text-gray-400">{i.referenceCode}</p>
                         <p className="font-semibold">{categoryLabel(i.category)}</p>
                         <p className="truncate text-xs text-gray-500">
                           {i.location?.address || `${i.location.coordinates[1].toFixed(4)}, ${i.location.coordinates[0].toFixed(4)}`}

@@ -123,6 +123,9 @@ const ResidentDashboard = () => {
   // Most important announcement: the newest one officials marked Important, else the newest emergency post.
   const featured = announcements?.find((a) => a.isPinned) || announcements?.find((a) => a.category === 'emergency') || null;
   const feed = (announcements || []).filter((a) => a._id !== featured?._id);
+  // Panel revision: with no Important post, the newest announcement takes the full width instead of half.
+  const lead = featured ? null : feed[0];
+  const rest = lead ? feed.slice(1) : feed;
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_20rem]">
@@ -208,13 +211,22 @@ const ResidentDashboard = () => {
         ) : announcements.length === 0 ? (
           <p className="card p-8 text-center text-sm text-gray-400">{t('dash.noAnnouncements')}</p>
         ) : (
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {feed.map((a) => (
-              <Link key={a._id} to={`/resident/announcements?focus=${a._id}`} className="block transition hover:-translate-y-0.5">
-                <AnnouncementCard item={a} />
+          <>
+            {lead && (
+              <Link to={`/resident/announcements?focus=${lead._id}`} className="block transition hover:opacity-95">
+                <AnnouncementCard item={lead} large />
               </Link>
-            ))}
-          </div>
+            )}
+            {rest.length > 0 && (
+              <div className={`grid grid-cols-1 gap-4 ${rest.length > 1 ? 'md:grid-cols-2' : ''}`}>
+                {rest.map((a) => (
+                  <Link key={a._id} to={`/resident/announcements?focus=${a._id}`} className="block transition hover:-translate-y-0.5">
+                    <AnnouncementCard item={a} />
+                  </Link>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

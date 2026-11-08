@@ -126,7 +126,7 @@ const Residents = () => {
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="search"
-            placeholder="Search residents by name, ID or purok..."
+            placeholder="Search residents by name, ID or email..."
             onChange={(e) => updateFilters({ search: e.target.value || undefined })}
             className="input-field pl-10"
             aria-label="Search residents"
@@ -146,7 +146,7 @@ const Residents = () => {
           <table className="w-full text-left text-sm">
             <thead className="bg-gray-50 text-xs uppercase tracking-wide text-gray-500 dark:bg-gray-900/60">
               <tr>
-                {['Resident', 'ID', 'Purok', 'Role', 'RBI', 'Status', 'Registered', 'Actions'].map((h) => (
+                {['Resident', 'ID', 'Role', 'RBI', 'Status', 'Registered', 'Actions'].map((h) => (
                   <th key={h} className={`px-4 py-3 font-semibold ${CENTERED.includes(h) ? 'text-center' : ''}`}>
                     {h}
                   </th>
@@ -156,7 +156,7 @@ const Residents = () => {
             <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
               {rows.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="px-4 py-10 text-center text-gray-400">
+                  <td colSpan={7} className="px-4 py-10 text-center text-gray-400">
                     No residents found.
                   </td>
                 </tr>
@@ -175,7 +175,6 @@ const Residents = () => {
                     </div>
                   </td>
                   <td className="px-4 py-3 font-mono text-xs">{r.residentId || '—'}</td>
-                  <td className="px-4 py-3">{r.address?.purok || '—'}</td>
                   <td className="px-4 py-3 capitalize">{r.role}</td>
                   <td className="px-4 py-3">
                     {r.isRbiVerified ? (
@@ -259,7 +258,6 @@ const Residents = () => {
               {[
                 ['Email', viewing.email],
                 ['Phone', viewing.phone],
-                ['Purok', viewing.address?.purok],
                 ['Address', [viewing.address?.street, viewing.address?.barangay, viewing.address?.city].filter(Boolean).join(', ')],
                 ['Birthdate', viewing.birthdate && format(new Date(viewing.birthdate), 'MMM d, yyyy')],
                 ['Civil status', viewing.civilStatus],

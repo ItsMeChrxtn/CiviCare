@@ -150,9 +150,7 @@ const REPORT_MODELS = {
     Model: User,
     title: 'Registered Residents',
     baseFilter: { role: ROLES.RESIDENT },
-    columns: ['residentId', 'firstName', 'lastName', 'email', 'phone', 'purok', 'isRbiVerified', 'isActive', 'createdAt'],
-    // Flatten nested fields the table can't reach directly.
-    map: (u) => ({ ...u, purok: u.address?.purok || '' }),
+    columns: ['residentId', 'firstName', 'lastName', 'email', 'phone', 'isRbiVerified', 'isActive', 'createdAt'],
   },
 };
 
