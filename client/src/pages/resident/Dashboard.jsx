@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiArrowRight, FiAlertCircle, FiFileText, FiAlertTriangle, FiMapPin, FiDroplet, FiWind, FiCloudRain } from 'react-icons/fi';
+import { FiArrowRight, FiAlertCircle, FiFileText, FiAlertTriangle, FiMapPin, FiDroplet, FiWind, FiCloudRain, FiPhone } from 'react-icons/fi';
 import api from '../../utils/api';
 import useSetting from '../../hooks/useSetting';
 import useWeather from '../../hooks/useWeather';
@@ -174,7 +174,19 @@ const ResidentDashboard = () => {
         <section className="card p-4">
           <h2 className="mb-3 font-display text-sm font-bold uppercase text-red-600">{t('dash.hotlines')}</h2>
           <ul className="space-y-1.5">
-            {hotlines.map((h) => (
+            {/* Panel revision: the national emergency number heads the list (a saved 911 hotline is not repeated). */}
+            <li>
+              <a href="tel:911" className="flex items-center gap-3 rounded-lg bg-red-600 p-1.5 text-white transition hover:bg-red-700">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/20">
+                  <FiPhone className="h-4 w-4" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold">911</span>
+                  <span className="block text-xs text-white/90">{t('hub.national')}</span>
+                </span>
+              </a>
+            </li>
+            {hotlines.filter((h) => h.number.replace(/\D/g, '') !== '911').map((h) => (
               <li key={h._id}>
                 <a href={`tel:${h.number.replace(/[^\d+]/g, '')}`} className="flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-gray-50 dark:hover:bg-gray-800">
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600 dark:bg-red-500/10">

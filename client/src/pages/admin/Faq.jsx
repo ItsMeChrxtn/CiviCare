@@ -9,9 +9,9 @@ import EmptyState from '../../components/common/EmptyState';
 import { CardSkeleton } from '../../components/common/Skeleton';
 
 /**
- * FAQ Manager. One list of questions and answers feeds the FAQ section of the landing page and
- * the landing page chat assistant (button-based). A question placed "under" another becomes a
- * follow-up button in the assistant and a nested item in the FAQ section.
+ * FAQ Manager. One list of questions and answers feeds the FAQ section of the landing page
+ * (panel revision: the chat assistant was removed). A question placed "under" another becomes a
+ * nested item in the FAQ section.
  */
 const Faq = () => {
   const [nodes, setNodes] = useState(null);
@@ -113,7 +113,7 @@ const Faq = () => {
         <div className="page-header mb-0">
           <h1 className="page-title">FAQ Manager</h1>
           <p className="page-subtitle">
-            Questions and answers shown in the landing page FAQ section and chat assistant. Add follow-up questions under a topic to build the assistant's menu.
+            Questions and answers shown in the landing page FAQ section. Add follow-up questions under a topic to group them.
           </p>
         </div>
         <button onClick={() => openCreate()} className="btn-primary shrink-0">
@@ -172,7 +172,6 @@ const Faq = () => {
             <label htmlFor="faq-q" className="mb-1 block text-sm font-medium">Question</label>
             <input id="faq-q" {...register('label', { required: true })} className="input-field" placeholder="e.g. What are the requirements for a Barangay Clearance?" />
             {errors.label && <p className="mt-1 text-xs text-red-500">Question is required</p>}
-            <p className="mt-1 text-xs text-gray-400">Also used as the button text in the Assistant.</p>
           </div>
           <div>
             <label htmlFor="faq-a" className="mb-1 block text-sm font-medium">Answer</label>
@@ -226,7 +225,7 @@ const Faq = () => {
         onClose={() => setDeleting(null)}
         onConfirm={remove}
         title="Delete FAQ"
-        message={`Delete "${deleting?.label}"? It will disappear from the landing page FAQ and the assistant.`}
+        message={`Delete "${deleting?.label}"? It will disappear from the landing page FAQ.`}
         confirmLabel="Delete"
         danger
       />

@@ -1,7 +1,7 @@
 const express = require('express');
 const donationController = require('../controllers/donation.controller');
 const { protect } = require('../middleware/auth');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const { ROLES } = require('../config/constants');
 
 const router = express.Router();
@@ -15,6 +15,6 @@ router.get('/:id', donationController.getDonation);
 router.patch('/:id/cancel', restrictTo(ROLES.RESIDENT), donationController.cancelDonation);
 router.patch('/:id/status', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationController.updateDonationStatus);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationController.archiveDonation);
-router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), donationController.restoreDonation);
+router.patch('/:id/restore', requireSuperAdmin, donationController.restoreDonation);
 
 module.exports = router;

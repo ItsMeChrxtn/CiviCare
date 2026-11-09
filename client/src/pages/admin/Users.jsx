@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { FiPlus, FiToggleLeft, FiToggleRight, FiArchive, FiSearch } from 'react-icons/fi';
+import { FiPlus, FiToggleLeft, FiToggleRight, FiArchive, FiSearch, FiEdit2 } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
 import Modal from '../../components/common/Modal';
@@ -26,6 +26,25 @@ const Users = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [confirming, setConfirming] = useState(null);
   const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+  // Panel revision: admins can correct a user's name and email or give them a new password.
+  const [editing, setEditing] = useState(null);
+  const editForm = useForm();
+
+  const openEdit = (user) => {
+    editForm.reset({ firstName: user.firstName, lastName: user.lastName, email: user.email, password: '' });
+    setEditing(user);
+  };
+
+  const onEdit = async (values) => {
+    try {
+      await api.patch(`/users/${editing._id}/account`, { ...values, password: values.password || undefined });
+      toast.success(values.password ? 'Account updated. Share the new password with the user.' : 'Account updated');
+      setEditing(null);
+      refetch();
+    } catch (err) {
+      toast.error(err.response?.data?.errors?.[0]?.message || err.response?.data?.message || 'Failed to update account');
+    }
+  };
 
   const onSubmit = async (values) => {
     try {
@@ -113,9 +132,16 @@ const Users = () => {
               header: 'Actions',
               accessor: (r) =>
                 canManage(r) && (
-                  <button onClick={() => setConfirming(r)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
-                    <FiArchive /> Archive
-                  </button>
+                  <div className="flex items-center gap-3">
+                    {currentUser?.role === 'admin' && (
+                    <button onClick={() => openEdit(r)} className="flex items-center gap-1 text-xs font-medium text-primary-600 hover:underline">
+                      <FiEdit2 /> Edit
+                    </button>
+                    )}
+                    <button onClick={() => setConfirming(r)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                      <FiArchive /> Archive
+                    </button>
+                  </div>
                 ),
             },
           ]}
@@ -160,6 +186,36 @@ const Users = () => {
           </div>
           <button type="submit" disabled={isSubmitting} className="btn-primary w-full">
             {isSubmitting ? 'Creating...' : 'Create Account'}
+          </button>
+        </form>
+      </Modal>
+
+      <Modal isOpen={!!editing} onClose={() => setEditing(null)} title="Edit Account">
+        <form onSubmit={editForm.handleSubmit(onEdit)} className="space-y-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <div>
+              <label htmlFor="edit-first" className="mb-1 block text-sm font-medium">First Name</label>
+              <input id="edit-first" {...editForm.register('firstName', { required: true })} className="input-field" />
+              {editForm.formState.errors.firstName && <p className="mt-1 text-xs text-red-500">First name is required</p>}
+            </div>
+            <div>
+              <label htmlFor="edit-last" className="mb-1 block text-sm font-medium">Last Name</label>
+              <input id="edit-last" {...editForm.register('lastName', { required: true })} className="input-field" />
+              {editForm.formState.errors.lastName && <p className="mt-1 text-xs text-red-500">Last name is required</p>}
+            </div>
+          </div>
+          <div>
+            <label htmlFor="edit-email" className="mb-1 block text-sm font-medium">Email</label>
+            <input id="edit-email" type="email" {...editForm.register('email', { required: true })} className="input-field" />
+            {editForm.formState.errors.email && <p className="mt-1 text-xs text-red-500">Email is required</p>}
+          </div>
+          <div>
+            <label htmlFor="edit-password" className="mb-1 block text-sm font-medium">New Password</label>
+            <input id="edit-password" type="password" autoComplete="new-password" placeholder="Leave blank to keep the current password" {...editForm.register('password', { minLength: 8 })} className="input-field" />
+            {editForm.formState.errors.password && <p className="mt-1 text-xs text-red-500">Password must be at least 8 characters</p>}
+          </div>
+          <button type="submit" disabled={editForm.formState.isSubmitting} className="btn-primary w-full">
+            {editForm.formState.isSubmitting ? 'Saving...' : 'Save Changes'}
           </button>
         </form>
       </Modal>

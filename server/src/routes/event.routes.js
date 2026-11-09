@@ -1,7 +1,7 @@
 const express = require('express');
 const eventController = require('../controllers/event.controller');
 const { protect, optionalAuth } = require('../middleware/auth');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const upload = require('../middleware/upload');
 const { ROLES } = require('../config/constants');
 
@@ -28,6 +28,6 @@ router.patch(
   eventController.addGalleryImages
 );
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), eventController.archiveEvent);
-router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), eventController.restoreEvent);
+router.patch('/:id/restore', requireSuperAdmin, eventController.restoreEvent);
 
 module.exports = router;

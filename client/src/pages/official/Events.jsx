@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import { FiPlus, FiEdit2, FiArchive, FiUsers, FiCalendar, FiActivity, FiCheck, FiX } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import api from '../../utils/api';
@@ -75,14 +76,35 @@ const Events = () => {
     }
   };
 
+  // Panel revision: a SweetAlert confirms before, and announces after, completing or cancelling an event.
   const setStatus = async (event, status) => {
+    const done = status === 'completed';
+    const { isConfirmed } = await Swal.fire({
+      icon: done ? 'question' : 'warning',
+      title: done ? 'Mark this event as done?' : 'Cancel this event?',
+      text: `"${event.title}" will be marked ${done ? 'completed' : 'cancelled'}.`,
+      showCancelButton: true,
+      confirmButtonText: done ? 'Yes, mark as done' : 'Yes, cancel event',
+      cancelButtonText: 'Go back',
+      confirmButtonColor: done ? '#0b7a3e' : '#dc2626',
+      cancelButtonColor: '#6b7280',
+      reverseButtons: true,
+    });
+    if (!isConfirmed) return;
     try {
       await api.patch(`/events/${event._id}`, { status });
-      toast.success(`Event marked ${status}`);
+      Swal.fire({
+        icon: 'success',
+        title: done ? 'Event completed!' : 'Event cancelled',
+        text: `"${event.title}" is now ${done ? 'marked as done' : 'cancelled'}.`,
+        confirmButtonColor: '#0b7a3e',
+        timer: 2500,
+        timerProgressBar: true,
+      });
       refetch();
       loadStats();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update event');
+      Swal.fire({ icon: 'error', title: 'Update failed', text: err.response?.data?.message || 'Failed to update event', confirmButtonColor: '#0b7a3e' });
     }
   };
 

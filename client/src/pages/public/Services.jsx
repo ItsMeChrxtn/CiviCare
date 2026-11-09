@@ -8,7 +8,7 @@ const SERVICES = [
   { icon: FiCalendar, title: 'Community Events', desc: 'Browse and register for barangay events, check in via QR code, and receive a digital certificate of participation.' },
   { icon: FiMap, title: 'Evacuation Map', desc: 'View an interactive map of evacuation centers, evacuation routes, safe areas, and emergency facilities.' },
   { icon: FiPhoneCall, title: 'Emergency Hub', desc: 'Access disaster guides (flood, fire, earthquake, typhoon), hotline directories, and evacuation maps in one place.' },
-  { icon: FiMessageSquare, title: 'Feedback & FAQ Assistant', desc: 'Submit feedback or complaints and get instant answers to common questions through the CiviCare Assistant.' },
+  { icon: FiMessageSquare, title: 'Feedback & FAQ', desc: 'Submit feedback or complaints and find answers to common questions in the FAQ.' },
 ];
 
 const Services = () => (

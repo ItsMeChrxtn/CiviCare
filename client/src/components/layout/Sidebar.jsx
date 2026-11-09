@@ -61,7 +61,9 @@ const NavGroup = ({ label, items, onClose, t, theme, defaultOpen = false }) => {
 const Sidebar = ({ open, onClose }) => {
   const { user } = useAuth();
   const { t } = usePreferences();
-  const nav = NAV_BY_ROLE[user?.role] || { main: [] };
+  const fullNav = NAV_BY_ROLE[user?.role] || { main: [] };
+  const visible = (items) => items?.filter((i) => !i.superAdminOnly || user?.isSuperAdmin);
+  const nav = { main: visible(fullNav.main), more: visible(fullNav.more), system: visible(fullNav.system) };
   const isResident = user?.role === 'resident';
   const theme = THEME;
 

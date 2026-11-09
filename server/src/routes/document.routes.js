@@ -2,7 +2,7 @@ const express = require('express');
 const documentController = require('../controllers/document.controller');
 const { protect } = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const { ROLES } = require('../config/constants');
 
 const router = express.Router();
@@ -21,6 +21,6 @@ router.patch('/:id/process', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentCo
 router.patch('/:id/review', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.reviewDocument);
 router.patch('/:id/claim', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.markClaimed);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.archiveDocumentRequest);
-router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), documentController.restoreDocumentRequest);
+router.patch('/:id/restore', requireSuperAdmin, documentController.restoreDocumentRequest);
 
 module.exports = router;

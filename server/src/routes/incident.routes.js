@@ -1,7 +1,7 @@
 const express = require('express');
 const incidentController = require('../controllers/incident.controller');
 const { protect } = require('../middleware/auth');
-const { restrictTo } = require('../middleware/role');
+const { restrictTo, requireSuperAdmin } = require('../middleware/role');
 const upload = require('../middleware/upload');
 const validate = require('../middleware/validate');
 const { createIncidentValidator } = require('../validators/incident.validator');
@@ -23,6 +23,6 @@ router.patch('/:id/status', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentCon
 router.patch('/:id/severity', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.updateIncidentSeverity);
 router.post('/:id/notes', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.addInternalNote);
 router.patch('/:id/archive', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.archiveIncident);
-router.patch('/:id/restore', restrictTo(ROLES.ADMIN, ROLES.OFFICIAL), incidentController.restoreIncident);
+router.patch('/:id/restore', requireSuperAdmin, incidentController.restoreIncident);
 
 module.exports = router;

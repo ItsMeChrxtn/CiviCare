@@ -153,6 +153,34 @@ const updateUser = catchAsync(async (req, res) => {
   res.status(200).json(new ApiResponse(200, user, 'User updated successfully'));
 });
 
+// @route PATCH /api/users/:id/account (panel revision: admin edits a user's name, email and password)
+const updateAccount = catchAsync(async (req, res) => {
+  await assertCanManage(req, req.params.id);
+  const user = await User.findById(req.params.id);
+  if (!user) throw ApiError.notFound('User not found');
+
+  const { firstName, lastName, email, password } = req.body;
+  if (firstName !== undefined) user.firstName = firstName.trim();
+  if (lastName !== undefined) user.lastName = lastName.trim();
+  if (email && email.toLowerCase().trim() !== user.email) {
+    const next = email.toLowerCase().trim();
+    if (await User.exists({ email: next, _id: { $ne: user._id } })) throw ApiError.conflict('An account with this email already exists.');
+    user.email = next;
+  }
+  // The save hook hashes the password and signs the user out of existing sessions.
+  if (password) user.password = password;
+  await user.save({ validateModifiedOnly: true });
+
+  await writeLog({
+    req,
+    action: 'USER_UPDATE',
+    module: 'users',
+    description: `Edited account of ${user.email}${password ? ' (password reset)' : ''}`,
+  });
+
+  res.status(200).json(new ApiResponse(200, user, 'Account updated successfully'));
+});
+
 // @route PATCH /api/users/:id/toggle-active
 const toggleActive = catchAsync(async (req, res) => {
   if (String(req.params.id) === String(req.user._id)) {
@@ -297,6 +325,7 @@ const getUserStats = catchAsync(async (_req, res) => {
 });
 
 module.exports = {
+  updateAccount,
   verifyResident,
   reviewRegistration,
   updateMe,

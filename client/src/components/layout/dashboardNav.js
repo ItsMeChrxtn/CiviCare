@@ -57,7 +57,8 @@ const STAFF_MORE = [
   { to: '/official/hazards', labelKey: 'nav.hazardMap', icon: FiMap },
   { to: '/official/feedback', labelKey: 'nav.feedback', icon: FiMessageSquare },
   { to: '/official/reports', labelKey: 'nav.reports', icon: FiBarChart2 },
-  { to: '/official/archive', labelKey: 'nav.archive', icon: FiArchive },
+  // Panel revision: only the super admin sees the archive of soft-deleted records.
+  { to: '/official/archive', labelKey: 'nav.archive', icon: FiArchive, superAdminOnly: true },
 ];
 
 export const OFFICIAL_NAV = {

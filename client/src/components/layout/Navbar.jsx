@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
-import { FiMenu, FiX, FiMoon, FiSun, FiLogOut, FiPhoneCall, FiUser, FiGrid } from 'react-icons/fi';
+import { FiMenu, FiX, FiMoon, FiSun, FiLogOut, FiUser, FiGrid } from 'react-icons/fi';
 import useClickOutside from '../../hooks/useClickOutside';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -119,9 +119,6 @@ const Navbar = () => {
         </div>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <Link to="/emergency-hub" className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-red-700">
-            <FiPhoneCall /> Emergency Hub
-          </Link>
           <button
             onClick={toggleTheme}
             className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800"
@@ -145,9 +142,6 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center gap-1 lg:hidden">
-          <Link to="/emergency-hub" className="inline-flex items-center gap-1 rounded-lg bg-red-600 px-2.5 py-1.5 text-xs font-semibold text-white" aria-label="Emergency Hub">
-            <FiPhoneCall /> SOS
-          </Link>
           {user && <ProfileMenu user={user} onLogout={handleLogout} />}
           <button className="p-2" onClick={() => setOpen(!open)} aria-label="Toggle menu">
             {open ? <FiX className="h-6 w-6" /> : <FiMenu className="h-6 w-6" />}

@@ -119,7 +119,7 @@ function App() {
                 <Route path="documents" element={<ResidentDocuments />} />
                 <Route path="documents/:id" element={<ResidentDocumentDetail />} />
                 <Route path="announcements" element={<ResidentAnnouncements />} />
-                {/* Assistant and Contact Us live only on the landing page (panel revision) */}
+                {/* The Assistant was removed (panel revision); old links open the landing page FAQ */}
                 <Route path="assistant" element={<Navigate to="/#faq" replace />} />
                 <Route path="contact" element={<Navigate to="/#contact" replace />} />
                 <Route path="events" element={<ResidentEvents />} />

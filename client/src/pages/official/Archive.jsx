@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { FiRotateCcw, FiFilter } from 'react-icons/fi';
@@ -21,12 +22,7 @@ const RESTORE_ENDPOINT = {
   donation: (id) => `/donations/${id}/restore`,
 };
 
-// Panel revision: unarchiving residents/users and announcements is reserved for the super admin.
-const SUPER_ADMIN_ONLY = ['user', 'announcement'];
-
-const Archive = () => {
-  const { user } = useAuth();
-  const canRestore = (module) => !SUPER_ADMIN_ONLY.includes(module) || Boolean(user?.isSuperAdmin);
+const ArchiveTable = () => {
   const { rows, meta, params, setPage, updateFilters, isLoading, refetch } = usePaginatedFetch('/logs/archives');
   const [busyId, setBusyId] = useState(null);
 
@@ -77,12 +73,7 @@ const Archive = () => {
             {
               header: 'Actions',
               accessor: (r) =>
-                r.action === 'archived' &&
-                (!canRestore(r.module) ? (
-                  <span className="text-xs text-gray-400" title="Only the super admin can restore residents and announcements">
-                    Super admin only
-                  </span>
-                ) : (
+                r.action === 'archived' && (
                   <button
                     onClick={() => handleRestore(r)}
                     disabled={busyId === r._id}
@@ -90,7 +81,7 @@ const Archive = () => {
                   >
                     <FiRotateCcw className="h-3.5 w-3.5" /> Restore
                   </button>
-                )),
+                ),
             },
           ]}
           rows={rows}
@@ -98,6 +89,12 @@ const Archive = () => {
       </div>
     </div>
   );
+};
+
+// Panel revision: the archive of soft-deleted records is for the super admin only.
+const Archive = () => {
+  const { user } = useAuth();
+  return user?.isSuperAdmin ? <ArchiveTable /> : <Navigate to="/unauthorized" replace />;
 };
 
 export default Archive;
