@@ -36,7 +36,7 @@ import { currentAlerts } from '../../utils/emergency';
 // Panel revision: features laid out as a compact waterfall (masonry) instead of equal-height rows.
 const FEATURES = [
   { icon: FiAlertTriangle, title: 'Incident Reporting', desc: 'Pin the exact spot in Magdiwang, attach a photo, and track your ticket from Pending to Resolved.' },
-  { icon: FiFileText, title: 'Document Requests', desc: 'Request a Barangay Clearance or Certificate of Indigency online, free of charge.' },
+  { icon: FiFileText, title: 'Document Requests', desc: 'Request a Barangay Certificate or Certificate of Indigency online, free of charge.' },
   { icon: FiPhoneCall, title: 'Emergency Hub', desc: 'Current disaster alerts, the evacuation map and one-tap hotlines — open to everyone, no login needed.' },
   { icon: FiCalendar, title: 'Community Events', desc: 'Join events, check in via QR code, and download certificates of participation.' },
   { icon: FiGift, title: 'Donations', desc: 'Pledge cash or relief goods for affected families and follow your pledge until it is distributed.' },

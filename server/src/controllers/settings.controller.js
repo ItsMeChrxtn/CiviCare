@@ -54,7 +54,7 @@ const DEFAULTS = {
   categories: {
     incidentCategories: ['fire', 'flood', 'earthquake', 'typhoon', 'medical', 'crime', 'accident', 'infrastructure', 'other'],
     // Panel revision: only these two documents are offered, and both are free of charge.
-    documentTypes: ['barangay_clearance', 'certificate_of_indigency'],
+    documentTypes: ['barangay_certificate', 'certificate_of_indigency'],
   },
 };
 

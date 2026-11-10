@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link } from 'react-router-dom';
-import { format, differenceInYears } from 'date-fns';
+import { format } from 'date-fns';
 import toast from 'react-hot-toast';
 import { BsQrCode } from 'react-icons/bs';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
@@ -12,12 +12,12 @@ import { usePreferences } from '../../contexts/PreferencesContext';
 import Badge from '../../components/common/Badge';
 import DataTable from '../../components/common/DataTable';
 import { FiLock, FiSearch, FiUpload, FiX } from 'react-icons/fi';
-import { SERVICE_DOCUMENTS, CIVIL_STATUS, DOCUMENT_STATUS, documentLabel } from '../../utils/constants';
+import { SERVICE_DOCUMENTS, CIVIL_STATUS, DOCUMENT_STATUS, REQUEST_PURPOSES, documentLabel } from '../../utils/constants';
 
 const MAX_ID_SIZE = 5 * 1024 * 1024; // matches the server's upload limit
 const ACCEPTED_PHOTOS = ['image/jpeg', 'image/png', 'image/webp'];
-// Panel revision: purpose is picked from common examples instead of typed free-form.
-const PURPOSES = ['scholarship', 'employment', 'personal', 'school', 'financial', 'travel', 'other'];
+// Panel revision: purpose is picked from the list printed on the Barangay Certificate form.
+const TODAY = format(new Date(), 'yyyy-MM-dd');
 
 const fullAddress = (a) => [a?.street, a?.purok, a?.barangay && `Brgy. ${a.barangay}`, a?.city, a?.province].filter(Boolean).join(', ');
 
@@ -42,7 +42,8 @@ const Documents = () => {
       firstName: user?.firstName || '',
       middleName: user?.middleName || '',
       lastName: user?.lastName || '',
-      age: user?.birthdate ? differenceInYears(new Date(), new Date(user.birthdate)) : '',
+      birthdate: user?.birthdate ? format(new Date(user.birthdate), 'yyyy-MM-dd') : '',
+      placeOfBirth: '',
       civilStatus: user?.civilStatus || '',
       address: fullAddress(user?.address),
       purpose: '',
@@ -79,13 +80,13 @@ const Documents = () => {
     if (openRequests.length) return toast.error(t('service.pendingLock', { codes: openRequests.map((d) => d.referenceCode).join(', ') }));
     if (!selected.length) return toast.error(t('service.chooseOne'));
     if (!validId) return toast.error(t('service.validIdMissing'));
-    const purposeText = purpose === 'other' ? purposeOther.trim() : t(`service.purpose.${purpose}`, null, purpose);
+    const purposeText = purpose === 'other' ? purposeOther.trim() : REQUEST_PURPOSES.find((p) => p.value === purpose)?.label || purpose;
     try {
       // Sent together; the server files one record per ticked document so each is tracked on its own.
       const form = new FormData();
       form.append('types', JSON.stringify(selected));
       form.append('purpose', purposeText);
-      form.append('details', JSON.stringify(details));
+      form.append('details', JSON.stringify({ ...details, purposeKey: purpose }));
       form.append('validId', validId);
       await api.post('/documents', form, { headers: { 'Content-Type': 'multipart/form-data' } });
       toast.success(t('service.sent', { count: selected.length }), { duration: 6000 });
@@ -118,8 +119,7 @@ const Documents = () => {
         <input
           id={name}
           type={opts.type || 'text'}
-          min={opts.type === 'number' ? 1 : undefined}
-          max={opts.type === 'number' ? 120 : undefined}
+          max={opts.max}
           placeholder={t('service.enter', { field: t(labelKey) })}
           {...register(name, { required: !opts.optional })}
           className="input-field"
@@ -161,9 +161,10 @@ const Documents = () => {
             {field('middleName', 'service.middleName', { optional: true })}
             {field('lastName', 'service.lastName')}
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              {field('age', 'service.age', { type: 'number' })}
+              {field('birthdate', 'service.birthdate', { type: 'date', max: TODAY })}
               {field('civilStatus', 'service.civilStatus', { select: true })}
             </div>
+            {field('placeOfBirth', 'service.placeOfBirth')}
             {field('address', 'service.address')}
             <div>
               <label htmlFor="purpose" className="mb-1 block text-sm font-medium">
@@ -171,9 +172,9 @@ const Documents = () => {
               </label>
               <select id="purpose" {...register('purpose', { required: true })} className="input-field">
                 <option value="">{t('service.purposePh')}</option>
-                {PURPOSES.map((p) => (
-                  <option key={p} value={p}>
-                    {t(`service.purpose.${p}`)}
+                {REQUEST_PURPOSES.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {t(`service.purpose.${p.value}`)}
                   </option>
                 ))}
               </select>

@@ -27,6 +27,14 @@ const documentSchema = new mongoose.Schema(
 
     fee: { type: Number, default: 0 },
 
+    // Barangay Certificate: community tax (cedula) and official receipt details entered on approval.
+    issuance: {
+      cedulaNo: { type: String, trim: true, maxlength: 40 },
+      cedulaDateIssued: { type: String, trim: true, maxlength: 40 },
+      cedulaIssuedAt: { type: String, trim: true, maxlength: 60 },
+      orNo: { type: String, trim: true, maxlength: 40 },
+    },
+
     qrCode: { type: String }, // encodes verification URL / reference code
     // HMAC over the issued document's fields; embedded in the QR so edited/forged copies fail verification.
     verificationHash: { type: String, select: false },

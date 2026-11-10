@@ -170,7 +170,7 @@ const Faq = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
             <label htmlFor="faq-q" className="mb-1 block text-sm font-medium">Question</label>
-            <input id="faq-q" {...register('label', { required: true })} className="input-field" placeholder="e.g. What are the requirements for a Barangay Clearance?" />
+            <input id="faq-q" {...register('label', { required: true })} className="input-field" placeholder="e.g. What are the requirements for a Barangay Certificate?" />
             {errors.label && <p className="mt-1 text-xs text-red-500">Question is required</p>}
           </div>
           <div>

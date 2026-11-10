@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { format } from 'date-fns';
+import { format, differenceInYears } from 'date-fns';
 import toast from 'react-hot-toast';
 import { FiClock, FiRefreshCw, FiCheckCircle, FiEye, FiCheck, FiCamera, FiDownload } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
@@ -10,6 +10,16 @@ import Modal from '../../components/common/Modal';
 import Pagination from '../../components/common/Pagination';
 import { TableSkeleton } from '../../components/common/Skeleton';
 import { documentLabel } from '../../utils/constants';
+
+// Panel revision: Barangay Certificate approvals carry the cedula and official receipt details printed on the form.
+const CERTIFICATE = 'barangay_certificate';
+const ISSUANCE_FIELDS = [
+  ['cedulaNo', 'Cedula No.'],
+  ['cedulaDateIssued', 'Cedula Date Issued', 'e.g. Jan 5, 2026'],
+  ['cedulaIssuedAt', 'Cedula Issued at', 'e.g. Noveleta, Cavite'],
+  ['orNo', 'O.R. No.'],
+];
+const NO_ISSUANCE = { cedulaNo: '', cedulaDateIssued: '', cedulaIssuedAt: '', orNo: '' };
 
 const STATUS_FILTERS = ['pending', 'processing', 'ready_for_pickup', 'claimed', 'rejected'];
 
@@ -27,6 +37,7 @@ const Documents = () => {
   const [stats, setStats] = useState(null);
   const [selected, setSelected] = useState(null);
   const [rejectionReason, setRejectionReason] = useState('');
+  const [issuance, setIssuance] = useState(NO_ISSUANCE);
   const [busy, setBusy] = useState(false);
 
   const loadStats = useCallback(() => api.get('/documents/stats/overview').then(({ data }) => setStats(data.data)).catch(() => {}), []);
@@ -38,6 +49,7 @@ const Documents = () => {
 
   const openDetail = async (row) => {
     setRejectionReason('');
+    setIssuance(NO_ISSUANCE);
     setSelected(row);
     const { data } = await api.get(`/documents/${row._id}`);
     setSelected(data.data);
@@ -61,7 +73,8 @@ const Documents = () => {
     }
   };
 
-  const approve = (doc) => act(() => api.patch(`/documents/${doc._id}/review`, { decision: 'approved' }), 'Approved — PDF with QR code generated and resident notified');
+  const approve = (doc) =>
+    act(() => api.patch(`/documents/${doc._id}/review`, { decision: 'approved', ...(doc.type === CERTIFICATE ? issuance : {}) }), 'Approved — PDF with QR code generated and resident notified');
   const reject = () => {
     if (!rejectionReason.trim()) return toast.error('Please give a reason for rejecting');
     return act(() => api.patch(`/documents/${selected._id}/review`, { decision: 'rejected', rejectionReason }), 'Request rejected and resident notified');
@@ -148,7 +161,7 @@ const Documents = () => {
                           <FiEye />
                         </button>
                         {['pending', 'processing'].includes(r.status) && (
-                          <button onClick={() => approve(r)} disabled={busy} className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10" title="Approve" aria-label="Approve">
+                          <button onClick={() => (r.type === CERTIFICATE ? openDetail(r) : approve(r))} disabled={busy} className="rounded-lg p-1.5 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10" title="Approve" aria-label="Approve">
                             <FiCheck />
                           </button>
                         )}
@@ -190,7 +203,9 @@ const Documents = () => {
               {[
                 ['Name', [d.firstName, d.middleName, d.lastName].filter(Boolean).join(' ') || `${selected.requestedBy?.firstName} ${selected.requestedBy?.lastName}`],
                 ['Resident ID', selected.requestedBy?.residentId],
-                ['Age', d.age],
+                ['Date of birth', d.birthdate && format(new Date(d.birthdate), 'MMM d, yyyy')],
+                ['Age', d.birthdate ? differenceInYears(new Date(), new Date(d.birthdate)) : d.age],
+                ['Place of birth', d.placeOfBirth],
                 ['Civil status', d.civilStatus],
                 ['Address', d.address],
                 ['Contact', selected.requestedBy?.phone || selected.requestedBy?.email],
@@ -216,6 +231,28 @@ const Documents = () => {
 
             {['pending', 'processing'].includes(selected.status) && (
               <div className="space-y-3">
+                {selected.type === CERTIFICATE && (
+                  <fieldset className="rounded-xl border border-gray-100 p-4 dark:border-gray-800">
+                    <legend className="px-1 text-xs font-semibold text-gray-500">Printed on the certificate (optional)</legend>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {ISSUANCE_FIELDS.map(([key, label, placeholder]) => (
+                        <div key={key}>
+                          <label htmlFor={`issuance-${key}`} className="mb-1 block text-xs font-medium">
+                            {label}
+                          </label>
+                          <input
+                            id={`issuance-${key}`}
+                            value={issuance[key]}
+                            maxLength={60}
+                            placeholder={placeholder}
+                            onChange={(e) => setIssuance((v) => ({ ...v, [key]: e.target.value }))}
+                            className="input-field !py-1.5"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </fieldset>
+                )}
                 <div className="flex flex-wrap gap-2">
                   {selected.status === 'pending' && (
                     <button onClick={() => act(() => api.patch(`/documents/${selected._id}/process`), 'Marked as processing; resident notified')} disabled={busy} className="btn-secondary">
@@ -241,6 +278,11 @@ const Documents = () => {
               <div className="flex flex-col gap-4 rounded-xl border border-gray-100 p-4 dark:border-gray-800 sm:flex-row">
                 {selected.qrDataUrl && <img src={selected.qrDataUrl} alt="Verification QR" className="h-32 w-32" />}
                 <div className="flex-1 space-y-2">
+                  {selected.type === CERTIFICATE && selected.issuance && (
+                    <p className="text-xs text-gray-500">
+                      {ISSUANCE_FIELDS.map(([key, label]) => `${label}: ${selected.issuance[key] || '—'}`).join(' · ')}
+                    </p>
+                  )}
                   <p>
                     Issued {selected.issuedAt && format(new Date(selected.issuedAt), 'MMM d, yyyy h:mm a')}
                     {selected.claimedAt && ` · Claimed ${format(new Date(selected.claimedAt), 'MMM d, yyyy')}`}

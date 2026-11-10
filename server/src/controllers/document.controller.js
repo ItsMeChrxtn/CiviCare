@@ -8,13 +8,14 @@ const Setting = require('../models/Setting');
 const User = require('../models/User');
 const { nextReferenceCode } = require('../utils/referenceCode');
 const { generateDocumentPdf } = require('../services/pdf.service');
+const { generateBarangayCertificatePdf, CERTIFICATE_PURPOSES } = require('../services/certificate.service');
 const { generateQrDataUrl } = require('../services/qrcode.service');
 const { uploadBuffer, uploadPdfBuffer } = require('../services/cloudinary.service');
 const { notifyRole, notifyUser } = require('../services/notification.service');
 const { deliverSms } = require('../services/sms.service');
 const { writeLog } = require('../services/log.service');
 const { archiveDocument: archiveRecord, restoreDocument: restoreRecord } = require('../services/archive.service');
-const { NOTIFICATION_TYPE, ROLES, DOCUMENT_STATUS, REQUESTABLE_DOCUMENT_TYPES } = require('../config/constants');
+const { NOTIFICATION_TYPE, ROLES, DOCUMENT_STATUS, DOCUMENT_TYPE, REQUESTABLE_DOCUMENT_TYPES } = require('../config/constants');
 
 const CLIENT_URL = () => process.env.CLIENT_URL;
 const HASH_SECRET = () => process.env.DOCUMENT_HASH_SECRET || process.env.JWT_ACCESS_SECRET;
@@ -79,7 +80,7 @@ const createDocumentRequest = catchAsync(async (req, res) => {
   const types = [...new Set(parseTypes(req.body))];
   if (!types.length) throw ApiError.badRequest('Please choose at least one document to request.');
   if (types.some((type) => !REQUESTABLE_DOCUMENT_TYPES.includes(type))) {
-    throw ApiError.badRequest('Only Barangay Clearance and Certificate of Indigency can be requested.');
+    throw ApiError.badRequest('Only Barangay Certificate and Certificate of Indigency can be requested.');
   }
   if (!purpose?.trim()) throw ApiError.badRequest('Purpose of request is required.');
 
@@ -91,6 +92,13 @@ const createDocumentRequest = catchAsync(async (req, res) => {
   }
 
   const details = parseDetails(req.body.details);
+  // The Barangay Certificate form prints the date and place of birth and ticks one listed purpose.
+  if (types.includes(DOCUMENT_TYPE.BARANGAY_CERTIFICATE)) {
+    const born = new Date(details.birthdate);
+    if (!details.birthdate || Number.isNaN(born.getTime()) || born > new Date()) throw ApiError.badRequest('Please enter a valid date of birth.');
+    if (!String(details.placeOfBirth || '').trim()) throw ApiError.badRequest('Place of birth is required.');
+    if (details.purposeKey && !CERTIFICATE_PURPOSES.includes(details.purposeKey)) throw ApiError.badRequest('Please choose a purpose from the list.');
+  }
 
   // Valid ID with a Magdiwang address, so officials can verify residency before processing (photos only).
   if (!req.file) throw ApiError.badRequest('Please upload a photo of your Barangay ID or any valid ID with your Magdiwang address.');
@@ -266,16 +274,49 @@ const reviewDocument = catchAsync(async (req, res) => {
   });
   const verifyUrl = `${CLIENT_URL()}/verify-document/${document.referenceCode}?h=${verificationHash}`;
 
-  const general = await Setting.findOne({ key: 'general' }).lean();
-  const pdfBuffer = await generateDocumentPdf({
-    type: document.type,
-    referenceCode: document.referenceCode,
-    residentName,
-    purpose: document.purpose,
-    issuedDate: issuedAt.toDateString(),
-    verifyUrl,
-    barangayName: general?.value?.barangayName || 'Barangay Magdiwang',
-  });
+  let pdfBuffer;
+  if (document.type === DOCUMENT_TYPE.BARANGAY_CERTIFICATE) {
+    // Panel revision: printed on the barangay's own Barangay Certificate form.
+    const pick = (v) => (typeof v === 'string' ? v.trim().slice(0, 60) : '');
+    document.issuance = {
+      cedulaNo: pick(req.body.cedulaNo),
+      cedulaDateIssued: pick(req.body.cedulaDateIssued),
+      cedulaIssuedAt: pick(req.body.cedulaIssuedAt),
+      orNo: pick(req.body.orNo),
+    };
+    const d = document.details || {};
+    const born = d.birthdate ? new Date(d.birthdate) : null;
+    const validBirth = born && !Number.isNaN(born.getTime());
+    // Age on the day of issue, in Philippine time (the birthdate is a calendar date).
+    const today = new Date(issuedAt.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
+    const hadBirthday = today.getMonth() > born?.getUTCMonth() || (today.getMonth() === born?.getUTCMonth() && today.getDate() >= born?.getUTCDate());
+    const age = validBirth ? today.getFullYear() - born.getUTCFullYear() - (hadBirthday ? 0 : 1) : d.age;
+    pdfBuffer = await generateBarangayCertificatePdf({
+      controlNo: String(Number(document.referenceCode.split('-').pop()) || '').padStart(4, '0'),
+      name: residentName,
+      address: d.address,
+      birthdate: validBirth ? born.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' }) : '',
+      age,
+      placeOfBirth: d.placeOfBirth,
+      purposeKey: d.purposeKey,
+      purposeText: document.purpose,
+      issuedAt,
+      issuance: document.issuance,
+      verifyUrl,
+      referenceCode: document.referenceCode,
+    });
+  } else {
+    const general = await Setting.findOne({ key: 'general' }).lean();
+    pdfBuffer = await generateDocumentPdf({
+      type: document.type,
+      referenceCode: document.referenceCode,
+      residentName,
+      purpose: document.purpose,
+      issuedDate: issuedAt.toDateString(),
+      verifyUrl,
+      barangayName: general?.value?.barangayName || 'Barangay Magdiwang',
+    });
+  }
 
   document.pdfFile = await uploadPdfBuffer(pdfBuffer, 'documents', document.referenceCode);
   document.qrCode = verifyUrl;

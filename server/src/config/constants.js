@@ -45,8 +45,9 @@ const DOCUMENT_TYPE = Object.freeze({
   CEDULA: 'cedula',
 });
 
-// Only these can be requested now (panel revision); the other types stay valid for older records.
-const REQUESTABLE_DOCUMENT_TYPES = Object.freeze([DOCUMENT_TYPE.BARANGAY_CLEARANCE, DOCUMENT_TYPE.INDIGENCY]);
+// Only these can be requested now (panel revision: the Barangay Certificate, on the barangay's own form,
+// replaces the Barangay Clearance); the other types stay valid for older records.
+const REQUESTABLE_DOCUMENT_TYPES = Object.freeze([DOCUMENT_TYPE.BARANGAY_CERTIFICATE, DOCUMENT_TYPE.INDIGENCY]);
 
 const DOCUMENT_STATUS = Object.freeze({
   PENDING: 'pending',

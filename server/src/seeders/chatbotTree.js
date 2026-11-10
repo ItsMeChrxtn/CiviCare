@@ -5,10 +5,10 @@
  */
 const CHATBOT_TREE = [
   {
-    label: 'Barangay Clearance',
-    labelTl: 'Barangay Clearance',
-    response: 'What would you like to know about the Barangay Clearance?',
-    responseTl: 'Ano ang gusto mong malaman tungkol sa Barangay Clearance?',
+    label: 'Barangay Certificate',
+    labelTl: 'Barangay Certificate',
+    response: 'What would you like to know about the Barangay Certificate?',
+    responseTl: 'Ano ang gusto mong malaman tungkol sa Barangay Certificate?',
     children: [
       {
         label: 'Requirements',
@@ -22,15 +22,15 @@ const CHATBOT_TREE = [
         label: 'How to request',
         labelTl: 'Paano mag-request',
         response:
-          'Go to Service Request, tick "Barangay Clearance", fill in your personal details and purpose, then press Submit. You will receive an SMS once it is ready for pick-up.',
+          'Go to Service Request, tick "Barangay Certificate", fill in your personal details and purpose, then press Submit. You will receive an SMS once it is ready for pick-up.',
         responseTl:
-          'Pumunta sa Service Request, i-check ang "Barangay Clearance", ilagay ang iyong personal na detalye at layunin, saka pindutin ang Submit. Makakatanggap ka ng SMS kapag handa na itong kunin.',
+          'Pumunta sa Service Request, i-check ang "Barangay Certificate", ilagay ang iyong personal na detalye at layunin, saka pindutin ang Submit. Makakatanggap ka ng SMS kapag handa na itong kunin.',
       },
       {
         label: 'Fee & processing time',
         labelTl: 'Bayad at tagal ng proseso',
-        response: 'The Barangay Clearance is free of charge. Processing takes 1-2 working days, during office hours only.',
-        responseTl: 'Libre ang Barangay Clearance. Ang proseso ay 1-2 araw ng trabaho, tuwing office hours lamang.',
+        response: 'The Barangay Certificate is free of charge. Processing takes 1-2 working days, during office hours only.',
+        responseTl: 'Libre ang Barangay Certificate. Ang proseso ay 1-2 araw ng trabaho, tuwing office hours lamang.',
       },
     ],
   },
@@ -46,9 +46,9 @@ const CHATBOT_TREE = [
     label: 'Business Permit',
     labelTl: 'Business Permit',
     response:
-      'Business permits are issued by the Noveleta Municipal Hall (Business Permits and Licensing Office). Bring your Barangay Clearance, which you can request free of charge through Service Request in CiviCare.',
+      'Business permits are issued by the Noveleta Municipal Hall (Business Permits and Licensing Office). Bring your Barangay Certificate, which you can request free of charge through Service Request in CiviCare.',
     responseTl:
-      'Ang business permit ay ibinibigay ng Noveleta Municipal Hall (Business Permits and Licensing Office). Dalhin ang iyong Barangay Clearance, na maaari mong i-request nang libre sa Service Request ng CiviCare.',
+      'Ang business permit ay ibinibigay ng Noveleta Municipal Hall (Business Permits and Licensing Office). Dalhin ang iyong Barangay Certificate, na maaari mong i-request nang libre sa Service Request ng CiviCare.',
   },
   {
     label: 'Requirements',

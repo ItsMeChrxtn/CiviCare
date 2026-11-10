@@ -199,7 +199,7 @@ const seedSettings = async (adminId) => {
     {
       key: 'categories',
       value: {
-        documentTypes: ['barangay_clearance', 'certificate_of_indigency'],
+        documentTypes: ['barangay_certificate', 'certificate_of_indigency'],
       },
       updatedBy: adminId,
     },

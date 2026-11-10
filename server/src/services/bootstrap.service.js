@@ -123,6 +123,22 @@ const updateAssistantTopics = async () => {
 };
 
 // Panel revision: the oldest admin account becomes the super admin if none exists yet.
+// Panel revision: the Barangay Certificate replaces the Barangay Clearance, so the FAQ says so too.
+const renameClearanceInFaq = async () => {
+  const Chatbot = require('../models/Chatbot');
+  const fields = ['label', 'labelTl', 'response', 'responseTl'];
+  const items = await Chatbot.find({ $or: fields.map((f) => ({ [f]: /Barangay Clearance/ })) });
+  await Promise.all(
+    items.map((item) => {
+      const update = {};
+      fields.forEach((f) => {
+        if (typeof item[f] === 'string') update[f] = item[f].replace(/Barangay Clearance/g, 'Barangay Certificate');
+      });
+      return Chatbot.updateOne({ _id: item._id }, update);
+    })
+  );
+};
+
 const ensureSuperAdmin = async () => {
   if (await User.exists({ isSuperAdmin: true })) return;
   const oldest = await User.findOne({ role: 'admin', isArchived: false }).sort('createdAt');
@@ -149,6 +165,7 @@ const runStartupTasks = async () => {
     await runOnce('2026-10-panel-map', recenterMapAndPinEvacuationCenter);
     await runOnce('2026-10-panel-assistant', updateAssistantTopics);
     await runOnce('2026-11-panel-assistant', refreshAssistantSteps);
+    await runOnce('2026-11-barangay-certificate', renameClearanceInFaq);
     await ensureSuperAdmin();
   } catch (err) {
     console.error('[Bootstrap] Startup task failed:', err.message);

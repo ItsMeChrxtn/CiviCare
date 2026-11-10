@@ -39,17 +39,34 @@ export const INCIDENT_CATEGORY_LABELS = {
 
 export const categoryLabel = (c) => INCIDENT_CATEGORY_LABELS[c] || c?.replace(/_/g, ' ');
 
-// Documents offered on the Service Request screen (panel revision: Barangay Clearance and
-// Certificate of Indigency only, both issued free of charge).
+// Documents offered on the Service Request screen (panel revision: the Barangay Certificate, printed on
+// the barangay's own form, replaces the Barangay Clearance; both are issued free of charge).
 export const SERVICE_DOCUMENTS = [
-  { value: 'barangay_clearance', label: 'Barangay Clearance' },
+  { value: 'barangay_certificate', label: 'Barangay Certificate' },
   { value: 'certificate_of_indigency', label: 'Certificate of Indigency' },
+];
+
+// Panel revision: the purposes printed on the Barangay Certificate form (stored in English on the request).
+export const REQUEST_PURPOSES = [
+  { value: 'local_employment', label: 'Local Employment' },
+  { value: 'travel_abroad', label: 'Travel / Employment Abroad' },
+  { value: 'transfer_residence', label: 'Transfer of Residence' },
+  { value: 'postal_id', label: 'Postal ID Application' },
+  { value: 'police_clearance', label: 'Police Clearance' },
+  { value: 'school', label: 'School Requirements' },
+  { value: 'nbi_clearance', label: 'NBI Clearance' },
+  { value: 'bank', label: 'Bank Requirements' },
+  { value: 'burial', label: 'Burial Assistance' },
+  { value: 'medical_financial', label: 'Medical / Financial Assistance' },
+  { value: 'tricycle_franchise', label: 'Tricycle Franchise' },
+  { value: 'calamity_aid', label: 'Processing of Calamity / Disaster Aid' },
+  { value: 'other', label: 'Others' },
 ];
 
 // Labels for every type ever issued, so older requests still display correctly.
 export const DOCUMENT_TYPES = [
   ...SERVICE_DOCUMENTS,
-  { value: 'barangay_certificate', label: 'Barangay Certificate' },
+  { value: 'barangay_clearance', label: 'Barangay Clearance' },
   { value: 'certificate_of_residency', label: 'Certificate of Residency' },
   { value: 'business_clearance', label: 'Business Clearance' },
   { value: 'cedula', label: 'Cedula (Community Tax Certificate)' },
