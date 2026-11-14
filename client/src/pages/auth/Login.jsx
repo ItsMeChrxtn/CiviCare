@@ -6,6 +6,7 @@ import { FiMail, FiLock, FiEye, FiEyeOff, FiClock } from 'react-icons/fi';
 import { useAuth } from '../../contexts/AuthContext';
 import { usePreferences } from '../../contexts/PreferencesContext';
 import AuthShell from '../../components/layout/AuthShell';
+import { IDLE_FLAG_KEY } from '../../hooks/useIdleLogout';
 
 const REMEMBER_KEY = 'civicare-remembered-email';
 const roleHome = (role) => (role === 'resident' ? '/resident' : role === 'official' ? '/official' : '/admin');
@@ -18,6 +19,17 @@ const readRemembered = () => {
   }
 };
 
+// Shown once after an idle session was ended automatically.
+const takeIdleFlag = () => {
+  try {
+    const flagged = sessionStorage.getItem(IDLE_FLAG_KEY) === '1';
+    sessionStorage.removeItem(IDLE_FLAG_KEY);
+    return flagged;
+  } catch {
+    return false;
+  }
+};
+
 const Login = () => {
   const remembered = readRemembered();
   const {
@@ -26,13 +38,15 @@ const Login = () => {
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues: { email: remembered, remember: Boolean(remembered) } });
   const [showPassword, setShowPassword] = useState(false);
-  const [review, setReview] = useState(null); // account under review / rejected notice
+  const [review, setReview] = useState(null); // account under review / rejected / locked notice
+  const [idleNotice] = useState(takeIdleFlag);
   const { login } = useAuth();
   const { t } = usePreferences();
   const navigate = useNavigate();
   const location = useLocation();
 
   const onSubmit = async ({ email, password, remember }) => {
+    setReview(null);
     try {
       const user = await login(email, password);
       try {
@@ -45,6 +59,11 @@ const Login = () => {
       navigate(location.state?.from?.pathname || roleHome(user.role), { replace: true });
     } catch (err) {
       const code = err.response?.data?.errors?.[0]?.code;
+      // Panel revision: a temporarily locked account gets a lasting notice, not just a toast.
+      if (err.response?.status === 423) {
+        setReview({ code: 'ACCOUNT_LOCKED', message: err.response.data.message });
+        return;
+      }
       if (code === 'ACCOUNT_UNDER_REVIEW' || code === 'ACCOUNT_REJECTED') {
         setReview({ code, message: err.response.data.message });
         return;
@@ -55,6 +74,12 @@ const Login = () => {
 
   return (
     <AuthShell>
+      {idleNotice && !review && (
+        <div role="status" className="mb-4 flex items-start gap-2 rounded-xl bg-sky-100 px-4 py-3 text-sm text-sky-900 dark:bg-sky-500/10 dark:text-sky-200">
+          <FiClock className="mt-0.5 shrink-0" />
+          <span>{t('auth.idleSignedOut')}</span>
+        </div>
+      )}
       {review && (
         <div
           role="alert"
@@ -64,7 +89,9 @@ const Login = () => {
         >
           <FiClock className="mt-0.5 shrink-0" />
           <span>
-            <b className="block">{review.code === 'ACCOUNT_UNDER_REVIEW' ? t('reg.reviewTitle') : t('reg.rejectedTitle')}</b>
+            <b className="block">
+              {review.code === 'ACCOUNT_UNDER_REVIEW' ? t('reg.reviewTitle') : review.code === 'ACCOUNT_LOCKED' ? t('auth.lockedTitle') : t('reg.rejectedTitle')}
+            </b>
             {review.message}
           </span>
         </div>

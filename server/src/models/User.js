@@ -63,6 +63,10 @@ const userSchema = new mongoose.Schema(
     // restore archived residents and announcements. Never settable through the API.
     isSuperAdmin: { type: Boolean, default: false },
 
+    // Failed logins since the last success; reaching the limit locks the account until lockUntil.
+    failedLoginAttempts: { type: Number, default: 0, select: false },
+    lockUntil: { type: Date, select: false },
+
     qrCode: { type: String, unique: true, sparse: true }, // unique id used for event attendance / verification
 
     // Human-readable barangay ID shown in the topbar and resident table, e.g. "MG-2026-0142".

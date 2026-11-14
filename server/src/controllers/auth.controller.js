@@ -4,7 +4,7 @@ const ApiError = require('../utils/ApiError');
 const ApiResponse = require('../utils/ApiResponse');
 const User = require('../models/User');
 const PendingRegistration = require('../models/PendingRegistration');
-const { ROLES, NOTIFICATION_TYPE } = require('../config/constants');
+const { ROLES, NOTIFICATION_TYPE, LOGIN_LOCKOUT } = require('../config/constants');
 const { issueAuthTokens, generateAccessToken, generateResetToken } = require('../utils/generateTokens');
 const { uploadBuffer } = require('../services/cloudinary.service');
 const { notifyRole } = require('../services/notification.service');
@@ -172,8 +172,34 @@ const resendVerification = catchAsync(async (req, res) => {
 const login = catchAsync(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password +failedLoginAttempts +lockUntil');
+
+  // Panel revision: repeated failed attempts lock the account for a while.
+  const { MAX_ATTEMPTS, LOCK_MINUTES } = LOGIN_LOCKOUT;
+  const lockedMessage = (until) => {
+    const minutes = Math.max(1, Math.ceil((until - Date.now()) / 60000));
+    return `Your account is temporarily locked after ${MAX_ATTEMPTS} failed login attempts. Please try again in ${minutes} minute${minutes === 1 ? '' : 's'}, or reset your password.`;
+  };
+  if (user?.lockUntil && user.lockUntil > Date.now()) throw new ApiError(423, lockedMessage(user.lockUntil));
+
   if (!user || !(await user.comparePassword(password))) {
+    if (user) {
+      // Atomic count so simultaneous wrong guesses are all counted; an expired lock starts a fresh count.
+      const expired = user.lockUntil && user.lockUntil <= Date.now();
+      const updated = await User.findByIdAndUpdate(
+        user._id,
+        expired ? { $set: { failedLoginAttempts: 1 }, $unset: { lockUntil: 1 } } : { $inc: { failedLoginAttempts: 1 } },
+        { new: true }
+      ).select('+failedLoginAttempts');
+      if (updated.failedLoginAttempts >= MAX_ATTEMPTS) {
+        const lockUntil = new Date(Date.now() + LOCK_MINUTES * 60000);
+        await User.updateOne({ _id: user._id }, { $set: { lockUntil, failedLoginAttempts: 0 } });
+        await writeLog({ req, action: 'ACCOUNT_LOCKED', module: 'auth', description: `${user.email} locked for ${LOCK_MINUTES} minutes after ${MAX_ATTEMPTS} failed logins` });
+        throw new ApiError(423, lockedMessage(lockUntil));
+      }
+      const left = MAX_ATTEMPTS - updated.failedLoginAttempts;
+      throw ApiError.unauthorized(`Incorrect email or password. ${left} attempt${left === 1 ? '' : 's'} left before your account is temporarily locked.`);
+    }
     throw ApiError.unauthorized('Incorrect email or password.');
   }
 
@@ -182,6 +208,8 @@ const login = catchAsync(async (req, res) => {
   assertApproved(user);
 
   user.lastLoginAt = new Date();
+  user.failedLoginAttempts = 0;
+  user.lockUntil = undefined;
   await user.save({ validateBeforeSave: false });
 
   const accessToken = issueAuthTokens(res, user);
@@ -250,6 +278,9 @@ const resetPassword = catchAsync(async (req, res) => {
   if (!user) throw ApiError.notFound('User not found.');
 
   user.password = password;
+  // Resetting the password also lifts a temporary lock.
+  user.failedLoginAttempts = 0;
+  user.lockUntil = undefined;
   await user.save();
 
   await writeLog({ req, action: 'PASSWORD_RESET', module: 'auth', description: `${user.email} reset their password` });

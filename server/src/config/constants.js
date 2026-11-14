@@ -1,5 +1,8 @@
 // Centralized enums so models, controllers, and validators never redefine the same lists.
 
+// Panel revision: an account locks for a while after repeated failed logins.
+const LOGIN_LOCKOUT = Object.freeze({ MAX_ATTEMPTS: 5, LOCK_MINUTES: 15 });
+
 const ROLES = Object.freeze({
   RESIDENT: 'resident',
   OFFICIAL: 'official',
@@ -146,6 +149,7 @@ const INCIDENT_REPORT_RADIUS_M = 150;
 const INCIDENT_VALIDATION_THRESHOLD = 3;
 
 module.exports = {
+  LOGIN_LOCKOUT,
   MAGDIWANG_CENTER,
   MAGDIWANG_BOUNDS,
   isInsideMagdiwang,

@@ -168,7 +168,12 @@ const updateAccount = catchAsync(async (req, res) => {
     user.email = next;
   }
   // The save hook hashes the password and signs the user out of existing sessions.
-  if (password) user.password = password;
+  if (password) {
+    user.password = password;
+    // A new password set by an admin also lifts a temporary lock.
+    user.failedLoginAttempts = 0;
+    user.lockUntil = undefined;
+  }
   await user.save({ validateModifiedOnly: true });
 
   await writeLog({
