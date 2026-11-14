@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import { FiEye, FiCheckCircle, FiMap, FiList, FiSearch } from 'react-icons/fi';
+import { FiEye, FiCheckCircle, FiMap, FiList, FiSearch, FiArchive } from 'react-icons/fi';
 import usePaginatedFetch from '../../hooks/usePaginatedFetch';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import api from '../../utils/api';
@@ -27,6 +27,7 @@ const Incidents = () => {
   const [view, setView] = useState('list');
   const [overview, setOverview] = useState(null);
   const [resolving, setResolving] = useState(null);
+  const [archiving, setArchiving] = useState(null);
   const [note, setNote] = useState('');
 
   const loadOverview = () => api.get('/reports/overview').then(({ data }) => setOverview(data.data)).catch(() => {});
@@ -58,6 +59,18 @@ const Incidents = () => {
       refresh();
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to resolve');
+    }
+  };
+
+  // Panel revision: incident reports can be archived (restored by the super admin from the Archive).
+  const archive = async () => {
+    try {
+      await api.patch(`/incidents/${archiving._id}/archive`, {});
+      toast.success(`${archiving.referenceCode} archived`);
+      setArchiving(null);
+      refresh();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Failed to archive');
     }
   };
 
@@ -172,6 +185,9 @@ const Incidents = () => {
                               <FiCheckCircle />
                             </button>
                           )}
+                          <button onClick={() => setArchiving(r)} className="rounded-lg p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10" title="Archive" aria-label="Archive">
+                            <FiArchive />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -204,6 +220,16 @@ const Incidents = () => {
             />
           </span>
         }
+      />
+
+      <ConfirmDialog
+        isOpen={!!archiving}
+        onClose={() => setArchiving(null)}
+        onConfirm={archive}
+        title={`Archive ${archiving?.referenceCode || ''}`}
+        message="This report will be removed from Incident Management and the map. The super admin can restore it from the Archive."
+        confirmLabel="Archive"
+        danger
       />
     </div>
   );
