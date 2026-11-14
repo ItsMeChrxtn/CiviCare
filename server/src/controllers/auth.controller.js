@@ -281,7 +281,7 @@ const resetPassword = catchAsync(async (req, res) => {
   // Resetting the password also lifts a temporary lock.
   user.failedLoginAttempts = 0;
   user.lockUntil = undefined;
-  await user.save();
+  await user.save({ validateModifiedOnly: true });
 
   await writeLog({ req, action: 'PASSWORD_RESET', module: 'auth', description: `${user.email} reset their password` });
 
@@ -298,7 +298,7 @@ const changePassword = catchAsync(async (req, res) => {
   }
 
   user.password = newPassword;
-  await user.save();
+  await user.save({ validateModifiedOnly: true });
 
   res.status(200).json(new ApiResponse(200, null, 'Password changed successfully.'));
 });

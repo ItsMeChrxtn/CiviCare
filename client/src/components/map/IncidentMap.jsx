@@ -7,11 +7,12 @@ import useSetting from '../../hooks/useSetting';
 import useSocketEvent from '../../hooks/useSocketEvent';
 import { DEFAULT_MAP_CENTER, MAP_LIMITS, INCIDENT_PIN_COLORS, categoryLabel } from '../../utils/constants';
 
+// Panel revision: only active incidents are pinned; resolved ones stay in the records.
 const LEGEND = [
   ['pending', 'Pending'],
   ['ongoing', 'Ongoing'],
-  ['resolved', 'Resolved (7 days)'],
 ];
+const onMap = (incident) => incident.status !== 'resolved' && !incident.isArchived;
 
 /** Officials' real-time incident map: new reports appear instantly via Socket.IO. */
 const IncidentMap = ({ height = '22rem' }) => {
@@ -19,11 +20,12 @@ const IncidentMap = ({ height = '22rem' }) => {
   const [incidents, setIncidents] = useState([]);
 
   useEffect(() => {
-    api.get('/incidents/map').then(({ data }) => setIncidents(data.data)).catch(() => {});
+    api.get('/incidents/map').then(({ data }) => setIncidents(data.data.filter(onMap))).catch(() => {});
   }, []);
 
+  // Live updates: a report that becomes resolved drops off the map right away.
   const upsert = (incident) =>
-    setIncidents((list) => [incident, ...list.filter((i) => i._id !== incident._id)]);
+    setIncidents((list) => [...(onMap(incident) ? [incident] : []), ...list.filter((i) => i._id !== incident._id)]);
   useSocketEvent('incident:new', upsert);
   useSocketEvent('incident:updated', upsert);
 

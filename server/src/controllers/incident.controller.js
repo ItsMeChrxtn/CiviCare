@@ -166,14 +166,11 @@ const getAllIncidents = catchAsync(async (req, res) => {
 });
 
 // @route GET /api/incidents/map
-// Residents see active incidents only; officials also get incidents resolved in the
-// last 7 days so the green "Resolved" pins on the officials' map have something to show.
+// Panel revision: the map shows active incidents only. Resolved reports leave the map but stay in
+// Incident Management and the records.
 const getIncidentsForMap = catchAsync(async (req, res) => {
   const isStaff = [ROLES.OFFICIAL, ROLES.ADMIN].includes(req.user.role);
-  const recent = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  const filter = isStaff
-    ? { isArchived: false, $or: [{ status: { $ne: INCIDENT_STATUS.RESOLVED } }, { resolvedAt: { $gte: recent } }] }
-    : { isArchived: false, status: { $ne: INCIDENT_STATUS.RESOLVED } };
+  const filter = { isArchived: false, status: { $ne: INCIDENT_STATUS.RESOLVED } };
 
   const incidents = await Incident.find(filter).select(
     `title category severity status location referenceCode createdAt reportCount isValidated${isStaff ? ' verification' : ''}`
@@ -241,7 +238,7 @@ const assignIncident = catchAsync(async (req, res) => {
     updatedBy: req.user._id,
     note: `Responder assigned: ${responder.firstName} ${responder.lastName}`,
   });
-  await incident.save();
+  await incident.save({ validateModifiedOnly: true });
 
   if (wasPending) await notifyReporterOfStatus(incident, 'A responder has been assigned.');
   deliverSms({
@@ -272,7 +269,7 @@ const updateIncidentSeverity = catchAsync(async (req, res) => {
   if (!incident) throw ApiError.notFound('Incident not found');
 
   incident.severity = severity;
-  await incident.save();
+  await incident.save({ validateModifiedOnly: true });
   emitIncidentChange('incident:updated', incident);
 
   await writeLog({ req, action: 'INCIDENT_PRIORITY', module: 'incidents', description: `${incident.referenceCode} assessed as ${severity}` });
@@ -294,7 +291,7 @@ const updateIncidentStatus = catchAsync(async (req, res) => {
     incident.resolvedAt = new Date();
     incident.resolutionNote = note;
   }
-  await incident.save();
+  await incident.save({ validateModifiedOnly: true });
 
   await notifyReporterOfStatus(incident, note);
   emitIncidentChange('incident:updated', incident);

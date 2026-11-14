@@ -52,7 +52,7 @@ const respondToFeedback = catchAsync(async (req, res) => {
   feedback.status = status || 'resolved';
   feedback.respondedBy = req.user._id;
   feedback.respondedAt = new Date();
-  await feedback.save();
+  await feedback.save({ validateModifiedOnly: true });
 
   if (!feedback.isAnonymous) {
     await notifyUser({

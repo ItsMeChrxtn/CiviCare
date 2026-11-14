@@ -220,7 +220,7 @@ const markProcessing = catchAsync(async (req, res) => {
 
   document.status = DOCUMENT_STATUS.PROCESSING;
   document.reviewedBy = req.user._id;
-  await document.save();
+  await document.save({ validateModifiedOnly: true });
 
   await notifyRequester(
     document,
@@ -248,7 +248,7 @@ const reviewDocument = catchAsync(async (req, res) => {
   if (decision === 'rejected') {
     document.status = DOCUMENT_STATUS.REJECTED;
     document.rejectionReason = rejectionReason;
-    await document.save();
+    await document.save({ validateModifiedOnly: true });
 
     await notifyRequester(
       document,
@@ -323,7 +323,7 @@ const reviewDocument = catchAsync(async (req, res) => {
   document.verificationHash = verificationHash;
   document.status = DOCUMENT_STATUS.READY;
   document.issuedAt = issuedAt;
-  await document.save();
+  await document.save({ validateModifiedOnly: true });
 
   await notifyRequester(
     document,
@@ -352,7 +352,7 @@ const markClaimed = catchAsync(async (req, res) => {
 
   document.status = DOCUMENT_STATUS.CLAIMED;
   document.claimedAt = new Date();
-  await document.save();
+  await document.save({ validateModifiedOnly: true });
 
   await writeLog({ req, action: 'DOCUMENT_CLAIM', module: 'documents', description: `${document.referenceCode} claimed` });
 

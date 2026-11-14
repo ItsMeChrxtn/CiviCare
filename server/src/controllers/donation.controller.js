@@ -117,7 +117,7 @@ const updateDonationStatus = catchAsync(async (req, res) => {
     donation.acknowledgedAt = new Date();
     donation.acknowledgementNote = acknowledgementNote;
   }
-  await donation.save();
+  await donation.save({ validateModifiedOnly: true });
 
   await notifyUser({
     recipient: donation.donor,
@@ -144,7 +144,7 @@ const cancelDonation = catchAsync(async (req, res) => {
 
   donation.status = DONATION_STATUS.CANCELLED;
   donation.acknowledgementNote = req.body.reason?.trim() || donation.acknowledgementNote;
-  await donation.save();
+  await donation.save({ validateModifiedOnly: true });
 
   const staff = await require('../models/User').find({ role: { $in: [ROLES.OFFICIAL, ROLES.ADMIN] }, isArchived: false }).select('_id');
   await notifyRole({
